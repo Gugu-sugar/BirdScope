@@ -9,11 +9,34 @@ This document is the authoritative specification for any AI agent working on the
 **BirdScope** is a 3D bird observation map platform built on eBird/GBIF data.
 
 - **Backend stack**: Python 3.11+, FastAPI, SQLAlchemy 2.x, PostGIS, GeoServer 2.28.1
-- **Database**: PostgreSQL 16 + PostGIS 3.4, database name `birdscope`
+- **Database**: PostgreSQL 16 + PostGIS 3.4, database name `birdscope` (already created and populated with dev sample)
 - **Data source**: GBIF Simple CSV download (~15 GB TSV, UTF-8, tab-separated), ~27.6M rows of bird observations, stored at `D:/EBIRD/0009321-260519110011954.csv`
-- **Processed data**: spatially thinned global subset, ~2–4M rows imported to PostGIS (see Data Pipeline section)
+- **Processed data**: spatially thinned global subset target ~2–4M rows (full pipeline not yet run; dev sample of 2000 rows is live)
 - **API prefix**: `/api/v1`
-- **Working directory for backend code**: `backend/`
+- **Working directory for backend code**: `backend/` — all `from app.xxx` imports assume cwd is `backend/`
+
+### Python Environment
+
+Use `D:/conda_env/conda_envs/devgis/python.exe` — the system `python` is ArcGIS Pro's environment and does not have the required packages.
+
+### Starting the Server
+
+```python
+# Must set cwd to backend/ first — Chinese path in Windows requires explicit chdir
+import os, subprocess
+os.chdir(r'C:\Users\25316\Desktop\开发\大程\backend')
+subprocess.Popen([
+    r'D:/conda_env/conda_envs/devgis/python.exe', '-m', 'uvicorn',
+    'app.main:app', '--host', '0.0.0.0', '--port', '8000'
+])
+```
+
+Or from a terminal already in `backend/`:
+```
+D:/conda_env/conda_envs/devgis/python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+**Note**: `http_proxy` is set in this environment (port 7897). When testing with curl, use `--noproxy localhost`. When testing with Python, unset `os.environ['http_proxy']` first.
 
 ---
 
@@ -48,10 +71,10 @@ backend/
 │       ├── spatial.py
 │       └── geoserver.py
 ├── scripts/
-│   ├── init_db.sql      # Run once to create tables and indexes
-│   ├── prepare_sample.py
-│   ├── import_sample.py
-│   └── build_grid.py
+│   ├── init_db.sql         # Run once to create tables and indexes (idempotent)
+│   ├── prepare_global.py   # Stream 15GB TSV → spatially thinned global_thinned.tsv
+│   ├── import_to_pg.py     # Bulk import TSV → occurrence_clean + species_lookup
+│   └── build_grid.py       # Aggregate occurrence_clean → occurrence_grid_monthly
 ├── test_data/
 │   ├── cn_sample_records.tsv   # 500-row sample, tab-separated, UTF-8
 │   ├── sample_summary.json
@@ -543,11 +566,16 @@ class GridFeatureProperties(BaseModel):
 
 ## Test Data
 
-`backend/test_data/cn_sample_records.tsv`:
-- 500 rows, tab-separated, UTF-8
-- Columns: `gbifID, species, scientificName, countryCode, stateProvince, locality, individualCount, decimalLatitude, decimalLongitude, eventDate`
-- All rows are China (`CN`) observations, Aug–Nov 2024
-- Use this to run the full import pipeline and verify all API endpoints before touching the 15 GB file
+**Primary dev sample: `backend/test_data/dev_sample.tsv`**
+- 2000 rows, tab-separated, UTF-8
+- All 20 columns matching `occurrence_clean` exactly
+- 10 countries (AU, IN, GB, BR, CN, TW, ZA, DE, CO, AR) × 4 months (8–11) × 50 rows each
+- 29 rows with null `species` (tests fallback to `scientific_name`)
+- 108 rows with null `individual_count` (tests NULL handling)
+- Use this as the primary dataset for pipeline and API development
+
+**Legacy: `backend/test_data/cn_sample_records.tsv`**
+- 500 rows, China only, 10 columns — do not use for new development
 
 ---
 

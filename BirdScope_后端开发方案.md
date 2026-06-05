@@ -1,12 +1,25 @@
 # BirdScope 后端开发方案
 
-> 版本：v1.1 | 日期：2026-06-04 | 作者：后端负责人
+> 版本：v1.2 | 日期：2026-06-05 | 作者：后端负责人
 
 ---
 
 ## 一、方案定位
 
 本文档面向后端独立开发者，覆盖从数据导入到 API 上线的完整路径。目标是用 **FastAPI + PostGIS + GeoServer 2.28.1** 支撑前端 Cesium 三维地图的所有数据需求，**一周内**完成 API 可用状态。
+
+### 当前进度（2026-06-05）
+
+| 阶段 | 状态 |
+|------|------|
+| 目录结构 + 三层架构代码 | ✅ 完成 |
+| 数据库建表（3张表 + 索引）| ✅ 完成 |
+| dev_sample.tsv 导入（2000条全球样本）| ✅ 完成 |
+| 全部 API 接口（occurrence / species / stats / geoserver）| ✅ 完成 |
+| FastAPI 服务启动、/docs 可访问 | ✅ 完成 |
+| 全量数据处理（prepare_global.py → import）| ⏳ 待做（第4天）|
+| 热力聚合表 build_grid.py | ⏳ 待做（第4天）|
+| GeoServer 图层发布 | ⏳ 待做（第5天）|
 
 ---
 
@@ -98,18 +111,32 @@ APP_PORT=8000
 DEBUG=true
 ```
 
-### 3.2 数据库初始化
+### 3.2 数据库初始化（✅ 已完成）
 
 ```sql
--- 在 psql 中执行（一次性）
 CREATE DATABASE birdscope;
 \c birdscope
 CREATE EXTENSION IF NOT EXISTS postgis;
 ```
 
-然后运行 `scripts/init_db.sql` 建表（幂等，重复运行无害）。
+已运行 `scripts/init_db.sql` 建表，已导入 dev_sample.tsv（2000条）。
 
-### 3.3 GeoServer 手动前置步骤（一次性，在 Web 界面操作）
+### 3.3 启动服务
+
+**Python 环境**：使用 `D:\conda_env\conda_envs\devgis\python.exe`（系统默认 python 是 ArcGIS Pro 环境，没有所需依赖）。
+
+```powershell
+# 方式一：PowerShell
+$env:PYTHONPATH=""
+Set-Location "C:\Users\25316\Desktop\开发\大程\backend"
+D:\conda_env\conda_envs\devgis\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+访问 `http://localhost:8000/docs` 查看 Swagger UI。
+
+**注意**：本机设置了代理 `127.0.0.1:7897`，用浏览器访问 localhost 前，确保代理已关闭或设置了 localhost 直连。
+
+### 3.4 GeoServer 手动前置步骤（一次性，在 Web 界面操作）
 
 1. 登录 `http://localhost:8080/geoserver`
 2. 新建工作空间：名称 `birdscope`，命名空间 URI `http://birdscope.local`
@@ -304,49 +331,36 @@ CREATE INDEX IF NOT EXISTS species_fts_idx ON species_lookup USING GIN (
 
 注意：流式处理，内存里只维护一个 `seen` 字典（键为上述4元组），不把整个文件读入内存。估计运行时间 20–40 分钟。
 
-### 第一天：环境 + 表结构
+### ✅ 第一天（已完成）：环境 + 表结构 + 框架代码
 
-1. 执行 `CREATE DATABASE birdscope` + 安装 PostGIS 扩展
-2. 写并执行 `scripts/init_db.sql`（建3张表）
-3. 完成 `config.py` + `db.py`，启动 FastAPI 能访问 `/docs`
-4. 用 `test_data/cn_sample_records.tsv` 手动 `COPY` 进表，验证 PostGIS
+- 数据库建表、PostGIS 扩展
+- config / db / deps / models / schemas / services / routers / main.py 全部完成
+- dev_sample.tsv（2000条全球样本）导入成功
+- FastAPI 服务启动，9 个接口全部验证通过
 
-### 第二天：核心 API（用样本数据）
+### 第二天：写 `scripts/prepare_global.py` + 全量导入
 
-1. `models/` 三个 ORM 类
-2. `schemas/occurrence.py` + `routers/occurrence.py`（`/points` + `/within`）
-3. `services/spatial.py`（bbox / within / buffer 查询封装）
-4. 跑通 `/docs` 测试，确认 GeoJSON 格式正确
+1. 参考方案文档中的降采样策略，写 `prepare_global.py`
+2. 运行：约 30 分钟，输出 `backend/data/global_thinned.tsv`
+3. 运行 `import_to_pg.py --input backend/data/global_thinned.tsv`（约 20 分钟）
+4. 运行 `build_grid.py` 生成热力聚合表
 
-### 第三天：完成所有 API
+### 第三天：GeoServer 图层发布
 
-1. `routers/species.py`（search + rank）
-2. `routers/stats.py`（monthly + province + grid + migration）
-3. `routers/geoserver.py` + `services/geoserver.py`
-
-### 第四天：跑全量数据
-
-1. 运行 `scripts/prepare_global.py`（约 30 分钟）
-2. 运行 `scripts/import_to_pg.py` 批量导入（约 10–20 分钟）
-3. 构建索引
-4. 运行 `scripts/build_grid.py` 生成热力聚合表
-
-### 第五天：GeoServer 图层发布
-
-1. GeoServer Web UI 确认 workspace + datastore 已建
+1. GeoServer Web UI 建 workspace `birdscope` + datastore `birdscope_pg`
 2. 调 `POST /api/v1/geoserver/layers` 发布 `occurrence_grid_monthly` 为 WMS 图层
-3. 在 GeoServer 中配置 SLD 样式（分级配色）
-4. 前端测试 WMS 是否可以加载
+3. 配置 SLD 分级配色样式
+4. 前端测试 WMS 加载
 
-### 第六天：联调 + 修补
+### 第四天：前端联调
 
 - 根据前端实际请求调整响应格式
-- 补全 CORS 配置
-- 压测 `/stats/grid` 和 `/occurrence/points` 响应时间（目标 < 500ms）
+- 压测 `/stats/grid` 和 `/occurrence/points`（目标 < 500ms）
+- 处理任何 CORS 或格式问题
 
-### 第七天：缓冲区 + 迁徙路径 + 文档
+### 第五天：收尾
 
-- 补完 `/occurrence/buffer` 和 `/stats/migration`
+- 补 `scripts/build_grid.py`（生成 0.5度和 0.1度聚合层）
 - 写 README 启动说明
 - 备份数据库
 
