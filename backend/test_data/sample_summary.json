@@ -1,0 +1,467 @@
+{
+  "source": "0009321-260519110011954.csv",
+  "file_size_bytes": 15077768379,
+  "sample_rows_requested": 200000,
+  "sample_rows_read": 200000,
+  "field_count": 50,
+  "latlon_present": 200000,
+  "individualCount_present": 187372,
+  "target_countryCode": "CN",
+  "target_rows": 1919,
+  "target_rows_with_individualCount": 1791,
+  "target_individualCount_sum": 17293,
+  "blank_by_field": {
+    "infraspecificEpithet": 200000,
+    "verbatimScientificNameAuthorship": 200000,
+    "coordinateUncertaintyInMeters": 200000,
+    "coordinatePrecision": 200000,
+    "elevation": 200000,
+    "elevationAccuracy": 200000,
+    "depth": 200000,
+    "depthAccuracy": 200000,
+    "recordNumber": 200000,
+    "identifiedBy": 200000,
+    "dateIdentified": 200000,
+    "rightsHolder": 200000,
+    "typeStatus": 200000,
+    "establishmentMeans": 200000,
+    "mediaType": 200000,
+    "species": 2752,
+    "speciesKey": 2752,
+    "individualCount": 12628,
+    "order": 468,
+    "family": 468,
+    "genus": 23
+  },
+  "top": {
+    "countryCode": [
+      [
+        "AU",
+        25359
+      ],
+      [
+        "IN",
+        22694
+      ],
+      [
+        "GB",
+        16694
+      ],
+      [
+        "BR",
+        15387
+      ],
+      [
+        "ES",
+        13082
+      ],
+      [
+        "CO",
+        11568
+      ],
+      [
+        "AR",
+        8315
+      ],
+      [
+        "TW",
+        4810
+      ],
+      [
+        "EC",
+        4672
+      ],
+      [
+        "PE",
+        4520
+      ],
+      [
+        "ZA",
+        4380
+      ],
+      [
+        "CL",
+        4085
+      ],
+      [
+        "PT",
+        3813
+      ],
+      [
+        "DE",
+        3646
+      ],
+      [
+        "NZ",
+        2815
+      ]
+    ],
+    "order": [
+      [
+        "Passeriformes",
+        103250
+      ],
+      [
+        "Charadriiformes",
+        16984
+      ],
+      [
+        "Columbiformes",
+        11187
+      ],
+      [
+        "Pelecaniformes",
+        10459
+      ],
+      [
+        "Anseriformes",
+        9499
+      ],
+      [
+        "Accipitriformes",
+        8016
+      ],
+      [
+        "Psittaciformes",
+        5710
+      ],
+      [
+        "Piciformes",
+        4615
+      ],
+      [
+        "Apodiformes",
+        4208
+      ],
+      [
+        "Coraciiformes",
+        4194
+      ],
+      [
+        "Gruiformes",
+        4126
+      ],
+      [
+        "Suliformes",
+        3557
+      ],
+      [
+        "Falconiformes",
+        2669
+      ],
+      [
+        "Cuculiformes",
+        2646
+      ],
+      [
+        "Galliformes",
+        2093
+      ]
+    ],
+    "family": [
+      [
+        "Columbidae",
+        11187
+      ],
+      [
+        "Anatidae",
+        9377
+      ],
+      [
+        "Corvidae",
+        8167
+      ],
+      [
+        "Ardeidae",
+        8052
+      ],
+      [
+        "Thraupidae",
+        6852
+      ],
+      [
+        "Accipitridae",
+        6525
+      ],
+      [
+        "Tyrannidae",
+        6471
+      ],
+      [
+        "Laridae",
+        5950
+      ],
+      [
+        "Muscicapidae",
+        5834
+      ],
+      [
+        "Psittacidae",
+        5635
+      ],
+      [
+        "Scolopacidae",
+        5263
+      ],
+      [
+        "Fringillidae",
+        4995
+      ],
+      [
+        "Hirundinidae",
+        4906
+      ],
+      [
+        "Turdidae",
+        4146
+      ],
+      [
+        "Sturnidae",
+        4022
+      ]
+    ],
+    "species": [
+      [
+        "Columba livia",
+        2189
+      ],
+      [
+        "Passer domesticus",
+        1915
+      ],
+      [
+        "Turdus merula",
+        1576
+      ],
+      [
+        "Columba palumbus",
+        1512
+      ],
+      [
+        "Ardea cinerea",
+        1473
+      ],
+      [
+        "Erithacus rubecula",
+        1412
+      ],
+      [
+        "Anas platyrhynchos",
+        1332
+      ],
+      [
+        "Pica pica",
+        1315
+      ],
+      [
+        "Parus major",
+        1308
+      ],
+      [
+        "Hirundo rustica",
+        1249
+      ],
+      [
+        "Phalacrocorax carbo",
+        1236
+      ],
+      [
+        "Egretta garzetta",
+        1205
+      ],
+      [
+        "Ardea alba",
+        1197
+      ],
+      [
+        "Acridotheres tristis",
+        1151
+      ],
+      [
+        "Sturnus vulgaris",
+        1148
+      ]
+    ],
+    "year": [
+      [
+        "2024",
+        200000
+      ]
+    ],
+    "basisOfRecord": [
+      [
+        "HUMAN_OBSERVATION",
+        200000
+      ]
+    ],
+    "issue": [
+      [
+        "CONTINENT_DERIVED_FROM_COORDINATES",
+        200000
+      ],
+      [
+        "TAXON_CONCEPT_ID_NOT_FOUND",
+        200000
+      ],
+      [
+        "COORDINATE_ROUNDED",
+        39363
+      ],
+      [
+        "TAXON_MATCH_HIGHERRANK",
+        2752
+      ],
+      [
+        "TAXON_MATCH_FUZZY",
+        506
+      ],
+      [
+        "COUNTRY_DERIVED_FROM_COORDINATES",
+        120
+      ],
+      [
+        "COUNTRY_INVALID",
+        109
+      ],
+      [
+        "COUNTRY_COORDINATE_MISMATCH",
+        31
+      ],
+      [
+        "PRESUMED_SWAPPED_COORDINATE",
+        1
+      ]
+    ],
+    "target_stateProvince": [
+      [
+        "Beijing",
+        357
+      ],
+      [
+        "Zhejiang",
+        344
+      ],
+      [
+        "Shanghai",
+        236
+      ],
+      [
+        "Jiangsu",
+        171
+      ],
+      [
+        "Guangdong",
+        136
+      ],
+      [
+        "Yunnan",
+        118
+      ],
+      [
+        "Sichuan",
+        66
+      ],
+      [
+        "Fujian",
+        62
+      ],
+      [
+        "Tianjin",
+        48
+      ],
+      [
+        "Hubei",
+        47
+      ],
+      [
+        "Xizang",
+        47
+      ],
+      [
+        "Shandong",
+        45
+      ],
+      [
+        "Hebei",
+        41
+      ],
+      [
+        "Qinghai",
+        29
+      ],
+      [
+        "Hainan",
+        24
+      ]
+    ],
+    "target_species": [
+      [
+        "Pycnonotus sinensis",
+        53
+      ],
+      [
+        "Motacilla alba",
+        42
+      ],
+      [
+        "Spilopelia chinensis",
+        41
+      ],
+      [
+        "Pica serica",
+        41
+      ],
+      [
+        "Passer montanus",
+        40
+      ],
+      [
+        "Parus cinereus",
+        39
+      ],
+      [
+        "Tachybaptus ruficollis",
+        39
+      ],
+      [
+        "Gallinula chloropus",
+        36
+      ],
+      [
+        "Cyanopica cyanus",
+        36
+      ],
+      [
+        "Ardea cinerea",
+        31
+      ],
+      [
+        "Egretta garzetta",
+        29
+      ],
+      [
+        "Anas platyrhynchos",
+        28
+      ],
+      [
+        "Turdus mandarinus",
+        28
+      ],
+      [
+        "Lanius schach",
+        25
+      ],
+      [
+        "Streptopelia orientalis",
+        23
+      ]
+    ]
+  },
+  "target_sample_path": "mini_outputs\\cn_sample_records.tsv",
+  "row_estimate": {
+    "estimate_sample_rows": 200000,
+    "estimate_sample_bytes": 109046371,
+    "average_data_row_bytes": 545.23,
+    "estimated_total_rows": 27654025
+  }
+}

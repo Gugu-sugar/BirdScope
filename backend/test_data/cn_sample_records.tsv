@@ -1,0 +1,501 @@
+gbifID	species	scientificName	countryCode	stateProvince	locality	individualCount	decimalLatitude	decimalLongitude	eventDate
+5681148463	Copsychus saularis	Copsychus saularis (Linnaeus, 1758)	CN	Guangdong	Shahe West Road, Shenzhen CN-Guangdong (22.5503,113.9590)	1	22.550348	113.95904	2024-08-01
+5461751131	Spilopelia chinensis	Spilopelia chinensis (Scopoli, 1786)	CN	Beijing	绿堤公园 (Green Bank Park)	1	39.839207	116.221466	2024-08-05
+5566353516	Anas platyrhynchos	Anas platyrhynchos Linnaeus, 1758	CN	Jiangsu	太湖大溪港湿地公园 (Taihu Daxigang Wetland Park)	2	31.455774	120.39344	2024-08-12
+5704764891		Tachyspiza Kaup, 1844	CN	Zhejiang	黄岩--太湖山 (Huangyan--Taihu Mountain)	2	28.506845	121.17076	2024-08-18
+5484650321	Hypsipetes leucocephalus	Hypsipetes leucocephalus (Gmelin, 1789)	CN	Zhejiang	宝石山 (Baoshi Mountain)	5	30.257992	120.139755	2024-08-16
+5460451846	Ardea cinerea	Ardea cinerea Linnaeus, 1758	CN	Tianjin	西西海湿地 (Xixihai Wetlands)	5	38.920303	117.18989	2024-08-24
+5472235112	Falco subbuteo	Falco subbuteo Linnaeus, 1758	CN	Beijing	野鸭湖 (Wild Duck Lake)	1	40.409576	115.84682	2024-08-24
+5504626830	Lanius cristatus	Lanius cristatus Linnaeus, 1758	CN	Shanghai	奉贤滩涂湿地 (Fengxian Coastal Wetlands)	1	30.831656	121.61893	2024-08-25
+5510045763	Muscicapa sibirica	Muscicapa sibirica Gmelin, 1789	CN	Tianjin	绿道公园二期	4	39.07404	117.21145	2024-08-25
+5494515839	Cisticola juncidis	Cisticola juncidis (Rafinesque, 1810)	CN	Shanghai	崇明东滩鸟类自然保护区 (Chongming Dongtan NNR)	6	31.49514	121.96472	2024-08-26
+5388770751	Egretta garzetta	Egretta garzetta (Linnaeus, 1766)	CN	Guangdong	富祥湾南部海堤路	30	22.090979	113.55461	2024-08-29
+5378751931	Spilopelia chinensis	Spilopelia chinensis (Scopoli, 1786)	CN	Beijing	沙河水库--巩华城半岛 (Shahe Reservoir--Gonghuacheng Peninsula)	2	40.132576	116.299835	2024-08-29
+5318396463	Cuculus canorus	Cuculus canorus Linnaeus, 1758	CN	Gansu	高崖水库	1	35.678223	104.21821	2024-08-30
+5433584774	Ardeola bacchus	Ardeola bacchus (Bonaparte, 1855)	CN	Shanghai	东日湿地 (Dongri Wetlands)	1	30.931944	121.912224	2024-08-25
+5597241189	Lanius cristatus	Lanius cristatus Linnaeus, 1758	CN	Zhejiang	严家屋--融创海滨 (Yanjiawu--Sunac Coast)	1	30.54024	120.98132	2024-09-02
+5439612607	Upupa epops	Upupa epops Linnaeus, 1758	CN	Shanghai	共青森林公园 (Gongqing Forest Park)	1	31.318123	121.54807	2024-09-02
+5387885997	Lanius schach	Lanius schach Linnaeus, 1758	CN	Yunnan	勐嘎 (Menga Village)	4	24.056183	97.970665	2024-08-10
+5516470237	Zosterops palpebrosus	Zosterops palpebrosus (Temminck, 1824)	CN	Yunnan	苍山--清碧溪 (Cangshan--Qingbi Brook)	4	25.647512	100.14308	2024-08-02
+5620970682	Ardeola bacchus	Ardeola bacchus (Bonaparte, 1855)	CN	Beijing	通明湖公园 (Tongming Lake Park)	3	39.777267	116.576546	2024-09-05
+5373865913	Elanus caeruleus	Elanus caeruleus (Desfontaines, 1789)	CN	Zhejiang	马目乡 (Mamu Countryside)	1	30.15508	121.95165	2024-09-05
+5382348549	Egretta garzetta	Egretta garzetta (Linnaeus, 1766)	CN	Beijing	京西稻智慧农场 (Jingxi Rice Smart Farm)	5	40.095684	116.19516	2024-09-04
+5675365378	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Shanghai	中山公园 (Zhongshan Park)	15	31.221888	121.42007	2024-09-07
+5517050001	Motacilla tschutschensis	Motacilla tschutschensis Gmelin, 1789	CN	Zhejiang	海盐新四季农场 (Haiyan New Season Farm)	1	30.57798	120.89426	2024-09-10
+5444764766	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Shandong	大塘坊村 (Datangfang)	5	35.570976	118.95788	2024-09-03
+5522788564	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Hunan	营盘山公园 (Yingpanshan Park)		26.870747	112.61834	2024-09-10
+5650137550	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Beijing	东坝郊野公园 (Dongba Country Park)	1	39.953182	116.577	2024-09-15
+5678120571	Upupa epops	Upupa epops Linnaeus, 1758	CN	Jiangsu	白鹭园 (Egret Park)	1	31.272264	120.72023	2024-09-15
+5623636834	Falco tinnunculus	Falco tinnunculus Linnaeus, 1758	CN	Beijing	潮白河向阳闸桥段 (Chaobai River at Xiangyang Sluice)	1	40.16924	116.68158	2024-09-16
+5320983748	Spilopelia chinensis	Spilopelia chinensis (Scopoli, 1786)	CN	Zhejiang	下渚湖 (Xiazhu Lake Wetlands)	8	30.517126	120.05321	2024-09-17
+5499145366	Spilopelia chinensis	Spilopelia chinensis (Scopoli, 1786)	CN	Beijing	圆明园 (Old Summer Palace [Yuanming Yuan])	6	40.007866	116.300644	2024-09-17
+5543850858	Aegithina lafresnayei	Aegithina lafresnayei (Hartlaub, 1844)	CN	Yunnan	么等上寨 (Medeng Shangzhai)	2	21.892895	101.21182	2024-09-18
+5619820773	Phoenicurus auroreus	Phoenicurus auroreus (Pallas, 1776)	CN	Hubei	金猴岭原始森林 (Jinhouling Primtive Forest)	1	31.475807	110.31212	2024-09-21
+5346205764	Motacilla cinerea	Motacilla cinerea Tunstall, 1771	CN	Shanghai	后滩公园 (Houtan Park)	1	31.182526	121.470825	2024-09-22
+5463121226	Prinia inornata	Prinia inornata Sykes, 1832	CN	Shanghai	崇明北湖湿地 (Chongming Beihu Wetlands)	1	31.678993	121.62552	2024-09-24
+5542672116	Prinia inornata	Prinia inornata Sykes, 1832	CN	Zhejiang	青山湖 (Qingshan Lake)	15	30.239754	119.75728	2024-09-25
+5505062181	Nycticorax nycticorax	Nycticorax nycticorax (Linnaeus, 1758)	CN	Zhejiang	浙江大学紫金港校区 (Zhejiang University - Zijingang Campus)	2	30.300556	120.08269	2024-09-25
+5564152776	Pycnonotus xanthorrhous	Pycnonotus xanthorrhous Anderson, 1869	CN	Hunan	Zhangjiajie, Hunan, CN (29.417, 110.696)	2	29.416822	110.696075	2024-09-25
+5404743290	Dendrocopos major	Dendrocopos major (Linnaeus, 1758)	CN	Hubei	武汉大学 (Wuhan University)	1	30.539824	114.3633	2024-09-27
+5343136832	Motacilla alba	Motacilla alba Linnaeus, 1758	CN	Sichuan	青龙湖 (Qinglong Lake)	7	30.642256	104.17906	2024-09-27
+5501267409	Numenius phaeopus	Numenius phaeopus (Linnaeus, 1758)	CN	Zhejiang	九龙山国家森林公园 (Jiulongshan National Forest Park)	1	30.592453	121.10064	2024-09-28
+5520291431	Cissa hypoleuca	Cissa hypoleuca Salvadori & Giglioli, 1885	CN	Hainan	三雅村 (Sanya Village)	1	19.264917	109.66334	2024-09-30
+5368830469	Phylloscopus fuscatus	Phylloscopus fuscatus (Blyth, 1842)	CN	Beijing	百望山森林公园 (Baiwangshan Forest Park)	1	40.03307	116.253845	2024-10-01
+5708953129	Pica serica	Pica serica Gould, 1845	CN	Hebei	屯头村(Tuntou Cun)	50	38.185436	114.33123	2024-10-01
+5451782697	Orthotomus sutorius	Orthotomus sutorius (Pennant, 1769)	CN	Guangdong	芒洲湿地公园 (Mangzhou Wetland Park)	2	22.162859	113.44221	2024-10-02
+5634733671	Chroicocephalus ridibundus	Chroicocephalus ridibundus (Linnaeus, 1766)	CN	Hebei	北戴河--滩涂 (Beidaihe--Mudflats)	1000	39.839077	119.516655	2024-10-02
+5535743721	Tringa nebularia	Tringa nebularia (Gunnerus, 1767)	CN	Zhejiang	九龙山国家森林公园 (Jiulongshan National Forest Park)	2	30.592453	121.10064	2024-10-03
+5668849341	Streptopelia decaocto	Streptopelia decaocto (Frivaldszky, 1838)	CN	Beijing	Auto selected 40.53700, 117.10627	1	40.537003	117.10627	2024-10-04
+5460796636	Trochalopteron variegatum	Trochalopteron variegatum (Vigors, 1831)	CN	Xizang	萨勒乡, 日喀则市 CN-西藏自治区 28.34234, 85.43512	1	28.342344	85.43512	2024-10-04
+5354656327	Tachybaptus ruficollis	Tachybaptus ruficollis (Pallas, 1764)	CN	Hubei	东湖绿道 (East Lake Greenway)	30	30.568897	114.39376	2024-10-06
+5464124632	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Shandong	银河公园 (Yinhe Park, Rizhao)	3	35.421894	119.52217	2024-10-06
+5302695233	Delichon urbicum	Delichon lagopodum (Pallas, 1811)	CN	Zhejiang	九龙山国家森林公园 (Jiulongshan National Forest Park)	2	30.592453	121.10064	2024-10-06
+5509861896	Lanius schach	Lanius schach Linnaeus, 1758	CN	Fujian	上龙垱, 鹤上镇, 长乐区, 福州市	3	25.924124	119.5741	2024-10-09
+5421583558	Pycnonotus xanthorrhous	Pycnonotus xanthorrhous Anderson, 1869	CN	Guizhou	Beijiao Lake Wetland Park, Zheng'An		28.556753	107.43295	2024-10-11
+5628221803	Milvus migrans	Milvus migrans (Boddaert, 1783)	CN	Shanghai	崇明东滩鸟类自然保护区 (Chongming Dongtan NNR)	1	31.49514	121.96472	2024-10-13
+5493907317	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Jiangsu	渔洋山 (Yuyang Hill)	2	31.220205	120.37979	2024-10-13
+5394013257	Aethopyga christinae	Aethopyga christinae Swinhoe, 1869	CN	Guangdong	白云山 (Baiyun Mountain)	2	23.18312	113.29759	2024-10-13
+5552849516	Vanellus vanellus	Vanellus vanellus (Linnaeus, 1758)	CN	Jilin	Mawobao maize fields, Zhenlai County	3	46.03543	123.20359	2024-10-14
+5373561733	Vanellus vanellus	Vanellus vanellus (Linnaeus, 1758)	CN	Zhejiang	澉南海堤湿地 (Gannan Coast and Wetlands)	200	30.341824	120.877045	2024-10-20
+5537062605	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Chongqing	Wujian Road, Chongqing CN (29.5726,106.5661)	20	29.5726	106.566124	2024-10-21
+5491028350	Tachybaptus ruficollis	Tachybaptus ruficollis (Pallas, 1764)	CN	Beijing	奥林匹克森林公园北园 (Olympic Forest Park North)	1	40.02712	116.39299	2024-10-20
+5318905136	Paradoxornis heudei	Paradoxornis heudei David, 1872	CN	Shanghai	崇明东滩鸟类自然保护区 (Chongming Dongtan NNR)	24	31.49514	121.96472	2024-10-22
+5542817462	Gallinula chloropus	Gallinula chloropus (Linnaeus, 1758)	CN	Shanghai	柘林镇, 上海市 CN (30.8238,121.4944)	1	30.823753	121.49436	2024-10-22
+5362718015	Falco tinnunculus	Falco tinnunculus Linnaeus, 1758	CN	Guangxi	流下村旁湿地	1	21.458517	109.06331	2024-10-26
+5299105762	Tachybaptus ruficollis	Tachybaptus ruficollis (Pallas, 1764)	CN	Jiangsu	南京中山植物园 (Nanjing Botanical Garden)	1	32.052715	118.83422	2024-10-26
+5543264378	Alauda arvensis	Alauda arvensis Linnaeus, 1758	CN	Beijing	大宁水库及其东部永定河废弃河道 (Daning Reservoir & Adjacent Riverbed)	12	39.829014	116.21707	2024-10-26
+5302952898	Cyanopica cyanus	Cyanopica cyanus (Pallas, 1776)	CN	Guangdong	南沙湿地公园 (Nansha Wetland Park)	6	22.5948	113.63314	2024-10-26
+5513363329	Podiceps cristatus	Podiceps cristatus (Linnaeus, 1758)	CN	Beijing	南海子公园 (Nanhaizi Park)	8	39.777138	116.460594	2024-10-27
+5465444800	Larvivora sibilans	Larvivora sibilans Swinhoe, 1863	CN	Guangxi	广西大学 (Guangxi University)	1	22.84359	108.29258	2024-10-28
+5357531810	Ardea cinerea	Ardea cinerea Linnaeus, 1758	CN	Yunnan	洱海月湿地公园 (Erhai Moon Wetland Park)	5	25.613615	100.230934	2024-10-31
+5632328881	Ardea purpurea	Ardea purpurea Linnaeus, 1766	CN	Fujian	马銮湾--中心地铁站周边 (Maluan Bay--Central Metro Station)	1	24.547834	117.99515	2024-11-02
+5374036094	Pyrrhocorax pyrrhocorax	Pyrrhocorax pyrrhocorax (Linnaeus, 1758)	CN	Qinghai	民南小区	29	33.005905	96.99562	2024-11-02
+5630102756	Streptopelia orientalis	Streptopelia orientalis (Latham, 1790)	CN	Zhejiang	西溪国家湿地公园 (Xixi National Wetland Park)	2	30.267399	120.069466	2024-11-02
+5374668024	Phylloscopus inornatus	Phylloscopus inornatus (Blyth, 1842)	CN	Beijing	天坛公园 (Temple of Heaven)	1	39.881035	116.411964	2024-10-10
+5410635362	Turdus hortulorum	Turdus hortulorum P.L.Sclater, 1863	CN	Zhejiang	浙江大学紫金港校区 (Zhejiang University - Zijingang Campus)	1	30.300556	120.08269	2024-11-03
+5635345664	Pica serica	Pica serica Gould, 1845	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.918356	121.97742	2024-11-03
+5322002714	Cyanopica cyanus	Cyanopica cyanus (Pallas, 1776)	CN	Shanghai	沔青公园 (Mianqing Park)	6	31.150017	121.63176	2024-11-03
+5500114705		Anthus Bechstein, 1805	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.918356	121.97742	2024-11-03
+5361871896	Numenius phaeopus	Numenius phaeopus (Linnaeus, 1758)	CN	Jiangsu	Unnamed Road, Yan Cheng Shi, Jiang Su Sheng, CN (32,661, 120,959)	1	32.660664	120.958824	2024-10-17
+5539929570	Aythya fuligula	Aythya fuligula (Linnaeus, 1758)	CN	Zhejiang	浦沿江滩 (Puyan Section, Qiantang River)	4	30.149296	120.14151	2024-11-06
+5301813190	Podiceps cristatus	Podiceps cristatus (Linnaeus, 1758)	CN	Shaanxi	蓝田湖	2	34.449585	109.069664	2024-11-06
+5596752543	Phalacrocorax carbo	Phalacrocorax carbo (Linnaeus, 1758)	CN	Beijing	野鸭湖 (Wild Duck Lake)	1	40.409576	115.84682	2024-11-02
+5336452935	Elanus caeruleus	Elanus caeruleus (Desfontaines, 1789)	CN	Fujian	石狮湿地公园 (Shishi Wetland Park)	3	24.788158	118.67577	2024-11-03
+5338055211	Muscicapa latirostris	Muscicapa dauurica Pallas, 1811	CN	Shandong	大汶流	1	37.584877	118.862885	2024-11-10
+5319667651	Tachybaptus ruficollis	Tachybaptus ruficollis (Pallas, 1764)	CN	Shanghai	后滩湿地和文化公园区域	1	31.181618	121.47747	2024-11-11
+5657568464	Fringilla montifringilla	Fringilla montifringilla Linnaeus, 1758	CN	Beijing	北坞公园	21	39.986164	116.256645	2024-11-11
+5399084496	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Zhejiang	浙江大学玉泉校区 (Zhejiang University - Yuquan Campus)	1	30.262455	120.12197	2024-08-14
+5643921643		Lophospiza Kaup, 1844	CN	Zhejiang	半山国家森林公园 (Banshan National Forest Park)	2	30.361927	120.18937	2024-11-12
+5558836700	Suthora nipalensis	Suthora nipalensis (Hodgson, 1837)	CN	Xizang	仁青崩寺 (Rinchenpung Monastery)	2	29.301315	95.351685	2024-11-07
+5681005011	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Guangdong	龙岐湾 (Longqi Bay)	20	22.564663	114.50504	2024-10-06
+5587728888	Vanellus vanellus	Vanellus vanellus (Linnaeus, 1758)	CN	Shanghai	崇明东滩鸟类自然保护区 (Chongming Dongtan NNR)	100	31.49514	121.96472	2024-11-17
+5406579114	Lonchura striata	Lonchura striata (Linnaeus, 1766)	CN	Zhejiang	北湖草荡 (Beihu Marshland)	12	30.342005	119.9315	2024-11-17
+5517561165	Anas platyrhynchos	Anas platyrhynchos Linnaeus, 1758	CN	Zhejiang	浦沿江滩 (Puyan Section, Qiantang River)	19	30.149296	120.14151	2024-11-18
+5494626660	Fulvetta vinipectus	Fulvetta vinipectus (Hodgson, 1837)	CN	Xizang	吉隆 (Gyirong)	30	28.391653	85.32997	2024-11-20
+5657697812	Turdus cardis	Turdus cardis Temminck, 1831	CN	Hainan	尖峰岭自然保护区--雨林谷 (Jianfengling NNR--Rainforest Valley)	1	18.750425	108.924194	2024-11-20
+5367396586	Ardea cinerea	Ardea cinerea Linnaeus, 1758	CN	Jiangsu	水八仙生态文化园 (Shuibaxian Eco-Cultural Park)		31.238844	120.8011	2024-11-23
+5356055861	Turdus naumanni	Turdus naumanni Temminck, 1820	CN	Beijing	灵山风景名胜区 (Lingshan Scenic Area)	3	40.03803	115.49629	2024-11-24
+5347927825	Emberiza leucocephalos	Emberiza leucocephalos S.G.Gmelin, 1771	CN	Beijing	十三陵水库 (Ming Tombs Reservoir)	6	40.26056	116.26084	2024-11-24
+5643489360	Emberiza spodocephala	Emberiza spodocephala Pallas, 1776	CN	Jiangsu	临湖镇	2	31.147923	120.55019	2024-11-24
+5318698498	Milvus migrans	Milvus migrans (Boddaert, 1783)	CN	Guangdong	芒洲湿地公园 (Mangzhou Wetland Park)	7	22.162859	113.44221	2024-11-24
+5528998988	Gallinula chloropus	Gallinula chloropus (Linnaeus, 1758)	CN	Shandong	双庙村 (Shuangmiao Village)	1	35.49089	119.557556	2024-11-24
+5462178542	Gallinula chloropus	Gallinula chloropus (Linnaeus, 1758)	CN	Zhejiang	北湖草荡 (Beihu Marshland)	4	30.342005	119.9315	2024-11-24
+5430991355	Fulvetta striaticollis	Fulvetta striaticollis (J.Verreaux, 1870)	CN	Sichuan	S210, A Ba Zang Zu Qiang Zu Zi Zhi Zhou, Si Chuan Sheng, CN (31.69, 102.323)	6	31.690405	102.32302	2024-11-25
+5475458969	Pitta nipalensis	Hydrornis nipalensis (Hodgson, 1837)	CN	Yunnan	中科院西双版纳热带植物园--沟谷雨林景区 (Xishuangbanna Tropical Botanical Garden--Rainforest Scenic Area)	1	21.916746	101.27176	2024-11-22
+5357419158	Sinosuthora webbiana	Suthora webbiana Gould, 1852	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.918356	121.97742	2024-08-31
+5606308372	Dicrurus macrocercus	Dicrurus macrocercus Vieillot, 1817	CN	Tianjin	大黄堡湿地 (Dahuangpu Wetlands)	10	39.417286	117.27278	2024-09-21
+5355540787	Emberiza spodocephala	Emberiza spodocephala Pallas, 1776	CN	Zhejiang	余姚海涂 (Yuyao Coast)	15	30.239552	120.97761	2024-11-28
+5580150378	Alcippe castaneceps	Schoeniparus castaneceps (Hodgson, 1837)	CN	Xizang	扎墨公路80K	20	29.654865	95.49044	2024-11-28
+5384517523	Garrulax leucolophus	Garrulax leucolophus (Hardwicke, 1816)	CN	Xizang	扎墨公路80K	3	29.654865	95.49044	2024-11-28
+5462931431	Spodiopsar cineraceus	Spodiopsar cineraceus (Temminck, 1835)	CN	Zhejiang	北湖草荡 (Beihu Marshland)	1	30.342005	119.9315	2024-11-30
+5313008273	Anas platyrhynchos	Anas platyrhynchos Linnaeus, 1758	CN	Fujian	闽江口 (Minjiang River Estuary)	200	26.03161	119.6326	2024-11-30
+5428037183	Tachybaptus ruficollis	Tachybaptus ruficollis (Pallas, 1764)	CN	Beijing	什刹海--后海 (Shichahai--Houhai Lake)	1	39.9417	116.38566	2024-11-30
+5633037494	Aegithalos concinnus	Aegithalos concinnus (Gould, 1855)	CN	Guangdong	中國廣東 韶關新豐雲天森林度假村	10	23.98971	114.09544	2024-11-25
+5554025724	Lanius schach	Lanius schach Linnaeus, 1758	CN	Shanghai	南汇东滩 (Nanhui Dongtan)		30.918356	121.97742	2024-09-01
+5487641756	Garrulax perspicillatus	Pterorhinus perspicillatus (J.F.Gmelin, 1789)	CN	Jiangsu	南京中山植物园 (Nanjing Botanical Garden)	1	32.052715	118.83422	2024-10-08
+5600912541	Sinosuthora webbiana	Suthora webbiana Gould, 1852	CN	Jiangsu	南京中山植物园 (Nanjing Botanical Garden)	5	32.052715	118.83422	2024-10-26
+5665099645	Fringilla montifringilla	Fringilla montifringilla Linnaeus, 1758	CN	Beijing	北京植物园 (Beijing Botanical Garden)	100	39.999107	116.20924	2024-11-09
+5371764100	Muscicapa latirostris	Muscicapa dauurica Pallas, 1811	CN	Zhejiang	九龙山国家森林公园 (Jiulongshan National Forest Park)	4	30.592453	121.10064	2024-10-03
+5630282092	Muscicapa latirostris	Muscicapa dauurica Pallas, 1811	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.91867	121.97722	2024-10-11
+5536725233	Seicercus castaniceps	Phylloscopus castaniceps (Hodgson, 1845)	CN	Fujian	武夷山国家公园--挂墩 (Wuyishan NP--Kuatun Village)	5	27.736105	117.637184	2024-10-05
+5466278236	Tachybaptus ruficollis	Tachybaptus ruficollis (Pallas, 1764)	CN	Yunnan	庾园 (Yuyuan Park)	6	25.021763	102.674774	2024-11-11
+5575102708	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Shanghai	米市渡松南郊野公园 (Mishidu Songnan Country Park)	20	30.970736	121.24587	2024-10-04
+5322369846	Cecropis daurica	Cecropis daurica (Laxmann, 1769)	CN	Yunnan	那邦田 (Nabang Fields)		24.730984	97.55595	2024-11-15
+5469619887	Tachybaptus ruficollis	Tachybaptus ruficollis (Pallas, 1764)	CN	Guangxi	陇亨 (Longheng)		22.476734	106.98217	2024-11-03
+5503021797	Corvus frugilegus	Corvus frugilegus Linnaeus, 1758	CN	Hubei	府河湿地 (Fu River Wetlands)	10	30.75245	114.15762	2024-10-31
+5693756674	Himantopus himantopus	Himantopus himantopus (Linnaeus, 1758)	CN	Hunan	丁字湾	5	28.371592	112.90306	2024-09-08
+5589217890	Emberiza tristrami	Emberiza tristrami Swinhoe, 1870	CN	Jiangsu	南京中山植物园 (Nanjing Botanical Garden)	8	32.052715	118.83422	2024-11-23
+5543260628	Milvus migrans	Milvus migrans (Boddaert, 1783)	CN	Shanghai	南汇东滩 (Nanhui Dongtan)		30.918356	121.97742	2024-10-03
+5486870995		Lophospiza Kaup, 1844	CN	Zhejiang	棋盘山顶	1	28.057817	119.14208	2024-10-03
+5595137341	Apus nipalensis	Apus nipalensis (Hodgson, 1837)	CN	Yunnan	南贡山 (Nangong Mountain)	5	21.633007	101.44875	2024-11-24
+5556735603	Hirundo rustica	Hirundo rustica Linnaeus, 1758	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	7	30.918356	121.97742	2024-10-13
+5296611996		Anthus Bechstein, 1805	CN	Shandong	黄河三角洲国家级自然保护区 (Yellow River Delta NNR)		37.783096	119.077095	2024-11-09
+5598203605	Centropus bengalensis	Centropus bengalensis (Gmelin, 1788)	CN	Jiangsu	东太湖新联湿地 (East Taihu Xinlian Wetlands)	2	31.116615	120.540504	2024-08-03
+5578744290	Podiceps cristatus	Podiceps cristatus (Linnaeus, 1758)	CN	Yunnan	纳帕海 (Napa Lake)	5	27.880053	99.63827	2024-08-06
+5712894078	Perdix hodgsoniae	Perdix hodgsoniae (Hodgson, 1856)	CN	Sichuan	海子坪	15	29.339611	100.060745	2024-08-06
+5496074392	Fulvetta manipurensis	Fulvetta manipurensis (Ogilvie-Grant, 1906)	CN	Yunnan	老君山--利苴村 (Laojunshan--Liju Village)	1	26.771175	99.6554	2024-08-03
+5354857438	Lanius schach	Lanius schach Linnaeus, 1758	CN	Shanghai	万科燕南园	2	31.095327	121.428314	2024-08-09
+5668983664	Zosterops simplex	Zosterops simplex Swinhoe, 1861	CN	Guangdong	光明虹桥公园 (Guangming Hongqiao Park)	20	22.74289	113.9599	2024-08-10
+5350438952	Alcippe fratercula	Alcippe fratercula Rippon, 1900	CN	Yunnan	片马风雪垭口 (Pianma Snow Pass)	4	25.975468	98.697136	2024-08-03
+5350440096	Pteruthius aeralatus	Pteruthius aeralatus Blyth, 1855	CN	Yunnan	南京里 (Nanjingli Ridge)	1	24.099604	97.84986	2024-08-09
+5563830048		Ardea Linnaeus, 1758	CN	Zhejiang	西溪国家湿地公园 (Xixi National Wetland Park)	3	30.267399	120.069466	2024-08-15
+5560926048	Aerodramus brevirostris	Aerodramus brevirostris (Horsfield, 1840)	CN	Sichuan	金额雀鹛 (29.6275,102.8615)	6	29.62753	102.861496	2024-08-19
+5350134171	Pseudopodoces humilis	Pseudopodoces humilis (Hume, 1871)	CN	Qinghai	Gouli-Haixi CN-Qinghai 35.62809, 98.46346	55	35.62809	98.463455	2024-08-11
+5379821874	Limnodromus semipalmatus	Limnodromus semipalmatus (Blyth, 1848)	CN	Fujian	鸟咀 (Niaozui)	2	26.016993	119.70986	2024-08-24
+5384072125	Cisticola juncidis	Cisticola juncidis (Rafinesque, 1810)	CN	Zhejiang	上虞滨海围垦区 (Shangyu Coast)	5	30.213898	120.898285	2024-08-26
+5600689534	Zosterops erythropleurus	Zosterops erythropleurus Swinhoe, 1863	CN	Beijing	灵山风景名胜区 (Lingshan Scenic Area)		40.03803	115.49629	2024-08-18
+5677655086	Spodiopsar cineraceus	Spodiopsar cineraceus (Temminck, 1835)	CN	Shanghai	崇明东滩鸟类自然保护区--外围区域 (Chongming Dongtan NNR--Outskirts)	9	31.502287	121.94258	2024-08-27
+5546143281	Anas zonorhyncha	Anas zonorhyncha Swinhoe, 1866	CN	Shanghai	崇明东滩鸟类自然保护区--外围区域 (Chongming Dongtan NNR--Outskirts)	25	31.502287	121.94258	2024-08-27
+5318581643	Circus spilonotus	Circus spilonotus Kaup, 1847	CN	Zhejiang	上虞滨海围垦区 (Shangyu Coast)	1	30.213898	120.898285	2024-08-28
+5468360469		Ardea Linnaeus, 1758	CN	Jiangsu	江湾村 (Jiangwan Village)	7	31.229383	120.7486	2024-08-29
+5553572532	Pica serica	Pica serica Gould, 1845	CN	Jiangsu	中国常熟世界联合学院 (United World College Changshu China)	1	31.606203	120.73677	2024-08-30
+5390986236	Spilopelia chinensis	Spilopelia chinensis (Scopoli, 1786)	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	2	30.918356	121.97742	2024-08-31
+5372994134	Streptopelia orientalis	Streptopelia orientalis (Latham, 1790)	CN	Hebei	翠屏湿地公园 (Cuiping Wetland Park)	2	38.038986	114.38844	2024-09-02
+5614127529	Dicrurus macrocercus	Dicrurus macrocercus Vieillot, 1817	CN	Hebei	G107滹沱河大桥 (G107 Hutuo River Bridge)	3	38.124275	114.53985	2024-09-02
+5691065883	Locustella tacsanowskia	Locustella tacsanowskia Swinhoe, 1871	CN	Beijing	沙河水库 (Shahe Reservoir)	1	40.131298	116.30796	2024-09-01
+5496290325	Copsychus saularis	Copsychus saularis (Linnaeus, 1758)	CN	Shanghai	后滩湿地和文化公园区域	4	31.181618	121.47747	2024-09-09
+5616547716	Lanius cristatus	Lanius cristatus Linnaeus, 1758	CN	Jiangsu	金鸡湖大酒店 (Jinji Lake Grand Hotel)	1	31.284798	120.70909	2024-09-10
+5540225516	Anas platyrhynchos	Anas platyrhynchos Linnaeus, 1758	CN	Hebei	G107滹沱河大桥 (G107 Hutuo River Bridge)	7	38.124275	114.53985	2024-09-10
+5559508275	Prinia flaviventris	Prinia flaviventris (Delessert, 1840)	CN	Guangdong	增城区丝苗米稻田公园	2	23.292437	113.71363	2024-09-15
+5527197492	Acridotheres cristatellus	Acridotheres cristatellus (Linnaeus, 1758)	CN	Hubei	武汉大学 (Wuhan University)	1	30.539824	114.3633	2024-09-12
+5466858507	Poecile palustris	Poecile palustris (Linnaeus, 1758)	CN	Beijing	圆明园 (Old Summer Palace [Yuanming Yuan])	10	40.007866	116.300644	2024-09-17
+5502812403	Ardea cinerea	Ardea cinerea Linnaeus, 1758	CN	Beijing	大宁水库及其东部永定河废弃河道 (Daning Reservoir & Adjacent Riverbed)	2	39.829014	116.21707	2024-09-18
+5520702010	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Zhejiang	午潮山国家森林公园 (Wuchao Mountain National Forest Park)	1	30.190893	120.01102	2024-09-15
+5550353698	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Zhejiang	江洋畈生态公园 (Jiangyangfan Eco-Park)	6	30.206911	120.141945	2024-09-15
+5391837114	Falco subbuteo	Falco subbuteo Linnaeus, 1758	CN	Hebei	东山宾馆	5	39.83331	119.52249	2024-09-20
+5607055603	Delichon dasypus	Delichon dasypus (Bonaparte, 1850)	CN	Xizang	色季拉国家森林公园 (Sekila National Forest Park)	100	29.565054	94.5434	2024-09-20
+5536211740	Emberiza schoeniclus	Emberiza schoeniclus (Linnaeus, 1758)	CN	Hebei	G107滹沱河大桥 (G107 Hutuo River Bridge)	1	38.124275	114.53985	2024-09-21
+5347754339	Zosterops simplex	Zosterops simplex Swinhoe, 1861	CN	Beijing	百望山森林公园 (Baiwangshan Forest Park)	2	40.03307	116.253845	2024-09-21
+5644111563	Limosa limosa	Limosa limosa (Linnaeus, 1758)	CN	Sichuan	广汉稻虾共养科技馆	6	31.055378	104.18145	2024-09-21
+5529628150	Phalacrocorax carbo	Phalacrocorax carbo (Linnaeus, 1758)	CN	Beijing	沙河水库 (Shahe Reservoir)	1	40.131298	116.30796	2024-09-22
+5353506213	Anthus cervinus	Anthus cervinus (Pallas, 1811)	CN	Zhejiang	严家屋--融创海滨 (Yanjiawu--Sunac Coast)	15	30.54024	120.98132	2024-09-26
+5646457499	Dendrocopos major	Dendrocopos major (Linnaeus, 1758)	CN	Jiangsu	新禹河, 南京市 CN-江苏省 32.37873, 118.95095	1	32.378727	118.95095	2024-09-27
+5386411984	Podiceps cristatus	Podiceps cristatus (Linnaeus, 1758)	CN	Qinghai	更尕海 (Genggahai Lake)	1	36.191433	100.09647	2024-09-27
+5349939634	Nisaetus nipalensis	Nisaetus nipalensis Hodgson, 1836	CN	Jiangxi	莲荷峰(Lianhe Feng)	2	27.097837	117.02504	2024-09-28
+5568278794	Tachybaptus ruficollis	Tachybaptus ruficollis (Pallas, 1764)	CN	Zhejiang	青山湖 (Qingshan Lake)	1	30.239754	119.75728	2024-09-28
+5342328047	Fulica atra	Fulica atra Linnaeus, 1758	CN	Hebei	G107滹沱河大桥 (G107 Hutuo River Bridge)	25	38.124275	114.53985	2024-09-30
+5500060108	Tarsiger rufilatus	Tarsiger rufilatus (Hodgson, 1845)	CN	Sichuan	黄龙风景区 (Huanglong Scenic Area)	2	32.751102	103.82387	2024-09-30
+5303836224	Spilopelia chinensis	Spilopelia chinensis (Scopoli, 1786)	CN	Shanghai	世纪公园 (Century Park)	2	31.214968	121.5496	2024-10-02
+5657216711	Alcippe hueti	Alcippe hueti David, 1874	CN	Zhejiang	西天目山国家级自然保护区 (West Tianmu Mountain NNR)	4	30.334105	119.44898	2024-09-29
+5343912653	Spilopelia chinensis	Spilopelia chinensis (Scopoli, 1786)	CN	Zhejiang	严家屋--融创海滨 (Yanjiawu--Sunac Coast)	5	30.54024	120.98132	2024-10-03
+5577499730	Numenius madagascariensis	Numenius madagascariensis (Linnaeus, 1766)	CN	Shandong	刘家湾赶海园 (Liujiawan Coast Park)	1	35.279953	119.4297	2024-10-05
+5619457876	Actitis hypoleucos	Actitis hypoleucos (Linnaeus, 1758)	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.918356	121.97742	2024-10-05
+5487152502	Phylloscopus trochiloides	Phylloscopus trochiloides (Sundevall, 1837)	CN	Xizang	玛嘎村	1	28.436844	85.24688	2024-10-05
+5464619939	Ardea alba	Ardea alba Linnaeus, 1758	CN	Shandong	东营市广南水库	5	37.351147	118.76511	2024-10-06
+5536559207	Mareca strepera	Mareca strepera (Linnaeus, 1758)	CN	Beijing	野鸭湖 (Wild Duck Lake)	131	40.409576	115.84682	2024-10-06
+5349264487	Spodiopsar sericeus	Spodiopsar sericeus (Gmelin, 1789)	CN	Jiangsu	中国常熟世界联合学院 (United World College Changshu China)	4	31.606203	120.73677	2024-10-08
+5597502030	Phylloscopus inornatus	Phylloscopus inornatus (Blyth, 1842)	CN	Zhejiang	秦山 (Qinshan Hill)	1	30.434246	120.95178	2024-09-28
+5355518242	Zosterops simplex	Zosterops simplex Swinhoe, 1861	CN	Jiangsu	大丰麋鹿国家级自然保护区 (Dafeng Milu NNR)		33.0421	120.840034	2024-10-11
+5686091301	Spilopelia chinensis	Spilopelia chinensis (Scopoli, 1786)	CN	Beijing	中国科学院大学玉泉路校区 (University of Chinese Academy of Sciences - Yuquan Rd Campus)	10	39.91208	116.25132	2024-10-12
+5588397345	Dendrocitta formosae	Dendrocitta formosae Swinhoe, 1863	CN	Zhejiang	东钱湖 (Dongqian Lake)	15	29.778429	121.64198	2024-10-13
+5626745943	Chloris sinica	Chloris sinica (Linnaeus, 1766)	CN	Liaoning	丁香湖 (Dingxiang Lake)	1	41.856125	123.33654	2024-10-15
+5460630587	Copsychus saularis	Copsychus saularis (Linnaeus, 1758)	CN	Yunnan	盈江湿地公园 (Yingjiang Wetland Park)		24.687584	97.93932	2024-10-15
+5423961166	Egretta intermedia	Ardea intermedia Wagler, 1829	CN	Fujian	马銮湾--中心地铁站周边 (Maluan Bay--Central Metro Station)		24.547834	117.99515	2024-10-11
+5424552708	Phasianus colchicus	Phasianus colchicus Linnaeus, 1758	CN	Beijing	乐活中堤 (Lehuo Zhongdi)	1	39.807484	116.239426	2024-10-20
+5363040936	Dryobates minor	Dryobates minor (Linnaeus, 1758)	CN	Nei Mongol	乌尔旗汉 (Urqihan [General Area])	1	49.625374	121.497665	2024-10-20
+5511891196	Periparus venustulus	Periparus venustulus (Swinhoe, 1870)	CN	Shandong	砣矶岛2号线	120	38.163914	120.73719	2024-10-20
+5425083445	Anthus richardi	Anthus richardi Vieillot, 1818	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.918356	121.97742	2024-10-20
+5474714822	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Shaanxi	兴庆宫公园 (Xingqing Palace Park)	1	34.25477	108.983765	2024-10-23
+5592474324	Mareca strepera	Mareca strepera (Linnaeus, 1758)	CN	Xizang	拉鲁湿地国家级自然保护区 (Lalu Wetland NNR)	20	29.672363	91.10241	2024-10-24
+5367672372	Eremophila alpestris	Eremophila alpestris (Linnaeus, 1758)	CN	Qinghai	玉树藏族自治州, 青海省, CN (33.361, 97.434)嘉塘草原		33.360523	97.434	2024-10-24
+5629154019	Phasianus colchicus	Phasianus colchicus Linnaeus, 1758	CN	Beijing	乐活中堤 (Lehuo Zhongdi)	6	39.807484	116.239426	2024-10-25
+5550028840	Phoenicurus auroreus	Phoenicurus auroreus (Pallas, 1776)	CN	Beijing	奥林匹克森林公园北园 (Olympic Forest Park North)	1	40.02712	116.39299	2024-10-26
+5547801742	Orthotomus sutorius	Orthotomus sutorius (Pennant, 1769)	CN	Guangdong	梧桐山国家森林公园 (Wutongshan National Forest Park)	10	22.576014	114.20956	2024-10-26
+5516080090	Chloris sinica	Chloris sinica (Linnaeus, 1766)	CN	Beijing	野鸭湖 (Wild Duck Lake)	10	40.409576	115.84682	2024-10-27
+5540413075	Poecile palustris	Poecile palustris (Linnaeus, 1758)	CN	Beijing	沙河水库 (Shahe Reservoir)	2	40.131298	116.30796	2024-10-26
+5540064180	Nycticorax nycticorax	Nycticorax nycticorax (Linnaeus, 1758)	CN	Jiangsu	石湖景区 (Shihu Lake Scenic Area)	6	31.240784	120.59377	2024-10-29
+5363848247	Anas platyrhynchos	Anas platyrhynchos Linnaeus, 1758	CN	Zhejiang	上虞滨海围垦区 (Shangyu Coast)	15	30.213898	120.898285	2024-10-29
+5406274658	Buteo japonicus	Buteo japonicus Temminck & Schlegel, 1844	CN	Zhejiang	九龙山国家森林公园 (Jiulongshan National Forest Park)	6	30.592453	121.10064	2024-10-26
+5563131519	Centropus sinensis	Centropus sinensis (Stephens, 1815)	CN	Hainan	五源河国家湿地公园 (Wuyuanhe National Wetland Park)	2	20.048006	110.20524	2024-11-01
+5321426111	Nycticorax nycticorax	Nycticorax nycticorax (Linnaeus, 1758)	CN	Beijing	奥林匹克森林公园南园 (Olympic Forest Park South)	1	40.017384	116.39381	2024-11-02
+5605421482	Tachybaptus ruficollis	Tachybaptus ruficollis (Pallas, 1764)	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	2	30.918356	121.97742	2024-11-02
+5380668491	Tringa ochropus	Tringa ochropus Linnaeus, 1758	CN	Hebei	沙城湿地 (Shacheng Wetlands)	1	40.37088	115.46558	2024-11-02
+5605470998	Gypaetus barbatus	Gypaetus barbatus (Linnaeus, 1758)	CN	Qinghai	民南小区	6	33.005905	96.99562	2024-11-03
+5343379770	Aegithalos concinnus	Aegithalos concinnus (Gould, 1855)	CN	Zhejiang	杭州植物园 (Hangzhou Botanical Garden)	20	30.252283	120.11967	2024-10-20
+5317317585	Garrulax davidi	Pterorhinus davidi Swinhoe, 1868	CN	Beijing	野鸭湖 (Wild Duck Lake)	1	40.409576	115.84682	2024-11-02
+5304702088	Remiz consobrinus	Remiz consobrinus (Swinhoe, 1870)	CN	Zhejiang	北湖草荡 (Beihu Marshland)	2	30.342005	119.9315	2024-11-02
+5383013389	Fulica atra	Fulica atra Linnaeus, 1758	CN	Beijing	沙河水库--巩华城半岛 (Shahe Reservoir--Gonghuacheng Peninsula)	100	40.132576	116.299835	2024-11-05
+5386473436	Corvus macrorhynchos	Corvus macrorhynchos Wagler, 1827	CN	Zhejiang	五常湿地 (Wuchang Wetlands)	3	30.260319	120.0249	2024-11-07
+5446096716	Hemixos castanonotus	Hemixos castanonotus Swinhoe, 1870	CN	Guangdong	北岭山森林公园 (Beilingshan Forest Park)	3	23.123106	112.49352	2024-11-03
+5556537596	Periparus venustulus	Periparus venustulus (Swinhoe, 1870)	CN	Shandong	青岛雕塑园 (Qingdao Sculpture Garden)		36.076065	120.45108	2024-11-08
+5592031776	Platalea leucorodia	Platalea leucorodia Linnaeus, 1758	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	3	30.918356	121.97742	2024-11-09
+5498995162	Columba rupestris	Columba rupestris Pallas, 1811	CN	Sichuan	Daocheng, Garze CN-Sichuan 28.45621, 100.34200	20	28.456205	100.342	2024-11-09
+5706517237	Emberiza godlewskii	Emberiza godlewskii Taczanowski, 1874	CN	Beijing	灵山风景名胜区 (Lingshan Scenic Area)	4	40.03803	115.49629	2024-11-10
+5395695612	Cyornis glaucicomans	Cyornis glaucicomans Thayer & Bangs, 1909	CN	Guangdong	浔峰岗生态园 (Xunfeng Hill Eco-Park)	1	23.16966	113.19939	2024-11-08
+5555996983	Artamus fuscus	Artamus fuscus Vieillot, 1817	CN	Hainan	九曲水库，三亚市, 海南省, CN (18.266, 109.612)	7	18.265724	109.61192	2024-11-13
+5363401300	Turdus mandarinus	Turdus mandarinus Bonaparte, 1850	CN	Shanghai	华东理工大学 奉贤校区	5	30.83373	121.501564	2024-11-12
+5304513655	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Sichuan	成都人民公园 (People's Park, Chengdu)	3	30.657032	104.057594	2024-11-14
+5430971879	Alauda arvensis	Alauda arvensis Linnaeus, 1758	CN	Shanghai	崇明东滩鸟类自然保护区 (Chongming Dongtan NNR)	1	31.49514	121.96472	2024-11-15
+5599240424	Anas platyrhynchos	Anas platyrhynchos Linnaeus, 1758	CN	Beijing	颐和园--团城湖 (Summer Palace--Tuancheng Lake)	30	39.991467	116.26418	2024-11-16
+5584157829	Pica serica	Pica serica Gould, 1845	CN	Beijing	颐和园--团城湖 (Summer Palace--Tuancheng Lake)	16	39.991467	116.26418	2024-11-16
+5623742239	Prinia inornata	Prinia inornata Sykes, 1832	CN	Guangdong	二井湾湿地公园 (Erjingwan Wetland Park)		22.124157	113.46651	2024-11-16
+5394446043	Emberiza spodocephala	Emberiza spodocephala Pallas, 1776	CN	Jiangsu	独墅湖 (Dushu Lake) - Moon Bay and One Tree Lawn	1	31.264317	120.72025	2024-11-17
+5563640461	Lonchura striata	Lonchura striata (Linnaeus, 1766)	CN	Hainan	Auto selected 18.85271, 108.83572	1	18.852707	108.835724	2024-11-18
+5451654925	Calcarius lapponicus	Calcarius lapponicus (Linnaeus, 1758)	CN	Zhejiang	秦山海滨 (Qinshan Coast)	1	30.41055	120.91605	2024-11-18
+5518388672	Corvus macrorhynchos	Corvus macrorhynchos Wagler, 1827	CN	Beijing	Ming Dynasty Wall Relics Park	8	39.89982	116.42535	2024-11-18
+5381421215	Pica serica	Pica serica Gould, 1845	CN	Beijing	八达岭长城 (Badaling Great Wall)	2	40.359726	116.019226	2024-11-18
+5315863199	Tarsiger cyanurus	Tarsiger cyanurus (Pallas, 1773)	CN	Zhejiang	临平山 (Linping Mountain)	1	30.415085	120.28125	2024-11-22
+5707381779	Buteo hemilasius	Buteo hemilasius Temminck & Schlegel, 1844	CN	Gansu	兰州大学草科田 (Grassland Science Experimental Field of LZU)	1	35.94362	104.14616	2024-11-22
+5545390298	Sinosuthora webbiana	Suthora webbiana Gould, 1852	CN	Shanghai	上海科技大学 (ShanghaiTech University)	10	31.177046	121.59387	2024-11-23
+5326997970	Anas zonorhyncha	Anas zonorhyncha Swinhoe, 1866	CN	Zhejiang	余杭南湖 (South Lake, Yuhang)	100	30.257513	119.91719	2024-11-22
+5568325773	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Zhejiang	北湖草荡 (Beihu Marshland)		30.342005	119.9315	2024-11-23
+5438293670	Ardea cinerea	Ardea cinerea Linnaeus, 1758	CN	Beijing	北京大学 (Peking University)	1	39.993835	116.31035	2024-11-22
+5534098115	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Jiangsu	西交利物浦大学北校区 (Xi'an Jiaotong-Liverpool University - North Campus)	1	31.27464	120.73721	2024-11-25
+5604427840	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Zhejiang	北湖草荡 (Beihu Marshland)	1	30.342005	119.9315	2024-11-30
+5630585293	Botaurus stellaris	Botaurus stellaris (Linnaeus, 1758)	CN	Beijing	潮白河向阳闸桥段 (Chaobai River at Xiangyang Sluice)	1	40.16924	116.68158	2024-11-30
+5312665855	Circus cyaneus	Circus cyaneus (Linnaeus, 1766)	CN	Beijing	百望山森林公园 (Baiwangshan Forest Park)	1	40.03307	116.253845	2024-11-30
+5528637266	Anser albifrons	Anser albifrons (Scopoli, 1769)	CN	Zhejiang	北湖草荡 (Beihu Marshland)	42	30.342005	119.9315	2024-11-30
+5300527840	Sibirionetta formosa	Sibirionetta formosa (Georgi, 1775)	CN	Zhejiang	北湖草荡 (Beihu Marshland)	1	30.342005	119.9315	2024-11-30
+5535595518	Circus cyaneus	Circus cyaneus (Linnaeus, 1766)	CN	Yunnan	纳帕海 (Napa Lake)	1	27.880053	99.63827	2024-10-26
+5711525698	Dicrurus leucophaeus	Dicrurus leucophaeus Vieillot, 1817	CN	Jiangxi	晓起村 (Xiaoqi Village)	1	29.393827	118.02612	2024-08-04
+5323436054	Phalacrocorax carbo	Phalacrocorax carbo (Linnaeus, 1758)	CN	Zhejiang	浦沿江滩 (Puyan Section, Qiantang River)	10	30.149296	120.14151	2024-11-24
+5392203461	Upupa epops	Upupa epops Linnaeus, 1758	CN	Beijing	沙河水库--巩华城半岛 (Shahe Reservoir--Gonghuacheng Peninsula)	1	40.132576	116.299835	2024-10-26
+5351741867	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Fujian	武夷山国家公园 (Wuyishan National Park)	1	27.74593	117.68341	2024-10-04
+5329310018	Hirundo rustica	Hirundo rustica Linnaeus, 1758	CN	Zhejiang	九龙山国家森林公园 (Jiulongshan National Forest Park)	20	30.592453	121.10064	2024-10-01
+5492742605	Cyanopica cyanus	Cyanopica cyanus (Pallas, 1776)	CN	Shanghai	上海植物园 (Shanghai Botanical Garden)		31.146961	121.44408	2024-08-14
+5447094018	Pycnonotus xanthorrhous	Pycnonotus xanthorrhous Anderson, 1869	CN	Yunnan	翠湖公园 (Cuihu Park)	5	25.048637	102.70379	2024-08-12
+5602589153	Dendrocopos major	Dendrocopos major (Linnaeus, 1758)	CN	Jiangsu	南京中山植物园 (Nanjing Botanical Garden)	1	32.052715	118.83422	2024-10-27
+5393970677	Tringa nebularia	Tringa nebularia (Gunnerus, 1767)	CN	Shanghai	南汇嘴观海公园 (Nanhuizui Sea-viewing Park)	1	30.88268	121.97307	2024-09-06
+5429478407	Lanius cristatus	Lanius cristatus Linnaeus, 1758	CN	Fujian	闽江口 (Minjiang River Estuary)	15	26.03161	119.6326	2024-08-26
+5629351758	Upupa epops	Upupa epops Linnaeus, 1758	CN	Beijing	大宁水库及其东部永定河废弃河道 (Daning Reservoir & Adjacent Riverbed)	1	39.829014	116.21707	2024-09-15
+5422600296		Anarhynchus Quoy & Gaimard, 1832	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.918356	121.97742	2024-09-01
+5689343046	Sinosuthora webbiana	Suthora webbiana Gould, 1852	CN	Shanghai	紫竹荒地		31.020464	121.48417	2024-11-02
+5500732656	Cyanoptila cyanomelana	Cyanoptila cyanomelana (Temminck, 1829)	CN	Jiangsu	南京中山植物园 (Nanjing Botanical Garden)	2	32.052715	118.83422	2024-10-05
+5642031943	Rhopodytes tristis	Phaenicophaeus tristis (Lesson, 1830)	CN	Yunnan	那邦 (Nabang [General Area])	2	24.71709	97.57301	2024-10-03
+5406086784	Pica serica	Pica serica Gould, 1845	CN	Beijing	十三陵水库 (Ming Tombs Reservoir)		40.26056	116.26084	2024-11-16
+5460676566	Turdus mandarinus	Turdus mandarinus Bonaparte, 1850	CN	Guangdong	中山大学南校园 (Sun Yat-sen University - South Campus)	5	23.096346	113.29858	2024-09-23
+5451078679	Cisticola juncidis	Cisticola juncidis (Rafinesque, 1810)	CN	Shanghai	崇明东滩鸟类自然保护区 (Chongming Dongtan NNR)		31.49514	121.96472	2024-11-23
+5369329884	Lanius schach	Lanius schach Linnaeus, 1758	CN	Zhejiang	北湖草荡 (Beihu Marshland)	5	30.342005	119.9315	2024-11-23
+5592886859	Gelochelidon nilotica	Gelochelidon nilotica (J.F.Gmelin, 1789)	CN	Jiangsu	临洪河口 (Linhong River Estuary)	5	34.763283	119.22394	2024-08-17
+5448515605	Pycnonotus xanthorrhous	Pycnonotus xanthorrhous Anderson, 1869	CN	Yunnan	昆明--西山茶馬花街至華亭寺段(Kunming--Chamahua - Huating Temple)	2	24.97974	102.62438	2024-08-02
+5530960367	Phoenicurus auroreus	Phoenicurus auroreus (Pallas, 1776)	CN	Qinghai	鹞子沟风景区 (Yaozigou Scenic Area)	2	37.039406	101.83026	2024-08-04
+5571771460	Rostratula benghalensis	Rostratula benghalensis (Linnaeus, 1758)	CN	Sichuan	凌三岔子, 成都市 CN-四川省 (30.4275,103.6209)	3	30.427486	103.62085	2024-08-03
+5386565959	Bambusicola thoracicus	Bambusicola thoracicus (Temminck, 1815)	CN	Zhejiang	蒋家塘	1	30.32343	120.02996	2024-08-04
+5341307535	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Nei Mongol	荷花湖（Lotus Lake）	10	43.628925	123.25547	2024-08-06
+5668095671	Delichon dasypus	Delichon dasypus (Bonaparte, 1850)	CN	Guizhou	宽阔水自然保护区 (Kuankuoshui NNR)	10	28.22405	107.15913	2024-08-07
+5630697221	Pyrrhocorax pyrrhocorax	Pyrrhocorax pyrrhocorax (Linnaeus, 1758)	CN	Yunnan	纳帕海 (Napa Lake)		27.880053	99.63827	2024-08-06
+5382747275	Pica serica	Pica serica Gould, 1845	CN	Jiangsu	Jinji Lk Ave between Ligongdi (west end) and Xinghu St. (east end), SIP, Suzhou	1	31.298538	120.711876	2024-08-08
+5494176768	Centropus bengalensis	Centropus bengalensis (Gmelin, 1788)	CN	Zhejiang	之江绿道萧山东段, 杭州市 CN-浙江省 30.27392, 120.30750	1	30.27392	120.307495	2024-08-10
+5440768424		Larus Linnaeus, 1758	CN	Beijing	马场 (Ma Chang)	1	40.379883	115.8417	2024-08-10
+5404094757	Gallinula chloropus	Gallinula chloropus (Linnaeus, 1758)	CN	Beijing	沙河水库--巩华城半岛 (Shahe Reservoir--Gonghuacheng Peninsula)	9	40.132576	116.299835	2024-08-11
+5298210085	Dicrurus macrocercus	Dicrurus macrocercus Vieillot, 1817	CN	Sichuan	三圣花乡荷塘月色 (Sansheng Huaxiang--Lotus Pools)	1	30.568172	104.15678	2024-08-11
+5441591232	Anas platyrhynchos	Anas platyrhynchos Linnaeus, 1758	CN	Hebei	Nanpu - tidal river channel between Prison & Oil Refinery	2	39.102	118.24329	2024-08-12
+5551619108	Copsychus saularis	Copsychus saularis (Linnaeus, 1758)	CN	Zhejiang	汤山公园 (Tangshan Park)	4	30.596565	121.09201	2024-08-13
+5696337110	Lanius schach	Lanius schach Linnaeus, 1758	CN	Zhejiang	澉南海堤湿地 (Gannan Coast and Wetlands)	4	30.341824	120.877045	2024-08-14
+5677659884	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Tianjin	西西海湿地 (Xixihai Wetlands)	100	38.920303	117.18989	2024-08-17
+5635003512	Ardea cinerea	Ardea cinerea Linnaeus, 1758	CN	Zhejiang	五常湿地 (Wuchang Wetlands)	1	30.260319	120.0249	2024-08-17
+5522452090	Phoenicurus ochruros	Phoenicurus ochruros (S.G.Gmelin, 1774)	CN	Xizang	纳木错 (Namtso)	2	30.73502	90.67009	2024-08-04
+5555059883	Phoenicurus frontalis	Phoenicurus frontalis Vigors, 1832	CN	Qinghai	峨堡古城遗址公园, 海北藏族自治州 CN-青海省 (37.9684,100.9376)	1	37.968437	100.93758	2024-08-19
+5460158925	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Zhejiang	严家屋--融创海滨 (Yanjiawu--Sunac Coast)	3	30.54024	120.98132	2024-08-22
+5296542403	Zosterops simplex	Zosterops simplex Swinhoe, 1861	CN	Guangdong	Shiwufeng Garden, Shenzhen CN-Guangdong (22.5642,113.9801)	1	22.564243	113.98015	2024-08-26
+5406559510	Zosterops simplex	Zosterops simplex Swinhoe, 1861	CN	Guangdong	Longzhu Avenue, Shenzhen CN-Guangdong (22.5594,113.9825)	1	22.559374	113.98254	2024-08-27
+5469366414	Pomatorhinus ruficollis	Pomatorhinus ruficollis Hodgson, 1836	CN	Hubei	大老岭国家森林公园 (Dalaoling National Forest Park)	5	31.061508	110.945724	2024-08-04
+5676837861	Motacilla alba	Motacilla alba Linnaeus, 1758	CN	Fujian	峨嵋峰国家级自然保护区 (Emei Peak NNR)	2	27.005915	117.08473	2024-08-28
+5568616275	Pica serica	Pica serica Gould, 1845	CN	Jiangsu	Wujiang, Suzhou CN-Jiangsu (31.1688,120.8162)	1	31.168825	120.81618	2024-08-30
+5319980340		Ardea Linnaeus, 1758	CN	Shanghai	东日湿地 (Dongri Wetlands)	1	30.931944	121.912224	2024-08-25
+5392267637	Ardeola bacchus	Ardeola bacchus (Bonaparte, 1855)	CN	Guangdong	洪圣宫庙	1	22.564644	114.50499	2024-08-31
+5658773947	Ficedula zanthopygia	Ficedula zanthopygia (Hay, 1845)	CN	Zhejiang	汤山公园 (Tangshan Park)	1	30.596565	121.09201	2024-08-31
+5469333693	Zosterops simplex	Zosterops simplex Swinhoe, 1861	CN	Guangdong	坝光银叶树湿地园 (Baguang Tulip Mangrove Wetlands)	6	22.648016	114.51693	2024-09-01
+5417376314	Alcedo atthis	Alcedo atthis (Linnaeus, 1758)	CN	Beijing	沙河水库--北岸 (Shahe Reservoir--North Shore)	1	40.136147	116.313515	2024-09-02
+5352637735	Cyanopica cyanus	Cyanopica cyanus (Pallas, 1776)	CN	Tianjin	南开大学 (Nankai University)	20	39.10319	117.16803	2024-09-03
+5421672143	Pycnonotus aurigaster	Pycnonotus aurigaster (Vieillot, 1818)	CN	Guangdong	崖口村	6	22.455694	113.58073	2024-09-04
+5410152065	Motacilla alba	Motacilla alba Linnaeus, 1758	CN	Zhejiang	湘湖莲华寺	2	30.134117	120.19493	2024-09-05
+5545595868	Cecropis daurica	Cecropis daurica (Laxmann, 1769)	CN	Hubei	Xiangxing Street, Wuhan CN-Hubei 30.37488, 113.94365	1	30.374878	113.94365	2024-09-05
+5507219657	Thalasseus bergii	Thalasseus bergii (M.H.K.Lichtenstein, 1823)	CN	Fujian	鸟咀 (Niaozui)	100	26.016993	119.70986	2024-09-10
+5361513685	Anas zonorhyncha	Anas zonorhyncha Swinhoe, 1866	CN	Jiangsu	水八仙生态文化园 (Shuibaxian Eco-Cultural Park)	2	31.238844	120.8011	2024-09-13
+5656263256	Nycticorax nycticorax	Nycticorax nycticorax (Linnaeus, 1758)	CN	Zhejiang	江洋畈生态公园 (Jiangyangfan Eco-Park)	18	30.206911	120.141945	2024-09-14
+5369033768	Stachyridopsis ruficeps	Cyanoderma ruficeps (Blyth, 1847)	CN	Zhejiang	江洋畈生态公园 (Jiangyangfan Eco-Park)	1	30.206911	120.141945	2024-09-14
+5377218091	Pica serica	Pica serica Gould, 1845	CN	Jiangsu	Fangongdi, Rudong, Nantong, Jiangsu, China	5	32.463036	121.1308	2024-09-13
+5493808653	Luscinia svecica	Luscinia svecica (Linnaeus, 1758)	CN	Beijing	大宁水库及其东部永定河废弃河道 (Daning Reservoir & Adjacent Riverbed)	2	39.829014	116.21707	2024-09-15
+5320618229	Ardea cinerea	Ardea cinerea Linnaeus, 1758	CN	Shanghai	后滩公园 (Houtan Park)		31.182526	121.470825	2024-09-17
+5544735447	Prinia inornata	Prinia inornata Sykes, 1832	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	2	30.918356	121.97742	2024-09-17
+5307480805	Luscinia cyane	Larvivora cyane (Pallas, 1776)	CN	Guangdong	中山大学出版社, 广州市 CN-广东省 (23.0988,113.3003)	1	23.09876	113.30027	2024-09-07
+5445086563	Limosa lapponica	Limosa lapponica (Linnaeus, 1758)	CN	Shandong	付疃河口 (Futuan River Estuary)	12	35.289658	119.44901	2024-09-19
+5517139117	Picus canus	Picus canus J.F.Gmelin, 1788	CN	Beijing	天坛公园 (Temple of Heaven)		39.881035	116.411964	2024-09-21
+5382753183	Falco subbuteo	Falco subbuteo Linnaeus, 1758	CN	Beijing	沙河水库--南岸 (Shahe Reservoir--South Shore)	6	40.1293	116.31656	2024-09-22
+5353410098	Egretta garzetta	Egretta garzetta (Linnaeus, 1766)	CN	Zhejiang	海盐新四季农场 (Haiyan New Season Farm)	13	30.57798	120.89426	2024-09-23
+5405847486	Egretta garzetta	Egretta garzetta (Linnaeus, 1766)	CN	Jiangsu	镬底潭湿地 (Huoditan Wetlands)	1	31.23631	120.73327	2024-09-27
+5525899843	Ardea alba	Ardea alba Linnaeus, 1758	CN	Beijing	Chaobaihe - 1 km south of Shunyi Riverside Forest Park Area II	2	40.115715	116.7172	2024-09-27
+5416471504	Tringa nebularia	Tringa nebularia (Gunnerus, 1767)	CN	Shanghai	上海崇明东滩北八滧自然中心, CN (31.556, 121.951)		31.555964	121.9512	2024-09-28
+5477739883	Turdus merula	Turdus merula Linnaeus, 1758	CN	Xinjiang	克拉玛依金龙湖 (Jinlong Lake, Karamay)	2	45.59842	84.91758	2024-09-11
+5589991611	Chloris sinica	Chloris sinica (Linnaeus, 1766)	CN	Fujian	山堂村（Shantang Village)		26.22926	119.58653	2024-10-01
+5410320155	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Jiangsu	旺山景区 (Wangshan Scenic Area)	3	31.222836	120.5431	2024-10-02
+5502876631	Elanus caeruleus	Elanus caeruleus (Desfontaines, 1789)	CN	Guangdong	芒洲湿地公园 (Mangzhou Wetland Park)	3	22.162859	113.44221	2024-10-02
+5524861702	Pycnonotus cafer	Pycnonotus cafer (Linnaeus, 1766)	CN	Yunnan	片马风雪垭口 (Pianma Snow Pass)	3	25.975468	98.697136	2024-10-02
+5649532356	Periparus venustulus	Periparus venustulus (Swinhoe, 1870)	CN	Sichuan	龙苍沟--小石坝 (Longcanggou--Xiaoshiba)		29.606325	102.84145	2024-10-03
+5488289914	Buteo hemilasius	Buteo hemilasius Temminck & Schlegel, 1844	CN	Liaoning	老铁山 (Laotieshan)	1	38.730175	121.15243	2024-10-03
+5457750168	Spilornis cheela	Spilornis cheela (Latham, 1790)	CN	Guangxi	弄岗国家级自然保护区 (Nonggang NNR)	1	22.463232	106.957596	2024-10-03
+5492874177	Picus canus	Picus canus J.F.Gmelin, 1788	CN	Anhui	马家河 (Majia River)	1	31.09501	116.22885	2024-10-05
+5619343975	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Shanxi	西景线, 长治市 CN-山西省 36.69231, 112.36131	1	36.69231	112.36131	2024-10-05
+5461630513	Anas zonorhyncha	Anas zonorhyncha Swinhoe, 1866	CN	Tianjin	汉沽滨海林地 (Hangu Coastal Woods)	10	39.24352	118.00123	2024-10-05
+5566036168	Egretta garzetta	Egretta garzetta (Linnaeus, 1766)	CN	Shandong	沭河莒县段 (Shu River - Juxian Section)	20	35.588676	118.87148	2024-10-03
+5580313708	Aquila clanga	Clanga clanga (Pallas, 1811)	CN	Sichuan	凉风垭	1	30.502909	104.28985	2024-10-01
+5303817949		Ardea Linnaeus, 1758	CN	Guangxi	弄岗国家级自然保护区 (Nonggang NNR)	12	22.463232	106.957596	2024-10-03
+5507534748	Monticola gularis	Monticola gularis (Swinhoe, 1863)	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	2	30.918356	121.97742	2024-10-09
+5387035131	Numenius phaeopus	Numenius phaeopus (Linnaeus, 1758)	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	2	30.918356	121.97742	2024-10-10
+5441627273	Accipiter nisus	Accipiter nisus (Linnaeus, 1758)	CN	Beijing	百望山森林公园 (Baiwangshan Forest Park)	15	40.03307	116.253845	2024-10-09
+5660415086	Egretta intermedia	Ardea intermedia Wagler, 1829	CN	Jiangsu	龙袍长江省级湿地公园管理中心, 南京市 CN-江苏省 (32.2042,118.9952)	4	32.204212	118.99519	2024-10-11
+5364137400	Dendrocitta formosae	Dendrocitta formosae Swinhoe, 1863	CN	Jiangsu	渔洋山 (Yuyang Hill)	4	31.220205	120.37979	2024-10-12
+5646750268	Upupa epops	Upupa epops Linnaeus, 1758	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	2	30.918356	121.97742	2024-10-12
+5563749779	Motacilla alba	Motacilla alba Linnaeus, 1758	CN	Shanghai	百花港北侧农田水塘及新植人工林地	1	31.08131	121.22984	2024-10-03
+5634303638	Gallinula chloropus	Gallinula chloropus (Linnaeus, 1758)	CN	Zhejiang	浙江大学紫金港校区 (Zhejiang University - Zijingang Campus)	5	30.300556	120.08269	2024-10-13
+5323659606	Emberiza tristrami	Emberiza tristrami Swinhoe, 1870	CN	Liaoning	仙人洞保护区 (Xianrendong Reserve)	10	40.000988	122.95613	2024-10-13
+5365778089	Gallinula chloropus	Gallinula chloropus (Linnaeus, 1758)	CN	Anhui	柏堰湖公园 (Baiyan Lake Park)	3	31.812937	117.15067	2024-10-16
+5657792481	Phasianus colchicus	Phasianus colchicus Linnaeus, 1758	CN	Beijing	怀柔水库 (Huairou Reservoir)	1	40.32002	116.610115	2024-10-16
+5641170538	Phylloscopus inornatus	Phylloscopus inornatus (Blyth, 1842)	CN	Jiangsu	旺山景区 (Wangshan Scenic Area)	2	31.222836	120.5431	2024-10-19
+5355623401	Lanius sphenocercus	Lanius sphenocercus Cabanis, 1873	CN	Beijing	大宁水库及其东部永定河废弃河道 (Daning Reservoir & Adjacent Riverbed)	2	39.829014	116.21707	2024-10-19
+5651280520	Lanius bucephalus	Lanius bucephalus Temminck & Schlegel, 1845	CN	Beijing	奥林匹克森林公园北园 (Olympic Forest Park North)	1	40.02712	116.39299	2024-10-07
+5328237810	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Beijing	百望山森林公园 (Baiwangshan Forest Park)	1	40.03307	116.253845	2024-10-19
+5597118803	Turdus mandarinus	Turdus mandarinus Bonaparte, 1850	CN	Zhejiang	五丰岛 (Wufeng Island)	1	30.093658	120.121346	2024-10-21
+5696514330	Turdus mandarinus	Turdus mandarinus Bonaparte, 1850	CN	Guangdong	Wyndham Conference Centre	2	23.077023	112.483955	2024-10-21
+5315849904	Cygnus atratus	Cygnus atratus (Latham, 1790)	CN	Beijing	牛口峪湿地公园	2	39.69855	115.96584	2024-10-19
+5541566372	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Beijing	牛口峪湿地公园	15	39.69855	115.96584	2024-10-19
+5471811834	Paradoxornis heudei	Paradoxornis heudei David, 1872	CN	Hebei	子龙大桥 (Zilong Bridge)	6	38.114925	114.565155	2024-10-24
+5340868736	Spilopelia chinensis	Spilopelia chinensis (Scopoli, 1786)	CN	Shanghai	和平公园 (Peace Park)	5	31.270903	121.503105	2024-10-20
+5681685683	Ardea cinerea	Ardea cinerea Linnaeus, 1758	CN	Guangxi	冠头岭国家森林公园 (Guantou Hill National Forest Park)	1	21.451012	109.05613	2024-10-25
+5674621373	Copsychus saularis	Copsychus saularis (Linnaeus, 1758)	CN	Fujian	天竺山森林公园 (Tianzhu Mountain Forest Park)	1	24.591497	117.92909	2024-10-27
+5523564522	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Zhejiang	西天目山国家级自然保护区 (West Tianmu Mountain NNR)	6	30.334105	119.44898	2024-10-23
+5487229023	Muscicapa sibirica	Muscicapa sibirica Gmelin, 1789	CN	Guangxi	冠头岭国家森林公园 (Guantou Hill National Forest Park)	1	21.451012	109.05613	2024-10-28
+5370589937	Emberiza rustica	Emberiza rustica Pallas, 1776	CN	Zhejiang	北湖草荡 (Beihu Marshland)	2	30.342005	119.9315	2024-10-28
+5331249706	Prinia inornata	Prinia inornata Sykes, 1832	CN	Fujian	霞浦县 古县村	7	26.81542	120.02583	2024-09-08
+5533732495	Dicrurus macrocercus	Dicrurus macrocercus Vieillot, 1817	CN	Hainan	Meilan, Haikou CN-Hainan 20.01101, 110.50111	1	20.011015	110.50111	2024-10-30
+5439728157	Prinia inornata	Prinia inornata Sykes, 1832	CN	Guangxi	广西大学 (Guangxi University)	2	22.84359	108.29258	2024-10-30
+5508462024	Phasianus colchicus	Phasianus colchicus Linnaeus, 1758	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.918356	121.97742	2024-09-07
+5351944595	Milvus migrans	Milvus migrans (Boddaert, 1783)	CN	Shanghai	紫竹荒地	1	31.020464	121.48417	2024-11-02
+5520574992	Psittiparus gularis	Paradoxornis gularis G.R.Gray, 1845	CN	Chongqing	庙坝村 (Miaoba Village)		29.160055	107.36764	2024-11-03
+5537842862	Poecile palustris	Poecile palustris (Linnaeus, 1758)	CN	Beijing	沙河南岸绿化局段	4	40.128227	116.31167	2024-11-04
+5347793978	Gallinula chloropus	Gallinula chloropus (Linnaeus, 1758)	CN	Zhejiang	鄞州公园 (Yinzhou Park)	3	29.811525	121.54366	2024-11-06
+5305309844	Calidris alba	Calidris alba (Pallas, 1764)	CN	Fujian	围头湾 (Weitou Bay Wetlands)	3	24.579262	118.56859	2024-11-03
+5320134914	Phasianus colchicus	Phasianus colchicus Linnaeus, 1758	CN	Zhejiang	上虞滨海围垦区 (Shangyu Coast)	2	30.213898	120.898285	2024-11-08
+5380932638	Grandala coelicolor	Grandala coelicolor Hodgson, 1843	CN	Sichuan	巴朗山 (Balang Shan [General Area])	499	30.878435	102.94677	2024-11-09
+5541910360	Motacilla cinerea	Motacilla cinerea Tunstall, 1771	CN	Yunnan	Shangri-La Zangsi Nicuo Minsu, Deqen CN-Yunnan (28.2492,100.1593)	1	28.249166	100.15931	2024-11-10
+5490248822	Pycnonotus xanthorrhous	Pycnonotus xanthorrhous Anderson, 1869	CN	Guizhou	小河万科大都会	2	26.522877	106.71248	2024-11-10
+5576708053	Aegithalos concinnus	Aegithalos concinnus (Gould, 1855)	CN	Zhejiang	北湖草荡 (Beihu Marshland)	10	30.342005	119.9315	2024-11-10
+5388901144	Alauda arvensis	Alauda arvensis Linnaeus, 1758	CN	Hebei	桑园 (Sang Yuan)	5	40.306416	115.59048	2024-11-12
+5524285705	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Zhejiang	杨村--周浦农田 (Yang Village--Zhoupu Fields)	10	30.108912	120.05698	2024-11-15
+5495534318	Recurvirostra avosetta	Recurvirostra avosetta Linnaeus, 1758	CN	Shanghai	崇明东滩鸟类自然保护区 (Chongming Dongtan NNR)	1	31.49514	121.96472	2024-11-15
+5558166354	Anas platyrhynchos	Anas platyrhynchos Linnaeus, 1758	CN	Beijing	Chaobaihe - 3 Kms downstream of Chaohui Daqiao	67	40.337982	116.785515	2024-11-15
+5582797050	Ixos mcclellandii	Ixos mcclellandii (Horsfield, 1840)	CN	Guizhou	宽阔水自然保护区 (Kuankuoshui NNR)	3	28.22405	107.15913	2024-08-12
+5365160340	Calidris canutus	Calidris canutus (Linnaeus, 1758)	CN	Guangdong	散头咀 (Santouzui Beach)	5	21.618954	111.78579	2024-11-11
+5556579840	Motacilla cinerea	Motacilla cinerea Tunstall, 1771	CN	Fujian	天竺山森林公园 (Tianzhu Mountain Forest Park)	1	24.591497	117.92909	2024-11-16
+5703632152	Columba livia	Columba livia J.F.Gmelin, 1789	CN	Liaoning	东方华地城	4	40.92217	121.56644	2024-11-16
+5367332624	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Hebei	沙城湿地 (Shacheng Wetlands)	2	40.37088	115.46558	2024-11-17
+5639530307	Streptopelia decaocto	Streptopelia decaocto (Frivaldszky, 1838)	CN	Hebei	沙城湿地 (Shacheng Wetlands)	2	40.37088	115.46558	2024-11-17
+5563896993	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Beijing	太庙(Imperial Ancestral Temple)	50	39.91137	116.4	2024-11-17
+5412889613	Circus cyaneus	Circus cyaneus (Linnaeus, 1766)	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	2	30.918356	121.97742	2024-11-17
+5377810277	Spatula clypeata	Spatula clypeata (Linnaeus, 1758)	CN	Zhejiang	北湖草荡 (Beihu Marshland)	11	30.342005	119.9315	2024-11-17
+5629633175	Alauda gulgula	Alauda gulgula Franklin, 1831	CN	Zhejiang	龙泉河村 (Hecun Village, Longquan)	22	28.041927	119.09706	2024-11-15
+5324746983	Pica serica	Pica serica Gould, 1845	CN	Beijing	奥林匹克森林公园南园 (Olympic Forest Park South)		40.017384	116.39381	2024-11-17
+5512756616	Poecile palustris	Poecile palustris (Linnaeus, 1758)	CN	Beijing	奥林匹克森林公园南园 (Olympic Forest Park South)		40.017384	116.39381	2024-11-17
+5402280042	Cygnus columbianus	Cygnus columbianus (Ord, 1815)	CN	Zhejiang	道人山 (Daorenshan Coast)	1	29.545298	121.9844	2024-11-20
+5532550615	Vanellus vanellus	Vanellus vanellus (Linnaeus, 1758)	CN	Shanghai	崇明东滩鸟类自然保护区--外围区域 (Chongming Dongtan NNR--Outskirts)	300	31.502287	121.94258	2024-11-21
+5349689941	Emberiza rustica	Emberiza rustica Pallas, 1776	CN	Zhejiang	五常湿地 (Wuchang Wetlands)	5	30.260319	120.0249	2024-11-24
+5453886646	Phalacrocorax carbo	Phalacrocorax carbo (Linnaeus, 1758)	CN	Hebei	南大港 (Nandagang Wetland World Heritage Site)	8	38.571373	117.44754	2024-11-23
+5580712687	Phyllergates cuculatus	Phyllergates cuculatus (Temminck, 1836)	CN	Xizang	仁青崩寺 (Rinchenpung Monastery)	1	29.301315	95.351685	2024-11-07
+5613872555	Fulica atra	Fulica atra Linnaeus, 1758	CN	Tianjin	水西公园	11	39.110416	117.11033	2024-11-02
+5694405263	Carpodacus dubius	Carpodacus dubius Przewalski, 1876	CN	Sichuan	G350, A Ba Zang Zu Qiang Zu Zi Zhi Zhou, Si Chuan Sheng, CN (30.989, 102.842)	1	30.988934	102.842415	2024-11-25
+5562625493	Pycnonotus xanthorrhous	Pycnonotus xanthorrhous Anderson, 1869	CN	Yunnan	无为寺 (Wuwei Temple)	1	25.726717	100.1183	2024-11-16
+5385285386	Urocissa flavirostris	Urocissa flavirostris (Blyth, 1846)	CN	Xizang	未命名的道路, 林芝市, 西藏自治区, CN (29.305, 95.352)	10	29.305162	95.35227	2024-11-26
+5549129234	Ardea alba	Ardea alba Linnaeus, 1758	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.918356	121.97742	2024-08-25
+5557116171	Riparia riparia	Riparia riparia (Linnaeus, 1758)	CN	Jiangxi	弋阳县信江河（Xinjiang River in Yiyang county)	300	28.330454	117.37564	2024-11-23
+5549166508	Ithaginis cruentus	Ithaginis cruentus (Hardwicke, 1821)	CN	Sichuan	弓杠岭 (Gonggangling Pass)	12	33.050507	103.731224	2024-11-29
+5526724190	Motacilla alba	Motacilla alba Linnaeus, 1758	CN	Shanghai	Guangfu West Road, Shanghai CN (31.2312,121.4259)	1	31.231207	121.42586	2024-11-30
+5469999969	Sitta villosa	Sitta villosa J.Verreaux, 1865	CN	Beijing	颐和园 (Summer Palace)	1	39.9927	116.27233	2024-11-23
+5536238521	Dicrurus hottentottus	Dicrurus hottentottus (Linnaeus, 1766)	CN	Shanghai	奉贤渔人码头 (Fengxian Whalf)	2	30.81406	121.520256	2024-10-08
+5547611939	Monticola solitarius	Monticola solitarius (Linnaeus, 1758)	CN	Hainan	南山大小洞天风景区 (Nanshan Scenic Area)	1	18.303064	109.18325	2024-11-12
+5539413546	Gracupica nigricollis	Gracupica nigricollis (Paykull, 1807)	CN	Guangdong	深圳农科基地 (Shenzhen Base of Agricultural Sciences)		22.599573	114.50562	2024-09-01
+5539352825	Spodiopsar cineraceus	Spodiopsar cineraceus (Temminck, 1835)	CN	Shanghai	崇明东滩鸟类自然保护区 (Chongming Dongtan NNR)	1	31.49514	121.96472	2024-10-13
+5586180287	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Shanghai	奥特莱斯	1	31.15413	121.22761	2024-11-09
+5659144467	Zosterops simplex	Zosterops simplex Swinhoe, 1861	CN	Jiangsu	燕子矶 (Yanziji)	1	32.14715	118.816956	2024-09-17
+5536141756	Pycnonotus aurigaster	Pycnonotus aurigaster (Vieillot, 1818)	CN	Yunnan	野象谷 (Elephant Valley)	10	22.169786	100.86354	2024-10-02
+5618369586	Rhopodytes tristis	Phaenicophaeus tristis (Lesson, 1830)	CN	Yunnan	中科院西双版纳热带植物园 (Xishuangbanna Tropical Botanical Garden)	1	21.925907	101.263306	2024-10-03
+5636085529	Garrulax pectoralis	Pterorhinus pectoralis (Gould, 1836)	CN	Jiangsu	南京中山植物园 (Nanjing Botanical Garden)	10	32.052715	118.83422	2024-10-08
+5495034804	Prinia flaviventris	Prinia flaviventris (Delessert, 1840)	CN	Guangdong	龙虎岗, 广州市 CN-广东省 (23.1849,113.2987)	1	23.184948	113.29866	2024-10-07
+5392602910	Falco peregrinus	Falco peregrinus Tunstall, 1771	CN	Zhejiang	杭州西湖 (The West Lake)	1	30.243252	120.14624	2024-08-13
+5628150200	Tringa totanus	Tringa totanus (Linnaeus, 1758)	CN	Shanghai	崇明东滩鸟类国家级自然保护区 (Chongming Dongtan NNR)	30	31.49514	121.96472	2024-10-13
+5458775778	Calidris falcinellus	Calidris falcinellus (Pontoppidan, 1763)	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.91867	121.97722	2024-10-18
+5617676980	Ardea alba	Ardea alba Linnaeus, 1758	CN	Shanghai	奉贤渔人码头 (Fengxian Whalf)	1	30.81406	121.520256	2024-11-04
+5572515103	Pica serica	Pica serica Gould, 1845	CN	Shanghai	奉贤渔人码头 (Fengxian Whalf)	1	30.81406	121.520256	2024-11-04
+5622532266	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Shanghai	华东理工大学奉贤校区 (East China University of Science and Technology - Fengxian Campus)	2	30.831537	121.50361	2024-11-14
+5520459800	Nycticorax nycticorax	Nycticorax nycticorax (Linnaeus, 1758)	CN	Shanghai	碧海金沙-奉贤边滩 (Bihai Jinsha Coast)	5	30.818962	121.54726	2024-10-30
+5343618149	Falco tinnunculus	Falco tinnunculus Linnaeus, 1758	CN	Shanghai	奉贤区上海乡春农产品专业合作社东南(海航路东)	1	30.820797	121.49427	2024-09-02
+5514970090	Gelochelidon nilotica	Gelochelidon nilotica (J.F.Gmelin, 1789)	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	30	30.91867	121.97722	2024-08-26
+5501288972	Phylloscopus coronatus	Phylloscopus coronatus (Temminck & Schlegel, 1847)	CN	Hubei	华中师范大学 (Central China Normal University)	1	30.518402	114.360245	2024-09-20
+5474367800	Cyanopica cyanus	Cyanopica cyanus (Pallas, 1776)	CN	Hubei	二支沟 (Erzhigou)	20	30.693182	114.058266	2024-09-16
+5499538948		Tachyspiza Kaup, 1844	CN	Shaanxi	草坝村	1	33.27319	107.56669	2024-08-06
+5424387551	Ardea alba	Ardea alba Linnaeus, 1758	CN	Fujian	下吴村 (Xiawu Village)		25.910355	119.587074	2024-10-07
+5331262798	Oriolus chinensis	Oriolus chinensis Linnaeus, 1766	CN	Shanghai	上海交通大学 (Shanghai Jiao Tong University)	1	31.02771	121.43679	2024-09-26
+5668174214	Lanius schach	Lanius schach Linnaeus, 1758	CN	Shanghai	云天湖公园 (Yuntian Lake Park)	1	31.229885	121.63724	2024-11-24
+5544886502	Alcedo atthis	Alcedo atthis (Linnaeus, 1758)	CN	Guangdong	中山大学珠海校园 (Sun Yat-sen University - Zhuhai Campus)	1	22.341303	113.58977	2024-08-07
+5509449495	Cecropis daurica	Cecropis daurica (Laxmann, 1769)	CN	Zhejiang	九龙山国家森林公园 (Jiulongshan National Forest Park)		30.592453	121.10064	2024-10-01
+5554547408	Aegithalos concinnus	Aegithalos concinnus (Gould, 1855)	CN	Fujian	峨嵋峰国家级自然保护区 (Emei Peak NNR)		27.005915	117.08473	2024-08-01
+5493678862	Cyanopica cyanus	Cyanopica cyanus (Pallas, 1776)	CN	Jiangsu	Keye Road, Nantong CN-Jiangsu 31.97010, 120.92591	1	31.970098	120.9259	2024-08-02
+5377138032	Upupa epops	Upupa epops Linnaeus, 1758	CN	Xizang	桑久村	2	28.795122	97.49784	2024-08-03
+5316759950	Apus nipalensis	Apus nipalensis (Hodgson, 1837)	CN	Guangdong	Chimelong Hotel - Outdoor Swimming Pool, Guangzhou CN-Guangdong (23.0006,113.3282)	1	23.000607	113.328156	2024-08-05
+5575479998	Haematopus ostralegus	Haematopus ostralegus Linnaeus, 1758	CN	Nei Mongol	荷花湖（Lotus Lake）	7	43.628925	123.25547	2024-08-06
+5456065375	Spilopelia chinensis	Spilopelia chinensis (Scopoli, 1786)	CN	Jiangsu	溱湖国家湿地公园 (Qin Lake National Wetland Park)	15	32.614952	120.08373	2024-08-10
+5371761539	Falco tinnunculus	Falco tinnunculus Linnaeus, 1758	CN	Tianjin	西西海湿地 (Xixihai Wetlands)	2	38.920303	117.18989	2024-08-11
+5676236463	Parus spilonotus	Machlolophus spilonotus (Bonaparte, 1850)	CN	Yunnan	片马风雪垭口 (Pianma Snow Pass)	5	25.975468	98.697136	2024-08-04
+5323832867	Tringa glareola	Tringa glareola Linnaeus, 1758	CN	Zhejiang	上虞滨海围垦区 (Shangyu Coast)	4	30.213898	120.898285	2024-08-15
+5659182855	Trochalopteron affine	Trochalopteron affine (Blyth, 1843)	CN	Sichuan	瓦屋山--中高海拔 (Wawu Mountain--Upper Level)	1	29.663467	102.95773	2024-08-08
+5627003504	Streptopelia orientalis	Streptopelia orientalis (Latham, 1790)	CN	Sichuan	G318 (30.1889,99.2147)	3	30.188873	99.21468	2024-08-16
+5662533631	Parus cinereus	Parus cinereus Vieillot, 1818	CN	Zhejiang	太子尖 (Taizijian Peak)	5	30.175097	118.89936	2024-08-17
+5578517666	Yuhina torqueola	Staphida torqueola (Swinhoe, 1870)	CN	Zhejiang	凤阳山国家级自然保护区 (Fengyang Mountain NNR)	50	27.890123	119.17641	2024-08-18
+5494768484	Dicrurus hottentottus	Dicrurus hottentottus (Linnaeus, 1766)	CN	Sichuan	泥巴山垭口 (Nibashan Pass)	1	29.648266	102.61823	2024-08-19
+5563316109	Ichthyaetus relictus	Ichthyaetus relictus (Lönnberg, 1931)	CN	Beijing	卢沟新桥-晓月湖	1	39.844955	116.21953	2024-08-21
+5623102395	Pica serica	Pica serica Gould, 1845	CN	Beijing	两山公园	3	39.991337	116.25663	2024-08-21
+5527620621	Gallinula chloropus	Gallinula chloropus (Linnaeus, 1758)	CN	Beijing	沙河水库--北岸 (Shahe Reservoir--North Shore)	3	40.136147	116.313515	2024-08-22
+5515785905	Egretta garzetta	Egretta garzetta (Linnaeus, 1766)	CN	Tianjin	沽畔水乡Gu Pan Watertown	5	39.00141	117.1814	2024-08-22
+5661867017	Gallinula chloropus	Gallinula chloropus (Linnaeus, 1758)	CN	Zhejiang	温州湾永强海滨 (Wenzhou Bay--Yongqiang Coast)	1	27.82458	120.86879	2024-08-23
+5663060089	Ardea alba	Ardea alba Linnaeus, 1758	CN	Hubei	沉湖 (Chen Lake)	2	30.307709	113.84826	2024-08-24
+5514271487	Turdus mandarinus	Turdus mandarinus Bonaparte, 1850	CN	Shanghai	永达国际大厦	2	31.207422	121.55877	2024-08-26
+5631426122	Streptopelia orientalis	Streptopelia orientalis (Latham, 1790)	CN	Guangdong	Xiaoshashan-Sightseeing Platform, Shenzhen CN-Guangdong (22.5193,113.9553)	1	22.51927	113.955345	2024-08-27
+5385124269	Cuculus micropterus	Cuculus micropterus Gould, 1838	CN	Hubei	茅坪村 (Maoping)	1	30.1404	110.672134	2024-08-08
+5639982363	Sterna sumatrana	Sterna sumatrana Raffles, 1822	CN	Guangdong	东山码头 (Dongshan Wharf)	5	22.557055	114.530075	2024-08-30
+5407301113	Phylloscopus coronatus	Phylloscopus coronatus (Temminck & Schlegel, 1847)	CN	Zhejiang	九龙山国家森林公园 (Jiulongshan National Forest Park)	3	30.592453	121.10064	2024-08-28
+5523872462	Yungipicus canicapillus	Yungipicus canicapillus (Blyth, 1845)	CN	Zhejiang	江洋畈生态公园 (Jiangyangfan Eco-Park)	1	30.206911	120.141945	2024-08-31
+5489890514		Ardea Linnaeus, 1758	CN	Zhejiang	南麂列岛国家级海洋自然保护区 (Nanji Islands NNR)	50	27.458199	121.07907	2024-08-31
+5507780980	Motacilla tschutschensis	Motacilla tschutschensis Gmelin, 1789	CN	Zhejiang	南麂列岛国家级海洋自然保护区 (Nanji Islands NNR)	1	27.458199	121.07907	2024-09-04
+5457921087	Falco peregrinus	Falco peregrinus Tunstall, 1771	CN	Zhejiang	龙港滨海围垦区 (Longgang Coast)	1	27.54183	120.64153	2024-09-05
+5338622637	Streptopelia orientalis	Streptopelia orientalis (Latham, 1790)	CN	Zhejiang	江洋畈生态公园 (Jiangyangfan Eco-Park)	5	30.206911	120.141945	2024-09-07
+5522142482	Nycticorax nycticorax	Nycticorax nycticorax (Linnaeus, 1758)	CN	Shanghai	世纪公园 (Century Park)	3	31.214968	121.5496	2024-09-10
+5295854817	Motacilla tschutschensis	Motacilla tschutschensis Gmelin, 1789	CN	Zhejiang	严家屋--融创海滨 (Yanjiawu--Sunac Coast)	11	30.54024	120.98132	2024-09-11
+5478334407	Seicercus whistleri	Phylloscopus whistleri (Ticehurst, 1925)	CN	Xizang	陈塘沟 (Zhêntang Valley)	5	27.864193	87.41753	2024-09-12
+5313289316	Lanius cristatus	Lanius cristatus Linnaeus, 1758	CN	Fujian	福州国家森林公园 (Fuzhou National Forest Park)	2	26.156736	119.286995	2024-09-13
+5524776116	Porzana fusca	Zapornia fusca (Linnaeus, 1766)	CN	Zhejiang	梁横围垦区 (Liangheng Coast)	1	30.09489	122.265724	2024-09-16
+5662251748	Phylloscopus pulcher	Phylloscopus pulcher Blyth, 1845	CN	Qinghai	白扎林场 (Baizha Forest)	2	31.822914	96.54217	2024-09-18
+5507893278	Actitis hypoleucos	Actitis hypoleucos (Linnaeus, 1758)	CN	Tianjin	天津盐业风情区	1	39.26759	117.8558	2024-09-16
+5375444296	Carpodacus waltoni	Carpodacus waltoni (Sharpe, 1905)	CN	Qinghai	民南小区	2	33.005905	96.99562	2024-09-22
+5380243549	Podiceps cristatus	Podiceps cristatus (Linnaeus, 1758)	CN	Jiangsu	仙樱湖公园 (Xianyinghu Park)	20	31.404764	120.75588	2024-09-21
+5576631605	Yuhina diademata	Parayuhina diademata (J.Verreaux, 1869)	CN	Yunnan	杜鹃林 (Azalea Forest)	10	26.815662	100.35311	2024-09-22
+5338357049	Cyanopica cyanus	Cyanopica cyanus (Pallas, 1776)	CN	Beijing	北京二中 (Beijing No.2 Middle School)	5	39.919716	116.423706	2024-09-23
+5508562790	Numenius phaeopus	Numenius phaeopus (Linnaeus, 1758)	CN	Shandong	刘家湾赶海园 (Liujiawan Coast Park)	2	35.279953	119.4297	2024-09-23
+5328157634	Calidris falcinellus	Calidris falcinellus (Pontoppidan, 1763)	CN	Zhejiang	上虞滨海围垦区 (Shangyu Coast)	7	30.213898	120.898285	2024-09-25
+5490670594	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Qinghai	民南小区	2	33.005905	96.99562	2024-09-26
+5308264998	Passer montanus	Passer montanus (Linnaeus, 1758)	CN	Beijing	马场 (Ma Chang)	80	40.379883	115.8417	2024-09-26
+5315700624	Ardea cinerea	Ardea cinerea Linnaeus, 1758	CN	Jiangsu	镬底潭湿地 (Huoditan Wetlands)	1	31.23631	120.73327	2024-09-27
+5432190103	Anthus hodgsoni	Anthus hodgsoni Richmond, 1907	CN	Beijing	大宁水库及其东部永定河废弃河道 (Daning Reservoir & Adjacent Riverbed)		39.829014	116.21707	2024-09-27
+5379328919	Tringa nebularia	Tringa nebularia (Gunnerus, 1767)	CN	Zhejiang	邱家桥	5	30.321365	120.00599	2024-09-28
+5524861478	Columba livia	Columba livia J.F.Gmelin, 1789	CN	Jiangsu	旺山景区 (Wangshan Scenic Area)	60	31.222836	120.5431	2024-10-02
+5446541957	Muscicapa sibirica	Muscicapa sibirica Gmelin, 1789	CN	Zhejiang	杭州沿江湿地公园 (Hangzhou Riverside Wetland Park)	2	30.26056	120.35802	2024-10-03
+5439948034	Egretta garzetta	Egretta garzetta (Linnaeus, 1766)	CN	Yunnan	纳帕海 (Napa Lake)	25	27.880053	99.63827	2024-10-03
+5570655215	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Jiangsu	Lvzhou Bieshu (Oasis Villa), Suzhou	3	31.293335	120.72836	2024-10-04
+5387057272	Egretta intermedia	Ardea intermedia Wagler, 1829	CN	Zhejiang	九龙山国家森林公园 (Jiulongshan National Forest Park)	1	30.592453	121.10064	2024-10-01
+5578163106	Falco subbuteo	Falco subbuteo Linnaeus, 1758	CN	Zhejiang	九龙山国家森林公园 (Jiulongshan National Forest Park)	13	30.592453	121.10064	2024-10-04
+5642209283	Gallinula chloropus	Gallinula chloropus (Linnaeus, 1758)	CN	Guangdong	珠海市斗门区井岸镇，五福村	1	22.173288	113.29333	2024-10-06
+5389736154	Pica bottanensis	Pica bottanensis Delessert, 1840	CN	Xizang	贡觉林卡 (Gongjue Linka)	1	29.280067	88.89163	2024-10-07
+5300302081	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Shanghai	紫竹荒地	8	31.020464	121.48417	2024-09-17
+5424168838	Chloris sinica	Chloris sinica (Linnaeus, 1766)	CN	Beijing	百望山森林公园 (Baiwangshan Forest Park)	30	40.03307	116.253845	2024-10-07
+5508376796	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Beijing	潮白河向阳闸桥段 (Chaobai River at Xiangyang Sluice)		40.16924	116.68158	2024-10-01
+5689405537	Yungipicus canicapillus	Yungipicus canicapillus (Blyth, 1845)	CN	Beijing	不老屯 (Bulaotun)	1	40.536766	116.97418	2024-10-04
+5334828735	Cyanopica cyanus	Cyanopica cyanus (Pallas, 1776)	CN	Beijing	清华大学 (Tsinghua University)	20	40.00223	116.322716	2024-10-12
+5522881116	Falco subbuteo	Falco subbuteo Linnaeus, 1758	CN	Zhejiang	杭州植物园 (Hangzhou Botanical Garden)	1	30.252283	120.11967	2024-10-12
+5620889411	Pycnonotus sinensis	Pycnonotus sinensis (Gmelin, 1789)	CN	Beijing	天坛公园 (Temple of Heaven)	8	39.881035	116.411964	2024-10-12
+5659386080	Zosterops simplex	Zosterops simplex Swinhoe, 1861	CN	Jiangsu	渔洋山 (Yuyang Hill)	12	31.220205	120.37979	2024-10-12
+5335604707	Spatula querquedula	Spatula querquedula (Linnaeus, 1758)	CN	Fujian	鹤上	1	25.89548	119.55658	2024-10-05
+5565393066	Motacilla alba	Motacilla alba Linnaeus, 1758	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.918356	121.97742	2024-10-13
+5302015056	Falco tinnunculus	Falco tinnunculus Linnaeus, 1758	CN	Fujian	闽江口 (Minjiang River Estuary)	1	26.03161	119.6326	2024-10-15
+5655975516	Pica serica	Pica serica Gould, 1845	CN	Beijing	百望山森林公园 (Baiwangshan Forest Park)	2	40.03307	116.253845	2024-10-18
+5539889572	Motacilla alba	Motacilla alba Linnaeus, 1758	CN	Jiangsu	黄海西路, 南通市 CN-江苏省 32.31226, 121.17875	25	32.31226	121.17875	2024-10-16
+5565436882	Phalacrocorax carbo	Phalacrocorax carbo (Linnaeus, 1758)	CN	Shanghai	东日湿地 (Dongri Wetlands)	3	30.931944	121.912224	2024-10-19
+5424124482	Anas zonorhyncha	Anas zonorhyncha Swinhoe, 1866	CN	Shanghai	南汇东滩 (Nanhui Dongtan)	1	30.918356	121.97742	2024-10-19

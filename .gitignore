@@ -1,0 +1,58 @@
+# ── Python ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# ── 环境配置（含密码，绝不提交）────────────────────────
+backend/.env
+.env
+*.env.local
+
+# ── 数据文件（原始数据和处理中间产物）──────────────────
+# 大文件不进 git，用共享网盘或本地路径
+backend/data/
+*.tsv
+*.csv
+*.parquet
+*.gpkg
+
+# 例外：test_data 下的小样本文件需要提交
+!backend/test_data/dev_sample.tsv
+!backend/test_data/dev_sample_info.md
+!backend/test_data/sample_summary.json
+!backend/test_data/数据概况.md
+
+# ── IDE / OS ─────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── 日志 ────────────────────────────────────────────────
+*.log
+logs/
+
+# ── 测试 / 覆盖率 ────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Node（前端可能用到）──────────────────────────────────
+node_modules/
+.next/
+dist/
