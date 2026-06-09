@@ -1,7 +1,7 @@
 # BirdScope 人工审批记录
 
-> 用途：人机协作接口文档。AI Agent 提出变更建议或完成阶段任务后，在此记录待审批项；开发者在"审批意见"栏填写决定。  
-> AI Agent 在推进涉及以下情形的任务前，**必须检查本文档**：删除文件/数据、发布 GeoServer 图层、修改数据库 schema、变更 API 响应格式。  
+> 用途：人机协作接口文档。AI Agent 提出变更建议或完成阶段任务后，在此记录待审批项；开发者在"审批意见"栏填写决定。
+> AI Agent 在推进涉及以下情形的任务前，**必须检查本文档**：删除文件/数据、发布 GeoServer 图层、修改数据库 schema、变更 API 响应格式。
 > 最后更新：2026-06-06
 
 ---
@@ -47,12 +47,14 @@
 - **类型**：文件变更
 - **描述**：
   建议删除以下三个文件，原因已在对话中分析：
+
   - `backend/test_data/cn_sample_records.tsv`（500行旧版样本，10列，已被2000行全球样本取代，AGENT.md 明确标注 legacy）
   - `backend/test_data/sample_summary.json`（早期数据探索脚本的输出，与 cn_sample_records.tsv 配套，探索阶段已完成）
   - `backend/test_data/数据概况.md`（早期数据探索记录，关键信息已被 AGENT.md 吸收）
-  
+
   保留：`dev_sample.tsv`、`dev_sample_info.md`（移入 docs/）
 - **参考文档**：[data_pipeline.md](data_pipeline.md)
 
 **审批意见**：
-> *(请在此填写：批准 / 拒绝 / 修改后批准)*
+
+> 批准

@@ -8,3 +8,4 @@ requests
 shapely
 geoalchemy2
 pandas
+duckdb>=0.10.0
