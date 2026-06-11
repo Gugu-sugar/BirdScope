@@ -104,6 +104,9 @@
 | `requirements.txt` 未 pin 精确版本 | 低 | ⏳ 可在收尾阶段处理 |
 | `occurrence_grid_monthly` 无物种维度 | 中 | ⏳ 长期优化项 |
 | `/stats/grid`（无 species_key）未消费预聚合表，仍实时聚合 | 中 | ⏳ 第三阶段接线（见 [评估报告](assessments/2026-06-11_backend_webgis_data_strategy.md)）|
+| 数据仅覆盖 2024 年 8–11 月，无法做物候/迁徙/年际分析 | 高 | ⏳ 需补春季数据；前端须标注时间窗（见 [空间分析评估](assessments/2026-06-11_spatial_analysis_data_quality.md) P1）|
+| `record_count`/`individual_sum` 易被误读为丰度（实为降采样 occupancy 代理）| 高 | ⏳ 前端文案/tooltip 须澄清（P2）|
+| 1° 等经纬网格面积随纬度收缩，密度配色高纬虚高 | 中 | ⏳ 全球热力图建议面积归一或等积格网（P3）|
 
 ---
 
