@@ -103,7 +103,8 @@
 | `tests/` 目录为空 | 中 | ⏳ 待补充 |
 | `requirements.txt` 未 pin 精确版本 | 低 | ⏳ 可在收尾阶段处理 |
 | `occurrence_grid_monthly` 无物种维度 | 中 | ⏳ 长期优化项 |
-| `/stats/grid`（无 species_key）未消费预聚合表，仍实时聚合 | 中 | ⏳ 第三阶段接线（见 [评估报告](assessments/2026-06-11_backend_webgis_data_strategy.md)）|
+| `/stats/grid` 实时聚合超标（实测全球 1.7s / 北美 4.2s，预聚合表仅 6ms），且为扩容运行瓶颈 | **高** | ⏳ P0：无 species_key 时改查预聚合表（见 [扩容可行性评估](assessments/2026-06-11_data_scaling_feasibility.md)）|
+| `occurrence_grid_monthly` 缺 `(grid_size, year, month)` 复合索引 | 中 | ⏳ 时间滑块逐月取数加速 |
 | 数据仅覆盖 2024 年 8–11 月，无法做物候/迁徙/年际分析 | 高 | ⏳ 需补春季数据；前端须标注时间窗（见 [空间分析评估](assessments/2026-06-11_spatial_analysis_data_quality.md) P1）|
 | `record_count`/`individual_sum` 易被误读为丰度（实为降采样 occupancy 代理）| 高 | ⏳ 前端文案/tooltip 须澄清（P2）|
 | 1° 等经纬网格面积随纬度收缩，密度配色高纬虚高 | 中 | ⏳ 全球热力图建议面积归一或等积格网（P3）|
