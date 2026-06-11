@@ -108,23 +108,25 @@ export function QueryPanel() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="border-b border-slate-200 px-4 py-3">
-        <h2 className="text-base font-semibold">查询条件</h2>
-        <p className="mt-1 text-sm text-slate-500">物种、时间和空间范围</p>
+      <div className="border-b border-slate-200 bg-[#fbfcfa] px-4 py-3">
+        <h2 className="text-base font-semibold tracking-tight">查询条件</h2>
+        <p className="mt-1 text-sm text-slate-500">组合筛选</p>
       </div>
 
-      <div className="space-y-4 overflow-auto p-4">
-        <div>
+      <div className="space-y-5 overflow-auto p-4">
+        <section>
           <label
-            className="flex items-center gap-2 text-sm font-medium text-slate-700"
+            className="flex items-center gap-2 text-sm font-medium text-slate-800"
             htmlFor="species-search"
           >
-            <Search className="h-4 w-4" />
+            <span className="flex h-7 w-7 items-center justify-center rounded border border-teal-200 bg-teal-50 text-teal-800">
+              <Search className="h-4 w-4" />
+            </span>
             物种搜索
           </label>
           <div className="relative mt-2">
             <input
-              className="h-10 w-full rounded border border-slate-300 bg-white px-3 pr-16 text-sm outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+              className="h-10 w-full rounded border border-slate-300 bg-white px-3 pr-16 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
               id="species-search"
               onChange={(event) => {
                 setSearchText(event.target.value);
@@ -150,7 +152,7 @@ export function QueryPanel() {
             </div>
           </div>
           {selectedLabel ? (
-            <p className="mt-2 rounded border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs text-emerald-800">
+            <p className="mt-2 rounded border border-teal-200 bg-teal-50 px-2 py-1 text-xs text-teal-800">
               当前物种：{selectedLabel}
             </p>
           ) : null}
@@ -161,7 +163,7 @@ export function QueryPanel() {
             <div className="mt-2 max-h-48 overflow-auto rounded border border-slate-200 bg-white shadow-sm">
               {speciesOptions.map((species) => (
                 <button
-                  className="block w-full border-b border-slate-100 px-3 py-2 text-left text-sm hover:bg-slate-50"
+                  className="block w-full border-b border-slate-100 px-3 py-2 text-left text-sm transition hover:bg-teal-50/60"
                   key={species.species_key}
                   onClick={() => handleSelectSpecies(species)}
                   type="button"
@@ -176,10 +178,12 @@ export function QueryPanel() {
               ))}
             </div>
           ) : null}
-        </div>
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-            <CalendarDays className="h-4 w-4" />
+        </section>
+        <section>
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
+            <span className="flex h-7 w-7 items-center justify-center rounded border border-amber-200 bg-amber-50 text-amber-800">
+              <CalendarDays className="h-4 w-4" />
+            </span>
             月份
           </label>
           <div className="mt-2 grid grid-cols-4 gap-2">
@@ -187,8 +191,8 @@ export function QueryPanel() {
               <button
                 className={`flex h-9 items-center justify-center rounded border text-sm transition ${
                   month === option
-                    ? "border-emerald-600 bg-emerald-50 text-emerald-800"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                    ? "border-amber-500 bg-amber-50 text-amber-900"
+                    : "border-slate-200 bg-white text-slate-700 hover:bg-amber-50/60"
                 }`}
                 key={option}
                 onClick={() => setMonth(option)}
@@ -198,10 +202,12 @@ export function QueryPanel() {
               </button>
             ))}
           </div>
-        </div>
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-            <MapPin className="h-4 w-4" />
+        </section>
+        <section>
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
+            <span className="flex h-7 w-7 items-center justify-center rounded border border-cyan-200 bg-cyan-50 text-cyan-800">
+              <MapPin className="h-4 w-4" />
+            </span>
             空间筛选
           </label>
           <div className="mt-2 grid gap-2">
@@ -209,8 +215,8 @@ export function QueryPanel() {
               <button
                 className={`flex h-10 items-center gap-2 rounded border px-3 text-sm transition ${
                   spatialMode === mode
-                    ? "border-emerald-600 bg-emerald-50 text-emerald-800"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                    ? "border-cyan-600 bg-cyan-50 text-cyan-900"
+                    : "border-slate-200 bg-white text-slate-700 hover:bg-cyan-50/60"
                 }`}
                 key={mode}
                 onClick={() => setSpatialMode(mode)}
@@ -221,17 +227,17 @@ export function QueryPanel() {
               </button>
             ))}
           </div>
-        </div>
+        </section>
         {spatialMode === "buffer" ? (
-          <div>
+          <section>
             <label
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-slate-800"
               htmlFor="radius-km"
             >
               缓冲半径（公里）
             </label>
             <input
-              className="mt-2 h-10 w-full rounded border border-slate-300 px-3 text-sm outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+              className="mt-2 h-10 w-full rounded border border-slate-300 px-3 text-sm outline-none transition focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"
               id="radius-km"
               max={500}
               min={1}
@@ -239,10 +245,10 @@ export function QueryPanel() {
               type="number"
               value={radiusKm}
             />
-          </div>
+          </section>
         ) : null}
         <button
-          className="flex h-10 w-full items-center justify-center gap-2 rounded bg-emerald-700 px-3 text-sm font-medium text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="flex h-10 w-full items-center justify-center gap-2 rounded bg-[#123b3f] px-3 text-sm font-medium text-white transition hover:bg-[#0b2b2e] disabled:cursor-not-allowed disabled:bg-slate-300"
           disabled={loading}
           onClick={() => void runCurrentQuery()}
           title="执行当前查询条件"

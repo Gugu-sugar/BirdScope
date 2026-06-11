@@ -8,10 +8,10 @@ export function ResultList() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="border-b border-slate-200 px-4 py-3">
+      <div className="border-b border-slate-200 bg-[#fbfcfa] px-4 py-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold">查询结果</h2>
+            <h2 className="text-base font-semibold tracking-tight">查询结果</h2>
             <p className="mt-1 text-sm text-slate-500">
               {results ? `${results.total} 条观测记录` : "等待查询条件"}
             </p>
@@ -26,7 +26,7 @@ export function ResultList() {
         <EmptyState message="当前条件下没有观测记录" />
       ) : null}
       {!loading && !error && features.length > 0 ? (
-        <div className="min-h-0 flex-1 overflow-auto p-3">
+        <div className="min-h-0 flex-1 overflow-auto bg-[#f7faf8] p-3">
           <div className="space-y-2">
             {features.map((feature) => (
               <ResultItem feature={feature} key={feature.properties.gbif_id} />
@@ -41,7 +41,7 @@ export function ResultList() {
 function LoadingState() {
   return (
     <div className="flex flex-1 items-center justify-center gap-2 p-6 text-sm text-slate-500">
-      <Loader2 className="h-4 w-4 animate-spin" />
+      <Loader2 className="h-4 w-4 animate-spin text-teal-700" />
       正在查询
     </div>
   );
@@ -76,7 +76,7 @@ function ResultItem({ feature }: { feature: OccurrenceFeature }) {
   const [lng, lat] = geometry.coordinates;
 
   return (
-    <article className="rounded border border-slate-200 bg-white p-3 shadow-sm">
+    <article className="rounded border border-slate-200 bg-white p-3">
       <h3 className="line-clamp-2 text-sm font-semibold text-slate-900">
         {speciesName}
       </h3>
@@ -89,12 +89,12 @@ function ResultItem({ feature }: { feature: OccurrenceFeature }) {
 
       <dl className="mt-3 grid gap-2 text-xs text-slate-600">
         <div className="flex items-center gap-2">
-          <CalendarDays className="h-3.5 w-3.5 text-slate-400" />
+          <CalendarDays className="h-3.5 w-3.5 text-amber-600" />
           <dt className="sr-only">日期</dt>
           <dd>{properties.event_date ?? "日期未知"}</dd>
         </div>
         <div className="flex items-start gap-2">
-          <MapPin className="mt-0.5 h-3.5 w-3.5 text-slate-400" />
+          <MapPin className="mt-0.5 h-3.5 w-3.5 text-teal-700" />
           <dt className="sr-only">地点</dt>
           <dd>
             {properties.locality ?? "地点未知"}
@@ -105,7 +105,7 @@ function ResultItem({ feature }: { feature: OccurrenceFeature }) {
           </dd>
         </div>
         <div className="flex items-center gap-2">
-          <Users className="h-3.5 w-3.5 text-slate-400" />
+          <Users className="h-3.5 w-3.5 text-cyan-700" />
           <dt className="sr-only">个体数量</dt>
           <dd>
             {properties.individual_count === null
@@ -115,7 +115,7 @@ function ResultItem({ feature }: { feature: OccurrenceFeature }) {
         </div>
       </dl>
 
-      <p className="mt-3 text-[11px] text-slate-400">
+      <p className="mt-3 rounded border border-slate-100 bg-slate-50 px-2 py-1 text-[11px] text-slate-500">
         {lng.toFixed(4)}, {lat.toFixed(4)}
       </p>
     </article>

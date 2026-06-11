@@ -11,3 +11,66 @@ body,
 body {
   margin: 0;
 }
+
+.map-grid {
+  background-image:
+    linear-gradient(rgba(125, 211, 252, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 211, 252, 0.18) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size:
+    96px 96px,
+    96px 96px,
+    24px 24px,
+    24px 24px;
+}
+
+.map-bathymetry {
+  background-image:
+    repeating-linear-gradient(
+      15deg,
+      rgba(20, 184, 166, 0.08) 0,
+      rgba(20, 184, 166, 0.08) 1px,
+      transparent 1px,
+      transparent 18px
+    ),
+    repeating-linear-gradient(
+      105deg,
+      rgba(148, 163, 184, 0.07) 0,
+      rgba(148, 163, 184, 0.07) 1px,
+      transparent 1px,
+      transparent 34px
+    );
+}
+
+.map-land {
+  position: absolute;
+  border: 1px solid rgba(190, 242, 100, 0.22);
+  background: rgba(132, 204, 22, 0.1);
+}
+
+.map-land-a {
+  left: 10%;
+  top: 24%;
+  width: 33%;
+  height: 28%;
+  clip-path: polygon(6% 35%, 28% 10%, 57% 18%, 91% 42%, 74% 78%, 31% 86%);
+}
+
+.map-land-b {
+  right: 12%;
+  top: 18%;
+  width: 31%;
+  height: 36%;
+  clip-path: polygon(14% 14%, 66% 8%, 90% 38%, 72% 91%, 30% 74%, 4% 45%);
+}
+
+.map-land-c {
+  bottom: 18%;
+  left: 35%;
+  width: 31%;
+  height: 22%;
+  border-color: rgba(253, 230, 138, 0.22);
+  background: rgba(245, 158, 11, 0.1);
+  clip-path: polygon(8% 44%, 35% 12%, 70% 20%, 94% 56%, 62% 88%, 20% 76%);
+}
