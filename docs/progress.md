@@ -1,6 +1,6 @@
 # BirdScope 后端开发进展
 
-> 最后更新：2026-06-06  
+> 最后更新：2026-06-11  
 > 面向：全组同学 + AI Agent
 
 ---
@@ -15,8 +15,9 @@
 | 全部 API 接口（9 个，occurrence / species / stats / geoserver）| ✅ 完成 | 2026-06-05 |
 | FastAPI 服务启动、/docs 可访问 | ✅ 完成 | 2026-06-05 |
 | 文档体系建立（docs/ 目录）| ✅ 完成 | 2026-06-06 |
-| 全量数据处理（prepare_global.py → import）| ⏳ 待做 | 第二阶段 |
-| 热力聚合表 build_grid.py | ⏳ 待做 | 第二阶段 |
+| 第二阶段脚本与环境就绪（DuckDB 安装、build_grid.py 补全、import 提速、样本验证）| ✅ 完成 | 2026-06-11 |
+| 全量数据处理（prepare_global.py → import）| ⏸ 就绪待批 | 第二阶段 |
+| 热力聚合表 build_grid.py | ✅ 脚本完成（待全量数据后重建）| 第二阶段 |
 | GeoServer 图层发布 | ⏳ 待做 | 第三阶段 |
 | 前端联调 | ⏳ 待做 | 第四阶段 |
 | 核心接口集成测试 | ⏳ 待做 | 第五阶段 |
@@ -54,9 +55,19 @@
 
 ## 下一步目标
 
-### 优先级 🔴（第二阶段，当前待做）
+### 第二阶段准备成果（2026-06-11 已完成）
 
-1. **编写并运行 `scripts/prepare_global.py`**
+- ✅ DuckDB 1.5.3 安装到 devgis 环境（`prepare_global.py` 依赖）
+- ✅ 补全缺失的 `scripts/build_grid.py`（幂等、支持多网格尺寸；样本验证：2000 行 → 1,038 网格单元）
+- ✅ `import_to_pg.py` 由 `executemany`(500/批) 升级为 `execute_values`(5000/批)，全量导入预计从数小时降至 10-20 分钟
+- ✅ 三个脚本均通过 2000 行样本验证
+- ⏸ **全量管道执行已就绪，待审批**：见 [human_review.md](human_review.md) [002]。开发者已确认导入前先 TRUNCATE 三张表，但暂未批准开跑。
+
+### 优先级 🔴（第二阶段，待开发者批准后执行）
+
+> 执行前先 TRUNCATE `occurrence_clean` / `species_lookup` / `occurrence_grid_monthly`（已确认）。
+
+1. **运行 `scripts/prepare_global.py`**
    - 流式读取 15GB TSV，按 `(lon/0.1, lat/0.1, species_key, month)` 四元组做空间降采样
    - 输出 `backend/data/global_thinned.tsv`（预计 200–400MB，约 200–400 万条）
    - 估计运行时间 20–40 分钟，内存峰值约 800MB

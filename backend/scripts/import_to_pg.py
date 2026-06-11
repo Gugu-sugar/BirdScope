@@ -13,6 +13,7 @@ import csv
 import os
 import sys
 import psycopg2
+from psycopg2.extras import execute_values
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
@@ -28,7 +29,7 @@ DB_DSN = (
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_INPUT = os.path.join(SCRIPT_DIR, "..", "test_data", "dev_sample.tsv")
 
-BATCH = 500
+BATCH = 5000
 
 
 def parse_int(v: str) -> int | None:
@@ -95,19 +96,27 @@ def import_occurrences(conn, path: str) -> int:
 
 
 def _insert_batch(cur, batch):
-    cur.executemany("""
+    # execute_values 把整批拼成单条多行 INSERT，比 executemany 快一个数量级。
+    # 每行末尾的 (lon, lat) 由模板内的 ST_MakePoint 计算为 geom。
+    execute_values(
+        cur,
+        """
         INSERT INTO occurrence_clean (
             gbif_id, species_key, taxon_key, bird_order, family, genus,
             species, scientific_name, country_code, state_province, locality,
             individual_count, event_date, year, month, day, license, issue, geom
-        ) VALUES (
+        ) VALUES %s
+        ON CONFLICT (gbif_id) DO NOTHING
+        """,
+        batch,
+        template="""(
             %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s,
             ST_SetSRID(ST_MakePoint(%s, %s), 4326)
-        )
-        ON CONFLICT (gbif_id) DO NOTHING
-    """, batch)
+        )""",
+        page_size=BATCH,
+    )
 
 
 def build_species_lookup(conn) -> int:
