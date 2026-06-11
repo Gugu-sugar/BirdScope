@@ -76,10 +76,26 @@
 - ✅ 两条路径补齐 `center_lon/center_lat`，与 api_reference / AGENT.md 契约对齐
 - 边界语义：预聚合返回完整边缘格，与实时裁切差 <1%（详见 api_reference）
 
-### 优先级 🔴（当前焦点）
+### ✅ 接口压测收尾（2026-06-11，400 万行规模）
 
-1. **接口压测收尾**：`/occurrence/points`、`/species/search` 在 400 万行下的响应时间复核
-2. **（可选）数据扩容路径 A**：中国多年份（需去重键加 year，见 [扩容评估](assessments/2026-06-11_data_scaling_feasibility.md)）
+| 接口 | 耗时 | 评价 |
+|------|------|------|
+| `/occurrence/points`（bbox limit2000）| 65–70ms | ✅ |
+| `/occurrence/points`（全球 limit5000）| 289ms | ✅ |
+| `/occurrence/buffer`（50km）| 362ms | ✅ |
+| `/stats/grid`（预聚合）| 25–360ms | ✅（P0 已优化）|
+| `/stats/migration` | 15ms | ✅ |
+| `/species/search` | ~130ms，功能正常（Pass→Passer 等）| ✅ |
+| `/stats/monthly` `/province` `/species/rank` | ~1s（冷缓存）| 🟡 见下 |
+
+- 地图关键路径（点/网格/缓冲/搜索）全部达标。
+- ⚠️ 测试时本机电池供电（CPU 降频），以上为冷缓存数字，**偏悲观**；插电 + 热缓存下普遍更快。
+- monthly/province/rank ~1s：根因为数据全是 2024 年，`year=2024` 选中 100% 行 → 全表 Seq Scan，索引无效（EXPLAIN 确认）。对"图表面板加载一次"可接受。**正解是预聚合表/物化视图（数据使用方案 §C），留作后续优化**；引入多年份数据后 `(year,month)` 索引亦将自然生效。
+
+### 优先级 🟢（留待以后）
+
+1. **图表接口预聚合**：month_counts / species_rank / province_counts 物化视图（解 ~1s）
+2. **数据扩容路径 A**：中国多年份（需去重键加 year，见 [扩容评估](assessments/2026-06-11_data_scaling_feasibility.md)）
 
 ### 优先级 🟡（第三阶段）
 
