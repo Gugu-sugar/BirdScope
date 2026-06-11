@@ -1,8 +1,42 @@
 import { MapPanel } from "../components/map/MapPanel";
 import { QueryPanel } from "../components/query/QueryPanel";
 import { ResultList } from "../components/query/ResultList";
+import { useQueryStore } from "../store/queryStore";
+import type { Bbox, GeoJsonPolygon, LngLat } from "../types/geo";
 
 export function MapQueryPage() {
+  const {
+    bbox,
+    buffer,
+    polygon,
+    setBbox,
+    setBufferCenter,
+    setPolygon,
+    setSpatialMode,
+    spatialMode
+  } = useQueryStore();
+
+  const handleBboxSelected = (nextBbox: Bbox) => {
+    setSpatialMode("bbox");
+    setBbox(nextBbox);
+    setPolygon(null);
+    setBufferCenter(null);
+  };
+
+  const handlePolygonSelected = (geometry: GeoJsonPolygon) => {
+    setSpatialMode("polygon");
+    setPolygon(geometry);
+    setBbox(null);
+    setBufferCenter(null);
+  };
+
+  const handleBufferCenterSelected = (point: LngLat) => {
+    setSpatialMode("buffer");
+    setBufferCenter(point);
+    setBbox(null);
+    setPolygon(null);
+  };
+
   return (
     <main className="flex min-h-screen flex-col bg-slate-100 text-slate-950">
       <header className="border-b border-slate-200 bg-white px-5 py-3">
@@ -23,7 +57,15 @@ export function MapQueryPage() {
         </aside>
 
         <section className="min-h-[420px] rounded border border-slate-200 bg-white shadow-sm lg:min-h-0">
-          <MapPanel />
+          <MapPanel
+            bbox={bbox}
+            buffer={buffer}
+            onBboxSelected={handleBboxSelected}
+            onBufferCenterSelected={handleBufferCenterSelected}
+            onPolygonSelected={handlePolygonSelected}
+            polygon={polygon}
+            spatialMode={spatialMode}
+          />
         </section>
 
         <aside className="min-h-[320px] rounded border border-slate-200 bg-white shadow-sm lg:min-h-0">
