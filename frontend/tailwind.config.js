@@ -5,7 +5,8 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          "Inter",
+          "Aptos",
+          "Segoe UI",
           "ui-sans-serif",
           "system-ui",
           "Microsoft YaHei",

@@ -6,6 +6,7 @@ import {
   Pentagon,
   Play,
   Search,
+  SlidersHorizontal,
   Square,
   X
 } from "lucide-react";
@@ -20,11 +21,12 @@ const MONTHS = [8, 9, 10, 11];
 const SPATIAL_OPTIONS: Array<{
   mode: SpatialMode;
   label: string;
+  helper: string;
   Icon: typeof Square;
 }> = [
-  { mode: "bbox", label: "矩形框选", Icon: Square },
-  { mode: "polygon", label: "多边形", Icon: Pentagon },
-  { mode: "buffer", label: "缓冲区", Icon: CircleDot }
+  { mode: "bbox", label: "矩形框选", helper: "区域边界", Icon: Square },
+  { mode: "polygon", label: "多边形", helper: "精细范围", Icon: Pentagon },
+  { mode: "buffer", label: "缓冲区", helper: "中心半径", Icon: CircleDot }
 ];
 
 export function QueryPanel() {
@@ -107,41 +109,53 @@ export function QueryPanel() {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div className="border-b border-slate-200 bg-[#fbfcfa] px-4 py-3">
-        <h2 className="text-base font-semibold tracking-tight">查询条件</h2>
-        <p className="mt-1 text-sm text-slate-500">组合筛选</p>
+    <div className="flex h-full min-h-0 flex-col bg-[#fbfdf8]">
+      <div className="panel-header">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="section-kicker">Query Builder</p>
+            <h2 className="text-lg font-semibold tracking-tight text-slate-950">
+              查询条件
+            </h2>
+          </div>
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-emerald-900/10 bg-emerald-50 text-emerald-800">
+            <SlidersHorizontal className="h-4 w-4" />
+          </span>
+        </div>
+        <p className="mt-2 text-sm leading-5 text-slate-500">
+          按物种、月份和空间范围组合筛选观测记录。
+        </p>
       </div>
 
-      <div className="space-y-5 overflow-auto p-4">
-        <section>
+      <div className="min-h-0 flex-1 space-y-5 overflow-auto p-4">
+        <section className="field-group">
           <label
-            className="flex items-center gap-2 text-sm font-medium text-slate-800"
+            className="field-label"
             htmlFor="species-search"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded border border-teal-200 bg-teal-50 text-teal-800">
+            <span className="field-icon text-emerald-800">
               <Search className="h-4 w-4" />
             </span>
             物种搜索
           </label>
           <div className="relative mt-2">
             <input
-              className="h-10 w-full rounded border border-slate-300 bg-white px-3 pr-16 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+              className="control-input pr-16"
               id="species-search"
               onChange={(event) => {
                 setSearchText(event.target.value);
                 setSelectedSpecies(null);
               }}
-              placeholder="输入拉丁名或科学名"
+              placeholder="输入中文名、拉丁名或科学名"
               value={searchText}
             />
             <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
               {searching ? (
-                <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                <Loader2 className="h-4 w-4 animate-spin text-emerald-700" />
               ) : null}
               {canClearSpecies ? (
                 <button
-                  className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                  className="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-800"
                   onClick={handleClearSpecies}
                   title="清空物种"
                   type="button"
@@ -152,26 +166,28 @@ export function QueryPanel() {
             </div>
           </div>
           {selectedLabel ? (
-            <p className="mt-2 rounded border border-teal-200 bg-teal-50 px-2 py-1 text-xs text-teal-800">
+            <p className="mt-2 rounded-md border border-emerald-900/10 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-900">
               当前物种：{selectedLabel}
             </p>
           ) : null}
           {searchError ? (
-            <p className="mt-2 text-xs text-red-600">{searchError}</p>
+            <p className="mt-2 text-xs font-medium text-red-600">
+              {searchError}
+            </p>
           ) : null}
           {speciesOptions.length > 0 ? (
-            <div className="mt-2 max-h-48 overflow-auto rounded border border-slate-200 bg-white shadow-sm">
+            <div className="mt-2 max-h-56 overflow-auto rounded-md border border-emerald-950/10 bg-white shadow-lg shadow-emerald-950/5">
               {speciesOptions.map((species) => (
                 <button
-                  className="block w-full border-b border-slate-100 px-3 py-2 text-left text-sm transition hover:bg-teal-50/60"
+                  className="block w-full border-b border-slate-100 px-3 py-2.5 text-left text-sm transition last:border-b-0 hover:bg-emerald-50"
                   key={species.species_key}
                   onClick={() => handleSelectSpecies(species)}
                   type="button"
                 >
-                  <span className="block font-medium text-slate-800">
+                  <span className="block font-semibold text-slate-900">
                     {species.display_name}
                   </span>
-                  <span className="block truncate text-xs text-slate-500">
+                  <span className="mt-0.5 block truncate text-xs text-slate-500">
                     {species.family ?? "未知科"} · {species.record_count} 条记录
                   </span>
                 </button>
@@ -179,76 +195,91 @@ export function QueryPanel() {
             </div>
           ) : null}
         </section>
-        <section>
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
-            <span className="flex h-7 w-7 items-center justify-center rounded border border-amber-200 bg-amber-50 text-amber-800">
+
+        <section className="field-group">
+          <label className="field-label">
+            <span className="field-icon text-amber-800">
               <CalendarDays className="h-4 w-4" />
             </span>
-            月份
+            迁徙月份
           </label>
           <div className="mt-2 grid grid-cols-4 gap-2">
             {MONTHS.map((option) => (
               <button
-                className={`flex h-9 items-center justify-center rounded border text-sm transition ${
+                className={`month-button ${
                   month === option
-                    ? "border-amber-500 bg-amber-50 text-amber-900"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-amber-50/60"
+                    ? "border-amber-500 bg-amber-100 text-amber-950 shadow-sm"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-amber-300 hover:bg-amber-50"
                 }`}
                 key={option}
                 onClick={() => setMonth(option)}
                 type="button"
               >
-                {option} 月
+                <span className="text-base font-semibold">{option}</span>
+                <span className="text-[10px] uppercase">月</span>
               </button>
             ))}
           </div>
         </section>
-        <section>
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
-            <span className="flex h-7 w-7 items-center justify-center rounded border border-cyan-200 bg-cyan-50 text-cyan-800">
+
+        <section className="field-group">
+          <label className="field-label">
+            <span className="field-icon text-cyan-800">
               <MapPin className="h-4 w-4" />
             </span>
             空间筛选
           </label>
           <div className="mt-2 grid gap-2">
-            {SPATIAL_OPTIONS.map(({ mode, label, Icon }) => (
+            {SPATIAL_OPTIONS.map(({ mode, label, helper, Icon }) => (
               <button
-                className={`flex h-10 items-center gap-2 rounded border px-3 text-sm transition ${
+                className={`mode-button ${
                   spatialMode === mode
-                    ? "border-cyan-600 bg-cyan-50 text-cyan-900"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-cyan-50/60"
+                    ? "border-cyan-600 bg-cyan-50 text-cyan-950 shadow-sm"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-cyan-300 hover:bg-cyan-50"
                 }`}
                 key={mode}
                 onClick={() => setSpatialMode(mode)}
                 type="button"
               >
-                <Icon className="h-4 w-4" />
-                {label}
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="min-w-0 flex-1 text-left">
+                  <span className="block font-medium">{label}</span>
+                  <span className="block text-xs text-slate-500">{helper}</span>
+                </span>
               </button>
             ))}
           </div>
         </section>
+
         {spatialMode === "buffer" ? (
-          <section>
+          <section className="field-group">
             <label
-              className="text-sm font-medium text-slate-800"
+              className="field-label"
               htmlFor="radius-km"
             >
               缓冲半径（公里）
             </label>
-            <input
-              className="mt-2 h-10 w-full rounded border border-slate-300 px-3 text-sm outline-none transition focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"
-              id="radius-km"
-              max={500}
-              min={1}
-              onChange={(event) => setRadiusKm(Number(event.target.value))}
-              type="number"
-              value={radiusKm}
-            />
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                className="control-input"
+                id="radius-km"
+                max={500}
+                min={1}
+                onChange={(event) => setRadiusKm(Number(event.target.value))}
+                type="number"
+                value={radiusKm}
+              />
+              <span className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600">
+                km
+              </span>
+            </div>
           </section>
         ) : null}
+      </div>
+
+      <div className="border-t border-emerald-950/10 bg-white/70 p-4">
         <button
-          className="flex h-10 w-full items-center justify-center gap-2 rounded bg-[#123b3f] px-3 text-sm font-medium text-white transition hover:bg-[#0b2b2e] disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[#123b3f] px-3 text-sm font-semibold text-white shadow-lg shadow-emerald-950/15 transition hover:bg-[#0b2b2e] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
           disabled={loading}
           onClick={() => void runCurrentQuery()}
           title="执行当前查询条件"

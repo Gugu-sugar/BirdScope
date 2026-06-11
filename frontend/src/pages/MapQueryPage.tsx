@@ -1,3 +1,4 @@
+import { Activity, Database, Globe2, Layers3 } from "lucide-react";
 import { MapPanel } from "../components/map/MapPanel";
 import { QueryPanel } from "../components/query/QueryPanel";
 import { ResultList } from "../components/query/ResultList";
@@ -38,34 +39,37 @@ export function MapQueryPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col bg-[#eef3f1] text-slate-950">
-      <header className="border-b border-slate-200 bg-[#fbfcfa] px-5 py-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded border border-teal-200 bg-teal-50 text-sm font-semibold text-teal-800">
+    <main className="app-shell flex min-h-screen flex-col text-slate-950">
+      <header className="relative z-10 border-b border-emerald-950/10 bg-[#f8fbf6]/90 px-4 py-3 shadow-[0_1px_0_rgba(15,23,42,0.04)] backdrop-blur md:px-6">
+        <div className="mx-auto flex w-full max-w-[1800px] flex-wrap items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-emerald-900/15 bg-[#102f2b] text-sm font-semibold text-lime-200 shadow-sm">
               BS
             </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700">
-                BirdScope
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase text-emerald-700">
+                BirdScope Migration Observatory
               </p>
-              <h1 className="text-xl font-semibold tracking-tight">
-                鸟类观测查询工作台
+              <h1 className="truncate text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
+                鸟类观测空间查询工作台
               </h1>
             </div>
           </div>
-          <div className="rounded border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600">
-            WGS-84 · 2024 年 8-11 月迁徙季
+
+          <div className="grid w-full gap-2 text-xs text-slate-600 sm:w-auto sm:grid-cols-3">
+            <StatusPill icon={Globe2} label="坐标系" value="WGS-84" />
+            <StatusPill icon={Activity} label="样本季" value="2024.08-11" />
+            <StatusPill icon={Database} label="数据源" value="GBIF / eBird" />
           </div>
         </div>
       </header>
 
-      <section className="grid min-h-0 flex-1 grid-cols-1 gap-3 p-3 lg:grid-cols-[330px_minmax(0,1fr)_370px]">
-        <aside className="min-h-0 overflow-hidden rounded border border-slate-200 bg-[#fbfcfa] shadow-sm">
+      <section className="mx-auto grid w-full max-w-[1800px] flex-1 grid-cols-1 gap-3 p-3 lg:min-h-0 lg:grid-cols-[360px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)_390px]">
+        <aside className="panel-shell min-h-0 overflow-hidden lg:order-1">
           <QueryPanel />
         </aside>
 
-        <section className="min-h-[460px] overflow-hidden rounded border border-slate-200 bg-[#fbfcfa] shadow-sm lg:min-h-0">
+        <section className="panel-shell min-h-[560px] overflow-hidden lg:order-2 lg:min-h-0">
           <MapPanel
             bbox={bbox}
             buffer={buffer}
@@ -77,10 +81,36 @@ export function MapQueryPage() {
           />
         </section>
 
-        <aside className="min-h-[340px] overflow-hidden rounded border border-slate-200 bg-[#fbfcfa] shadow-sm lg:min-h-0">
+        <aside className="panel-shell min-h-[420px] overflow-hidden lg:order-3 xl:min-h-0">
           <ResultList />
         </aside>
       </section>
+
+      <footer className="border-t border-emerald-950/10 bg-[#f8fbf6]/80 px-4 py-2 text-xs text-slate-500 md:px-6">
+        <div className="mx-auto flex w-full max-w-[1800px] flex-wrap items-center justify-between gap-2">
+          <span>生态观测数据仅代表记录采样密度，请结合空间范围解读。</span>
+          <span className="inline-flex items-center gap-1 text-emerald-800">
+            <Layers3 className="h-3.5 w-3.5" />
+            查询预览层 · 统计结果联动
+          </span>
+        </div>
+      </footer>
     </main>
+  );
+}
+
+type StatusPillProps = {
+  icon: typeof Globe2;
+  label: string;
+  value: string;
+};
+
+function StatusPill({ icon: Icon, label, value }: StatusPillProps) {
+  return (
+    <div className="flex items-center gap-2 rounded-md border border-emerald-950/10 bg-white/80 px-3 py-2 shadow-sm">
+      <Icon className="h-4 w-4 shrink-0 text-emerald-700" />
+      <span className="text-slate-500">{label}</span>
+      <span className="font-medium text-slate-900">{value}</span>
+    </div>
   );
 }
