@@ -51,6 +51,8 @@ CREATE TABLE IF NOT EXISTS occurrence_grid_monthly (
 CREATE INDEX IF NOT EXISTS grid_time_idx ON occurrence_grid_monthly (year, month);
 CREATE INDEX IF NOT EXISTS grid_size_idx ON occurrence_grid_monthly (grid_size);
 CREATE INDEX IF NOT EXISTS grid_geom_idx ON occurrence_grid_monthly USING GIST (geom);
+-- 复合索引：/stats/grid 预聚合路径与时间滑块逐月取数（grid_size + 时间维度）
+CREATE INDEX IF NOT EXISTS grid_size_time_idx ON occurrence_grid_monthly (grid_size, year, month);
 
 -- ============================================================
 -- 3. species_lookup  物种索引表

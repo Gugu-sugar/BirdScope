@@ -87,10 +87,12 @@ def main():
         "--grid-size",
         type=float,
         action="append",
-        help="网格尺寸（度），可重复指定生成多个；默认 1.0",
+        help="网格尺寸（度），可重复指定生成多个；默认 1.0 与 0.5",
     )
     args = parser.parse_args()
-    grid_sizes = args.grid_size or [1.0]
+    # 默认 [1.0, 0.5]，与 spatial.PREBUILT_GRID_SIZES 对齐，确保 /stats/grid
+    # 预聚合路径在重建后即可命中这两档粒度
+    grid_sizes = args.grid_size or [1.0, 0.5]
 
     print("连接数据库...")
     conn = psycopg2.connect(DB_DSN)

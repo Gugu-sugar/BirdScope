@@ -115,6 +115,11 @@ def query_buffer(
     return [_row_to_feature(r) for r in rows]
 
 
+# 已由 build_grid.py 预聚合的网格粒度（度）。命中这些粒度且无物种过滤时，
+# 直接查 occurrence_grid_monthly（O(网格数)，~6ms），否则回退实时聚合。
+PREBUILT_GRID_SIZES = {1.0, 0.5}
+
+
 def query_grid(
     db: Session,
     minx: float, miny: float, maxx: float, maxy: float,
@@ -122,6 +127,69 @@ def query_grid(
     species_key: int | None = None,
     month: int | None = None,
     year: int | None = None,
+) -> list[dict]:
+    """网格热力聚合。
+
+    路由策略：
+    - 无 species_key 且 grid_size 已预聚合 → 查预聚合表（快，与明细总量脱钩）
+    - 否则（带物种过滤 / 非预聚合粒度）→ 实时聚合 occurrence_clean
+      （此场景前端通常已缩放到局部 bbox，扫描行数有限）
+    """
+    if species_key is None and grid_size in PREBUILT_GRID_SIZES:
+        return _query_grid_prebuilt(db, minx, miny, maxx, maxy, grid_size, month, year)
+    return _query_grid_realtime(db, minx, miny, maxx, maxy, grid_size, species_key, month, year)
+
+
+def _query_grid_prebuilt(
+    db: Session,
+    minx: float, miny: float, maxx: float, maxy: float,
+    grid_size: float,
+    month: int | None,
+    year: int | None,
+) -> list[dict]:
+    # 预聚合表每行是 (year, month, 格子)。month 为空时同一格有多月行，
+    # 须按格子 GROUP BY 跨月求和，才与实时聚合（按格累加全月）口径一致。
+    params = {
+        "minx": minx, "miny": miny, "maxx": maxx, "maxy": maxy,
+        "gs": grid_size, "month": month, "year": year,
+    }
+    sql = text("""
+        SELECT
+            SUM(record_count)::int   AS record_count,
+            SUM(individual_sum)::int AS individual_sum,
+            center_lon, center_lat,
+            ST_AsGeoJSON(geom)       AS geom_json
+        FROM occurrence_grid_monthly
+        WHERE grid_size = :gs
+          AND geom && ST_MakeEnvelope(:minx, :miny, :maxx, :maxy, 4326)
+          AND (:year  IS NULL OR year  = :year)
+          AND (:month IS NULL OR month = :month)
+        GROUP BY geom, center_lon, center_lat
+        LIMIT 10000
+    """)
+    rows = db.execute(sql, params).fetchall()
+    return [
+        {
+            "type": "Feature",
+            "geometry": json.loads(r.geom_json),
+            "properties": {
+                "record_count": r.record_count,
+                "individual_sum": r.individual_sum,
+                "center_lon": r.center_lon,
+                "center_lat": r.center_lat,
+            },
+        }
+        for r in rows
+    ]
+
+
+def _query_grid_realtime(
+    db: Session,
+    minx: float, miny: float, maxx: float, maxy: float,
+    grid_size: float,
+    species_key: int | None,
+    month: int | None,
+    year: int | None,
 ) -> list[dict]:
     where, params = _build_filters(species_key, month, year)
     params.update({
@@ -134,6 +202,8 @@ def query_grid(
             SUM(individual_count)::int AS individual_sum,
             FLOOR(ST_X(geom) / :gs) * :gs AS gx,
             FLOOR(ST_Y(geom) / :gs) * :gs AS gy,
+            FLOOR(ST_X(geom) / :gs) * :gs + :gs / 2 AS center_lon,
+            FLOOR(ST_Y(geom) / :gs) * :gs + :gs / 2 AS center_lat,
             ST_AsGeoJSON(ST_MakeEnvelope(
                 FLOOR(ST_X(geom) / :gs) * :gs,
                 FLOOR(ST_Y(geom) / :gs) * :gs,
@@ -155,6 +225,8 @@ def query_grid(
             "properties": {
                 "record_count": r.record_count,
                 "individual_sum": r.individual_sum,
+                "center_lon": r.center_lon,
+                "center_lat": r.center_lat,
             },
         }
         for r in rows

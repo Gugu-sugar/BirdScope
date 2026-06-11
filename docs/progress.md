@@ -68,13 +68,18 @@
 - ✅ `species_lookup` **9,807 物种**、`build_grid` **26,339 网格单元**（1.0°）
 - ✅ 导入后校验通过：NULL 边界保留正确、国家分布均衡、空间查询定位正确，见 [评估报告](assessments/2026-06-11_backend_webgis_data_strategy.md)
 
-### 优先级 🔴（当前焦点：性能验证与索引）
+### ✅ P0 完成（2026-06-11）：/stats/grid 接线预聚合表
 
-1. **全量数据下的接口压测**：访问 `/docs` 实测 `/stats/grid`、`/occurrence/points`、`/species/search` 响应时间
-   - `/stats/grid?species_key=xxx`（实时聚合）若 > 1s，加 `(species_key, year, month)` 联合索引
-   - 确认 GIST / GIN 索引在 400 万行规模下有效
-2. **`/stats/grid` 接线预聚合表**：无 `species_key` 时改查 `occurrence_grid_monthly`，兑现 <100ms（评估报告问题 2）
-3. **补充 0.5° 网格**：`build_grid.py --grid-size 0.5`
+- ✅ `query_grid` 拆分路由：无 species_key 且 grid_size∈{1.0,0.5} → 查预聚合表，否则 bbox 收窄实时聚合
+- ✅ 补 0.5° 预聚合（63,722 格）+ `(grid_size,year,month)` 复合索引；`build_grid.py` 默认产 1.0/0.5 两档
+- ✅ 实测：北美 1725→25ms、欧洲 0.5° 8200→156ms、全球全月 5055→360ms；正确性：全球总数精确一致
+- ✅ 两条路径补齐 `center_lon/center_lat`，与 api_reference / AGENT.md 契约对齐
+- 边界语义：预聚合返回完整边缘格，与实时裁切差 <1%（详见 api_reference）
+
+### 优先级 🔴（当前焦点）
+
+1. **接口压测收尾**：`/occurrence/points`、`/species/search` 在 400 万行下的响应时间复核
+2. **（可选）数据扩容路径 A**：中国多年份（需去重键加 year，见 [扩容评估](assessments/2026-06-11_data_scaling_feasibility.md)）
 
 ### 优先级 🟡（第三阶段）
 
@@ -103,8 +108,8 @@
 | `tests/` 目录为空 | 中 | ⏳ 待补充 |
 | `requirements.txt` 未 pin 精确版本 | 低 | ⏳ 可在收尾阶段处理 |
 | `occurrence_grid_monthly` 无物种维度 | 中 | ⏳ 长期优化项 |
-| `/stats/grid` 实时聚合超标（实测全球 1.7s / 北美 4.2s，预聚合表仅 6ms），且为扩容运行瓶颈 | **高** | ⏳ P0：无 species_key 时改查预聚合表（见 [扩容可行性评估](assessments/2026-06-11_data_scaling_feasibility.md)）|
-| `occurrence_grid_monthly` 缺 `(grid_size, year, month)` 复合索引 | 中 | ⏳ 时间滑块逐月取数加速 |
+| ~~`/stats/grid` 实时聚合超标，且为扩容运行瓶颈~~ | 高 | ✅ 已解决（2026-06-11 P0 接线预聚合表，降至毫秒级）|
+| ~~`occurrence_grid_monthly` 缺 `(grid_size, year, month)` 复合索引~~ | 中 | ✅ 已解决（2026-06-11）|
 | 数据仅覆盖 2024 年 8–11 月，无法做物候/迁徙/年际分析 | 高 | ⏳ 需补春季数据；前端须标注时间窗（见 [空间分析评估](assessments/2026-06-11_spatial_analysis_data_quality.md) P1）|
 | `record_count`/`individual_sum` 易被误读为丰度（实为降采样 occupancy 代理）| 高 | ⏳ 前端文案/tooltip 须澄清（P2）|
 | 1° 等经纬网格面积随纬度收缩，密度配色高纬虚高 | 中 | ⏳ 全球热力图建议面积归一或等积格网（P3）|

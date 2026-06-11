@@ -219,7 +219,10 @@ PostGIS 查询：`ST_DWithin(geom::geography, ST_MakePoint(:lng, :lat)::geograph
 }
 ```
 
-**实现**：`species_key` 为 null 时查 `occurrence_grid_monthly`（快）；`species_key` 存在时对 `occurrence_clean` 做实时 `ST_SnapToGrid` 聚合（200–500ms）。
+**实现**（2026-06-11 已落地）：
+- `species_key` 为 null 且 `grid_size ∈ {1.0, 0.5}` → 查预聚合表 `occurrence_grid_monthly`（实测北美/欧洲 25–160ms，全球全月 ~360ms）。`month` 为空时按格子跨月求和。
+- 否则（带 `species_key` 或非预聚合粒度）→ 实时聚合 `occurrence_clean`（前端此场景已缩放到局部 bbox）。
+- **边界语义**：预聚合路径返回与 bbox 重叠的**完整边缘格**（`geom && bbox`），实时路径按落在 bbox 内的点裁切；二者在视口边缘约有 <1% 计数差异，对热力渲染无影响（全格更稳定）。bbox 完整覆盖区域时两路径总数精确一致。
 
 ---
 
