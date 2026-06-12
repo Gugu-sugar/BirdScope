@@ -1,0 +1,49 @@
+# BirdScope 一键起：PostGIS（含全量数据） + FastAPI
+# 用法：cd deploy && docker compose up -d
+# 详细说明见 deploy/README.md
+
+services:
+  db:
+    # 必须与本机导出 dump 的版本一致：PG 18 / PostGIS 3.6
+    image: postgis/postgis:18-3.6
+    container_name: birdscope-db
+    environment:
+      POSTGRES_DB: birdscope
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      # PG 18+ 官方镜像要求卷挂在 /var/lib/postgresql（数据存其下的版本子目录），
+      # 不能再挂 /var/lib/postgresql/data，否则容器拒绝启动
+      - pgdata:/var/lib/postgresql
+      # 首次启动（数据卷为空时）自动执行 initdb 脚本恢复数据
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+      - ./dump:/dump:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d birdscope"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..                 # 仓库根，便于 COPY backend/
+      dockerfile: deploy/Dockerfile
+    container_name: birdscope-api
+    environment:
+      DB_HOST: db                 # 指向 db 服务名（容器网络内可达）
+      DB_PORT: 5432
+      DB_NAME: birdscope
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

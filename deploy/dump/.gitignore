@@ -1,0 +1,4 @@
+# dump 文件几百 MB，不进 git，单独通过网盘/U盘传输
+*.dump
+!.gitignore
+!README.md

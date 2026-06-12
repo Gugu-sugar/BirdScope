@@ -202,7 +202,7 @@ def main(input_path: str, output_path: str) -> None:
         print(f"\n  注意：{unmatched:,} 条记录国家码未匹配大洲，将全部保留。")
 
     # 执行子采样并写出 TSV
-    col_select = ", ".join(f's."{c}"' if c == "order" else f"s.{c}" for c in OUTPUT_COLS)
+    col_select = ", ".join(f't."{c}"' if c == "order" else f"t.{c}" for c in OUTPUT_COLS)
     con.execute(f"""
         COPY (
             SELECT {col_select}
