@@ -127,6 +127,7 @@ def query_grid(
     species_key: int | None = None,
     month: int | None = None,
     year: int | None = None,
+    max_cells: int = 10000,
 ) -> list[dict]:
     """网格热力聚合。
 
@@ -136,8 +137,10 @@ def query_grid(
       （此场景前端通常已缩放到局部 bbox，扫描行数有限）
     """
     if species_key is None and grid_size in PREBUILT_GRID_SIZES:
-        return _query_grid_prebuilt(db, minx, miny, maxx, maxy, grid_size, month, year)
-    return _query_grid_realtime(db, minx, miny, maxx, maxy, grid_size, species_key, month, year)
+        return _query_grid_prebuilt(db, minx, miny, maxx, maxy, grid_size, month, year, max_cells)
+    return _query_grid_realtime(
+        db, minx, miny, maxx, maxy, grid_size, species_key, month, year, max_cells
+    )
 
 
 def _query_grid_prebuilt(
@@ -146,12 +149,13 @@ def _query_grid_prebuilt(
     grid_size: float,
     month: int | None,
     year: int | None,
+    max_cells: int,
 ) -> list[dict]:
     # 预聚合表每行是 (year, month, 格子)。month 为空时同一格有多月行，
     # 须按格子 GROUP BY 跨月求和，才与实时聚合（按格累加全月）口径一致。
     params = {
         "minx": minx, "miny": miny, "maxx": maxx, "maxy": maxy,
-        "gs": grid_size, "month": month, "year": year,
+        "gs": grid_size, "month": month, "year": year, "max_cells": max_cells,
     }
     sql = text("""
         SELECT
@@ -165,7 +169,7 @@ def _query_grid_prebuilt(
           AND (:year  IS NULL OR year  = :year)
           AND (:month IS NULL OR month = :month)
         GROUP BY geom, center_lon, center_lat
-        LIMIT 10000
+        LIMIT :max_cells
     """)
     rows = db.execute(sql, params).fetchall()
     return [
@@ -190,11 +194,12 @@ def _query_grid_realtime(
     species_key: int | None,
     month: int | None,
     year: int | None,
+    max_cells: int,
 ) -> list[dict]:
     where, params = _build_filters(species_key, month, year)
     params.update({
         "minx": minx, "miny": miny, "maxx": maxx, "maxy": maxy,
-        "gs": grid_size,
+        "gs": grid_size, "max_cells": max_cells,
     })
     sql = text(f"""
         SELECT
@@ -215,7 +220,7 @@ def _query_grid_realtime(
         WHERE ST_Within(geom, ST_MakeEnvelope(:minx, :miny, :maxx, :maxy, 4326))
           AND {where}
         GROUP BY gx, gy
-        LIMIT 10000
+        LIMIT :max_cells
     """)
     rows = db.execute(sql, params).fetchall()
     return [
@@ -328,17 +333,23 @@ def query_species_rank(
     where = " AND ".join(clauses)
     sql = text(f"""
         SELECT o.species_key,
-               COALESCE(s.species, s.scientific_name, o.scientific_name) AS display_name,
-               COUNT(*)::int AS record_count
+               COALESCE(s.species, s.scientific_name, o.scientific_name, o.species_key::text) AS species,
+               COUNT(*)::int AS record_count,
+               SUM(o.individual_count)::int AS individual_sum
         FROM occurrence_clean o
         LEFT JOIN species_lookup s ON s.species_key = o.species_key
         WHERE {where}
-        GROUP BY o.species_key, display_name
+        GROUP BY o.species_key, COALESCE(s.species, s.scientific_name, o.scientific_name, o.species_key::text)
         ORDER BY record_count DESC
         LIMIT :limit
     """)
     rows = db.execute(sql, params).fetchall()
     return [
-        {"species_key": r.species_key, "display_name": r.display_name, "record_count": r.record_count}
+        {
+            "species_key": r.species_key,
+            "species": r.species,
+            "record_count": r.record_count,
+            "individual_sum": r.individual_sum,
+        }
         for r in rows
     ]

@@ -20,5 +20,6 @@ class SpeciesSearchResult(BaseModel):
 
 class SpeciesRankItem(BaseModel):
     species_key: int
-    display_name: str
+    species: str
     record_count: int
+    individual_sum: int | None
