@@ -2,6 +2,12 @@
 
 BirdScope 是基于 GBIF/eBird 鸟类观测数据的三维地图查询与可视化项目。
 
+## 文档
+
+- 项目级 Agent 参考：[AGENT.md](AGENT.md)
+- 后端文档：[backend-docs/](backend-docs/)
+- 前端文档：[frontend-docs/](frontend-docs/)
+
 ## 前端开发
 
 3 号任务前端代码位于 `frontend/`，技术栈为 Vite + React + TypeScript + Tailwind CSS。
