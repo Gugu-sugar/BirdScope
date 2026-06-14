@@ -126,7 +126,7 @@ D:/conda_env/conda_envs/devgis/python.exe scripts/prepare_north_america.py
 # 2. 合并文件
 Get-Content data\na_thinned.tsv | Add-Content data\global_thinned.tsv
 
-# 3. 导入数据库（需先在 docs/human_review.md 提交审批）
+# 3. 导入数据库（需先在 backend-docs/human_review.md 提交审批）
 D:/conda_env/conda_envs/devgis/python.exe scripts/import_to_pg.py --input data/global_thinned.tsv
 ```
 

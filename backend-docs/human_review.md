@@ -30,7 +30,7 @@
 - **类型**：文件变更 / Schema 变更 / API 变更 / 数据操作 / 其他
 - **描述**：
   （详细说明提议的变更内容、理由、影响范围）
-- **参考文档**：（相关的 docs/ 文件链接）
+- **参考文档**：（相关的 backend-docs/ 文件链接）
 
 **审批意见**：
 > *(待填写)*
@@ -88,7 +88,7 @@
   - `backend/test_data/sample_summary.json`（早期数据探索脚本的输出，与 cn_sample_records.tsv 配套，探索阶段已完成）
   - `backend/test_data/数据概况.md`（早期数据探索记录，关键信息已被 AGENT.md 吸收）
 
-  保留：`dev_sample.tsv`、`dev_sample_info.md`（移入 docs/）
+  保留：`dev_sample.tsv`、`dev_sample_info.md`（移入 backend-docs/）
 - **参考文档**：[data_pipeline.md](data_pipeline.md)
 
 **审批意见**：
