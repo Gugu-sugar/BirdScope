@@ -19,7 +19,7 @@
 | 全量数据处理（降采样 → TRUNCATE → 全量导入 399.8 万条）| ✅ 完成 | 2026-06-11 |
 | 热力聚合表 build_grid.py（1.0° 网格 26,339 单元）| ✅ 完成 | 2026-06-11 |
 | Docker 一键交付包（`deploy/`，含全量数据 dump，前端联调用）| ✅ 完成 | 2026-06-12 |
-| GeoServer 图层发布 | ⏳ 待做 | 第三阶段 |
+| GeoServer 图层发布 + 管控接口鉴权（第三阶段）| ✅ 完成 | 2026-06-14 |
 | 前端联调 | ⏳ 待做 | 第四阶段 |
 | 核心接口集成测试 | ⏳ 待做 | 第五阶段 |
 
@@ -98,15 +98,15 @@
 1. **图表接口预聚合**：month_counts / species_rank / province_counts 物化视图（解 ~1s）
 2. **数据扩容路径 A**：中国多年份（需去重键加 year，见 [扩容评估](assessments/2026-06-11_data_scaling_feasibility.md)）
 
-### 优先级 🟡（第三阶段）
+### ✅ 第三阶段完成（2026-06-14）：GeoServer 图层发布 + 管控接口鉴权
 
-4. **GeoServer 图层发布**
-   - Web UI 建 workspace `birdscope` + datastore `birdscope_pg`
-   - 调 `POST /api/v1/geoserver/layers` 发布 WMS 图层
-   - 配置 SLD 分级配色样式
-
-6. **GeoServer 管控接口加鉴权**（评估报告标记为高风险）
-   - 哪怕是硬编码 API Key 也比裸露强
+- ✅ `scripts/setup_geoserver.py` 一键初始化（幂等）：建 workspace `birdscope` + datastore `birdscope_pg` + 上传样式 + 发布图层，REST 自动化，无需 Web UI 手点
+- ✅ `styles/grid_heatmap.sld`：按 `record_count` 7 级 YlOrRd 分色（断点取自 1.0° 网格真实分布 中位54/P90 384/P99 1435）
+- ✅ 发布 `birdscope:occurrence_grid_monthly`（WMS/WFS），默认样式绑定 `birdscope:grid_heatmap`
+- ✅ WMS GetMap 实测：全球 10 月 1.0° 热力图正确渲染（YlOrRd 分级，热点分布与 eBird 吻合），返回合法 PNG
+- ✅ **管控接口加 API Key 鉴权**（消除高风险技术债）：POST/DELETE/PUT 需 `X-API-Key`，GET 开放；TestClient 验证 401/通过路径符合预期
+- 注：发布 featuretype 时 payload 的 defaultStyle 会被 GeoServer 忽略（defaultStyle 属 Layer 非 FeatureType），脚本已显式补一次 `set_layer_style`
+- 运维注意：本机 GeoServer 是 **Windows 服务**（名 `GeoServer`，2.28.1），曾出现长时间运行后假死（端口在但 HTTP 不响应、日志停更、CLOSE_WAIT 堆积），重启服务即恢复
 
 ### 优先级 🟢（第四 / 五阶段）
 
@@ -121,7 +121,7 @@
 
 | 问题 | 风险 | 状态 |
 |------|------|------|
-| GeoServer 管控接口无鉴权 | 高 | ⏳ 待处理（联调前必做）|
+| ~~GeoServer 管控接口无鉴权~~ | 高 | ✅ 已解决（2026-06-14，X-API-Key 鉴权）|
 | `tests/` 目录为空 | 中 | ⏳ 待补充 |
 | `requirements.txt` 未 pin 精确版本 | 低 | ⏳ 可在收尾阶段处理 |
 | `occurrence_grid_monthly` 无物种维度 | 中 | ⏳ 长期优化项 |

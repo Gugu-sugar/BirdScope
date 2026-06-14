@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.deps import get_db
-from app.schemas.species import SpeciesItem, SpeciesSearchResult, SpeciesRankItem
+from app.schemas.species import SpeciesItem, SpeciesRankItem
 from app.services import spatial
 
 router = APIRouter(prefix="/species", tags=["species"])
@@ -22,7 +22,7 @@ def _to_item(row) -> SpeciesItem:
     )
 
 
-@router.get("/search", response_model=SpeciesSearchResult)
+@router.get("/search", response_model=list[SpeciesItem])
 def search_species(
     q: str = Query(..., min_length=2),
     limit: int = Query(10, le=50),
@@ -41,7 +41,7 @@ def search_species(
     """)
     rows = db.execute(sql, {"q": q, "like": f"%{q}%", "limit": limit}).fetchall()
     items = [_to_item(r) for r in rows]
-    return {"results": items, "total": len(items)}
+    return items
 
 
 @router.get("/rank", response_model=list[SpeciesRankItem])

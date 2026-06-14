@@ -8,59 +8,59 @@
 
 ### 日常操作
 
-| 你想做什么 | 命令 |
-|---|---|
-| 克隆仓库到本地 | `git clone https://github.com/Gugu-sugar/BirdScope.git` |
-| 查看当前状态 | `git status` |
-| 查看提交历史 | `git log --oneline` |
-| 查看所有分支 | `git branch -a` |
-| 拉取远程最新代码 | `git pull origin main` |
+| 你想做什么       | 命令                                                      |
+| ---------------- | --------------------------------------------------------- |
+| 克隆仓库到本地   | `git clone https://github.com/Gugu-sugar/BirdScope.git` |
+| 查看当前状态     | `git status`                                            |
+| 查看提交历史     | `git log --oneline`                                     |
+| 查看所有分支     | `git branch -a`                                         |
+| 拉取远程最新代码 | `git pull origin main`                                  |
 
 ### 分支操作
 
-| 你想做什么 | 命令 |
-|---|---|
-| 创建并切换到新分支 | `git checkout -b feature/你的功能名` |
-| 切换到已有分支 | `git checkout 分支名` |
-| 删除本地分支（合并后清理用） | `git branch -d 分支名` |
+| 你想做什么                   | 命令                                   |
+| ---------------------------- | -------------------------------------- |
+| 创建并切换到新分支           | `git checkout -b feature/你的功能名` |
+| 切换到已有分支               | `git checkout 分支名`                |
+| 删除本地分支（合并后清理用） | `git branch -d 分支名`               |
 
 ### 提交与推送
 
-| 你想做什么 | 命令 |
-|---|---|
-| 暂存所有改动 | `git add .` |
-| 暂存单个文件 | `git add 文件路径` |
-| 提交 | `git commit -m "描述信息"` |
-| 推送分支到远程 | `git push origin 你的分支名` |
+| 你想做什么     | 命令                            |
+| -------------- | ------------------------------- |
+| 暂存所有改动   | `git add .`                   |
+| 暂存单个文件   | `git add 文件路径`            |
+| 提交           | `git commit -m "描述信息"`    |
+| 推送分支到远程 | `git push origin 你的分支名 ` |
 
 ### 回退与撤销
 
-| 场景 | 命令 | 说明 |
-|---|---|---|
-| 改了文件，还没 add | `git checkout -- 文件名` | 丢弃修改 |
-| 已 add，还没 commit | `git reset HEAD 文件名` | 取消暂存，改动保留 |
-| 已 commit，还没 push | `git reset --soft HEAD~1` | 撤回 commit，改动保留 |
-| 已 commit，改动也不要了 | `git reset --hard HEAD~1` | 全部回退，慎用 |
-| 已 push 到远程 | `git revert 提交哈希` | 生成新 commit 抵消，不破坏历史 |
+| 场景                    | 命令                        | 说明                           |
+| ----------------------- | --------------------------- | ------------------------------ |
+| 改了文件，还没 add      | `git checkout -- 文件名`  | 丢弃修改                       |
+| 已 add，还没 commit     | `git reset HEAD 文件名`   | 取消暂存，改动保留             |
+| 已 commit，还没 push    | `git reset --soft HEAD~1` | 撤回 commit，改动保留          |
+| 已 commit，改动也不要了 | `git reset --hard HEAD~1` | 全部回退，慎用                 |
+| 已 push 到远程          | `git revert 提交哈希`     | 生成新 commit 抵消，不破坏历史 |
 
 ### 同步与合并
 
-| 你想做什么 | 命令 |
-|---|---|
+| 你想做什么                         | 命令                                                                 |
+| ---------------------------------- | -------------------------------------------------------------------- |
 | 把远程 main 的更新合并到自己的分支 | 在你的分支上执行 `git fetch origin` 然后 `git merge origin/main` |
-| 解决冲突后继续 | 手动编辑冲突文件 → `git add .` → `git commit` |
+| 解决冲突后继续                     | 手动编辑冲突文件 →`git add .` → `git commit`                   |
 
 ### Commit 消息规范
 
 格式：`类型: 简要描述`
 
-| 类型 | 用途 | 示例 |
-|---|---|---|
-| feat | 新功能 | `feat: 添加鸟种搜索功能` |
-| fix | 修 bug | `fix: 修复地图标注偏移` |
-| docs | 文档 | `docs: 更新 README` |
-| style | 格式调整（不影响逻辑） | `style: 统一缩进` |
-| refactor | 重构 | `refactor: 拆分地图组件` |
+| 类型     | 用途                   | 示例                       |
+| -------- | ---------------------- | -------------------------- |
+| feat     | 新功能                 | `feat: 添加鸟种搜索功能` |
+| fix      | 修 bug                 | `fix: 修复地图标注偏移`  |
+| docs     | 文档                   | `docs: 更新 README`      |
+| style    | 格式调整（不影响逻辑） | `style: 统一缩进`        |
+| refactor | 重构                   | `refactor: 拆分地图组件` |
 
 ---
 

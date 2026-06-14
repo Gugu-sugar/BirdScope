@@ -40,6 +40,18 @@
 
 ## 历史记录
 
+### [004] 发布 GeoServer 图层 occurrence_grid_monthly（第三阶段）
+
+- **提出时间**：2026-06-14
+- **提出方**：AI Agent
+- **类型**：GeoServer 图层发布 / 文件新增
+- **描述**：第三阶段图层发布。代码（纯新增）：管控接口加 `X-API-Key` 鉴权（config/deps/router）；`styles/grid_heatmap.sld` 7 级 YlOrRd 分色；`services/geoserver.py` 新增 ensure_workspace/datastore + create_or_update_style + layer_exists；`scripts/setup_geoserver.py` 一键发布。实际写操作仅在 GeoServer 侧建 workspace/datastore/style 并发布图层，不改 PostGIS 数据，幂等可回滚。
+- **验证**：开发者批准（"没问题"）+ 聊天确认发布后执行。`setup_geoserver.py` 四步全 created；WMS GetMap（全球 10 月 1.0°，CQL_FILTER=grid_size=1.0 AND month=10）返回合法 PNG，YlOrRd 分级渲染正确、热点分布与 eBird 吻合。修复一个真实 bug：发布 featuretype 时 payload 的 defaultStyle 被忽略 → 显式补 set_layer_style 绑定 `birdscope:grid_heatmap`。鉴权经 TestClient 验证（无/错 key→401，正确 key 通过，GET 开放）。另：重启了一个长时间运行后假死的 GeoServer Windows 服务。
+
+**审批意见**：
+
+> 没问题（开发者批准，并在对话中二次确认"确认发布"）
+
 ### [003] 导出全量数据库 dump 并新增 Docker 一键交付包（deploy/）
 
 - **提出时间**：2026-06-12
@@ -49,6 +61,7 @@
 - **验证**：全新环境 `down -v && up` 实测通过——自动恢复 occurrence_clean 3,997,847 / species_lookup 9,807 / grid 90,061，`/health`、`/species/search`、`/stats/grid` 均正常返回。修复了一个 PG18 数据卷需挂 `/var/lib/postgresql`（非 `/data`）的真实 bug。
 
 **审批意见**：
+
 > 导出为只读操作、不改动现有数据库，且交付包为纯新增文件，已执行并通过验证。如需回溯，dump 可重新生成。
 
 ### [002] 运行第二阶段全量数据管道并导入数据库
@@ -59,6 +72,7 @@
 - **描述**：降采样全球 15GB + 北美 21.8GB 原始数据 → TRUNCATE 三表 → 全量导入 `occurrence_clean` + 重建 `species_lookup` + `build_grid`。
 
 **审批意见**：
+
 > 开发者：先 TRUNCATE 清空再导入；以后端/WebGIS 视角评估数据策略，确认口径一致、方案可行、不影响未来功能后可执行。
 > Agent：已出具 [评估报告](assessments/2026-06-11_backend_webgis_data_strategy.md)，三项条件通过。**已执行完成**——降采样 399.8 万条，导入 `occurrence_clean` 3,997,847 条、`species_lookup` 9,807 物种、`occurrence_grid_monthly`(1.0°) 26,339 单元，导入后校验通过。
 

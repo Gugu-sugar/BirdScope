@@ -232,15 +232,15 @@ PostGIS 查询：`ST_DWithin(geom::geography, ST_MakePoint(:lng, :lat)::geograph
 - `species_key: int` — **必填**
 - `year: int = 2024`
 
-**示例**：`GET /api/v1/stats/migration?species_key=5228134`
+**示例**：`GET /api/v1/stats/migration?species_key=2495414`
 
 **响应**：
 ```json
 [
-  { "month": 8,  "center_lon": 116.4, "center_lat": 35.2, "record_count": 120 },
-  { "month": 9,  "center_lon": 117.1, "center_lat": 33.8, "record_count": 145 },
-  { "month": 10, "center_lon": 118.3, "center_lat": 31.5, "record_count": 98 },
-  { "month": 11, "center_lon": 119.0, "center_lat": 28.2, "record_count": 67 }
+  { "month": 8,  "center_lon": 14.98, "center_lat": 24.87, "record_count": 7493 },
+  { "month": 9,  "center_lon": 18.67, "center_lat": 23.78, "record_count": 7886 },
+  { "month": 10, "center_lon": 20.97, "center_lat": 22.21, "record_count": 8549 },
+  { "month": 11, "center_lon": 25.39, "center_lat": 21.61, "record_count": 8272 }
 ]
 ```
 
@@ -252,9 +252,22 @@ PostGIS 查询：`ST_DWithin(geom::geography, ST_MakePoint(:lng, :lat)::geograph
 
 所有操作通过 `services/geoserver.py` 调用 GeoServer REST API，认证信息来自 `settings`。
 
+**鉴权**：写操作（POST / DELETE / PUT）需在请求头携带 `X-API-Key: <GEOSERVER_API_KEY>`，缺失或错误返回 `401`。密钥配置在 `.env` 的 `GEOSERVER_API_KEY`；留空表示**不启用鉴权**（仅本地开发）。GET 列表保持开放。
+
+**已发布图层（第三阶段）**：`birdscope:occurrence_grid_monthly`（WMS/WFS），默认样式 `birdscope:grid_heatmap`（按 `record_count` 7 级 YlOrRd 分色）。
+前端 WMS GetMap 应按需加 `CQL_FILTER` 过滤粒度与月份，例如全球 10 月 1.0° 热力：
+```
+.../birdscope/wms?service=WMS&version=1.1.0&request=GetMap
+  &layers=birdscope:occurrence_grid_monthly&styles=
+  &bbox=-180,-90,180,90&width=1024&height=512&srs=EPSG:4326
+  &format=image/png&transparent=true&CQL_FILTER=grid_size=1.0 AND month=10
+```
+> 不加 `grid_size` 过滤会把 1.0° 与 0.5° 两档、各月份叠加渲染，导致重影；务必至少限定 `grid_size` 与 `month`。
+> 一键初始化：`python scripts/setup_geoserver.py`（幂等，建 workspace+datastore+样式+发布图层）。
+
 ### GET /layers — 列出工作空间图层
 
-**响应**：图层列表
+**响应**：图层列表（无需鉴权）
 
 ---
 
@@ -270,17 +283,19 @@ PostGIS 查询：`ST_DWithin(geom::geography, ST_MakePoint(:lng, :lat)::geograph
 }
 ```
 
-⚠️ **当前无鉴权保护**，此接口可删除/发布 GeoServer 图层，联调前须加 API Key。
+需请求头 `X-API-Key`（见本节开头鉴权说明）。
 
 ---
 
 ### DELETE /layers/{layer_name} — 删除图层
 
+需请求头 `X-API-Key`。
+
 ---
 
 ### PUT /layers/{layer_name}/style — 切换图层样式
 
-**请求体**：`{ "style_name": "heatmap_red" }`
+**请求体**：`{ "style_name": "grid_heatmap" }`，需请求头 `X-API-Key`。
 
 ---
 

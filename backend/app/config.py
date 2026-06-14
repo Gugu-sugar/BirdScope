@@ -1,9 +1,13 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=ENV_FILE,
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -19,6 +23,8 @@ class Settings(BaseSettings):
     geoserver_password: str = "geoserver"
     geoserver_workspace: str = "birdscope"
     geoserver_datastore: str = "birdscope_pg"
+    # 管控接口（发布/删除/改样式）鉴权密钥；为空表示不启用鉴权（仅本地开发）
+    geoserver_api_key: str = ""
 
     raw_data_path: str = "D:/EBIRD/0009321-260519110011954.csv"
 

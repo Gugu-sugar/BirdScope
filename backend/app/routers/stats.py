@@ -34,13 +34,16 @@ def grid_aggregation(
     species_key: int | None = Query(None),
     month: int | None = Query(None, ge=1, le=12),
     year: int | None = Query(2024),
+    max_cells: int = Query(10000, ge=1, le=10000),
     db: Session = Depends(get_db),
 ):
     try:
         minx, miny, maxx, maxy = [float(x) for x in bbox.split(",")]
     except Exception:
         raise HTTPException(400, "bbox 格式错误")
-    features = spatial.query_grid(db, minx, miny, maxx, maxy, grid_size, species_key, month, year)
+    features = spatial.query_grid(
+        db, minx, miny, maxx, maxy, grid_size, species_key, month, year, max_cells
+    )
     return {"type": "FeatureCollection", "features": features, "total": len(features)}
 
 
