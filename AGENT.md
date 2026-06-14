@@ -1,216 +1,219 @@
-# BirdScope Backend — Agent Reference
+# BirdScope — Agent Reference
 
-AI Agent 工作前必读此文件。本文件是**快速参考和流程规范**，详细内容在 `docs/` 目录。
+AI Agent 工作前必读此文件。本文件是项目级快速参考和流程规范；详细文档分为：
+
+- 后端文档：`backend-docs/`
+- 前端文档：`frontend-docs/`
+
+最后更新：2026-06-14
 
 ---
 
 ## 文档导航
 
-在开始任何任务前，根据任务类型阅读对应文档：
+### 后端文档
 
 | 文档 | 内容 | 何时读 |
 |------|------|--------|
-| [docs/project_overview.md](docs/project_overview.md) | 项目背景、目标、功能模块、团队分工 | 初次接入项目时 |
-| [docs/architecture.md](docs/architecture.md) | 目录结构、三层架构、数据分层、分级渲染策略 | 修改代码结构前 |
-| [docs/dev_plan.md](docs/dev_plan.md) | 环境配置、启动命令、时间线、常见坑 | 搭建环境 / 开发阶段任务前 |
-| [docs/progress.md](docs/progress.md) | 当前进度、已完成功能、下一步目标 | 接手任务时了解现状 |
-| [docs/database_design.md](docs/database_design.md) | 三张表的完整 DDL、索引、设计说明 | 涉及数据库操作前 |
-| [docs/data_pipeline.md](docs/data_pipeline.md) | 数据清洗、降采样、导入、聚合流程 | 运行数据管道脚本前 |
-| [docs/api_reference.md](docs/api_reference.md) | 所有 API 接口参数、示例、响应格式 | 实现或修改接口前 |
-| [docs/rules_and_conventions.md](docs/rules_and_conventions.md) | 数据规则、编码规范、禁止事项 | 每次写代码前 |
-| [docs/human_review.md](docs/human_review.md) | 人工审批记录，开发者在此写批准意见 | **涉及破坏性操作前必须检查** |
-| [docs/assessments/](docs/assessments/) | 不同视角的评估报告 | 做阶段性优化决策时 |
+| [backend-docs/project_overview.md](backend-docs/project_overview.md) | 项目背景、目标、功能模块、团队分工 | 初次接入项目时 |
+| [backend-docs/architecture.md](backend-docs/architecture.md) | 后端目录结构、三层架构、数据分层、分级渲染策略 | 修改后端结构前 |
+| [backend-docs/dev_plan.md](backend-docs/dev_plan.md) | 后端环境配置、启动命令、时间线、常见坑 | 搭建后端环境 / 开发后端任务前 |
+| [backend-docs/progress.md](backend-docs/progress.md) | 后端进度、已完成功能、下一步目标 | 接手后端任务时 |
+| [backend-docs/database_design.md](backend-docs/database_design.md) | 表结构、索引、设计说明 | 涉及数据库操作前 |
+| [backend-docs/data_pipeline.md](backend-docs/data_pipeline.md) | 数据清洗、降采样、导入、聚合流程 | 运行数据管道脚本前 |
+| [backend-docs/api_reference.md](backend-docs/api_reference.md) | API 参数、示例、响应格式 | 实现或修改接口前 |
+| [backend-docs/rules_and_conventions.md](backend-docs/rules_and_conventions.md) | 数据规则、编码规范、禁止事项 | 每次写后端代码前 |
+| [backend-docs/human_review.md](backend-docs/human_review.md) | 人工审批记录 | 涉及破坏性操作前必须检查 |
+| [backend-docs/assessments/](backend-docs/assessments/) | 阶段性评估报告 | 做优化决策时 |
+
+### 前端文档
+
+| 文档 | 内容 | 何时读 |
+|------|------|--------|
+| [frontend-docs/README.md](frontend-docs/README.md) | 前端文档入口和当前结论 | 初次接手前端任务 |
+| [frontend-docs/project_overview.md](frontend-docs/project_overview.md) | 前端目标、页面工作流、当前范围 | 理解前端功能边界 |
+| [frontend-docs/architecture.md](frontend-docs/architecture.md) | 目录结构、组件分层、状态流、地图接入点 | 修改前端结构前 |
+| [frontend-docs/dev_plan.md](frontend-docs/dev_plan.md) | 启动、构建、联调、冒烟流程 | 本地开发或排查启动问题 |
+| [frontend-docs/api_integration.md](frontend-docs/api_integration.md) | API 封装、请求参数、响应类型、坐标约定 | 改 API 调用或联调后端 |
+| [frontend-docs/rules_and_conventions.md](frontend-docs/rules_and_conventions.md) | UI、数据展示、空间和编码规范 | 每次写前端代码前 |
+| [frontend-docs/progress.md](frontend-docs/progress.md) | 当前实现、缺口、下一步优先级 | 接手前端任务或阶段复盘 |
 
 ---
 
-## 快速参考：环境与启动
+## 项目架构总览
 
-**Python 环境**：`D:/conda_env/conda_envs/devgis/python.exe`（系统 python 是 ArcGIS Pro 环境，不可用）
-
-**工作目录**：所有 `from app.xxx` 导入假设 cwd 为 `backend/`
-
-**启动服务器**：
-```python
-# 在 Agent 中执行（处理 Windows 中文路径问题）
-import os, subprocess
-os.chdir(r'C:\Users\25316\Desktop\开发\大程\backend')
-subprocess.Popen([
-    r'D:/conda_env/conda_envs/devgis/python.exe', '-m', 'uvicorn',
-    'app.main:app', '--host', '0.0.0.0', '--port', '8000'
-])
+```text
+GBIF/eBird TSV 数据
+    ↓
+backend/scripts/ 数据清洗、降采样、导入、网格预聚合
+    ↓
+PostgreSQL + PostGIS
+    ├── FastAPI /api/v1 业务查询、统计、GeoServer 管控
+    └── GeoServer WMS/WFS 热力图层
+            ↓
+frontend/ React 查询工作台、地图、结果列表、后续图表
 ```
 
-或在已切换到 `backend/` 的终端：
+### 根目录结构
+
+```text
+.
+├── backend/          # FastAPI + SQLAlchemy + PostGIS 业务服务
+├── frontend/         # Vite + React + TypeScript + Tailwind 前端
+├── backend-docs/     # 后端文档，原 docs/ 已改名
+├── frontend-docs/    # 前端文档
+├── deploy/           # Docker / dump / 初始化脚本
+├── AGENT.md          # Agent 项目级快速参考
+└── README.md         # 项目启动说明
 ```
+
+---
+
+## 后端快速参考
+
+**Python 环境**：`D:/conda_env/conda_envs/devgis/python.exe`  
+**后端工作目录**：所有 `from app.xxx` 导入假设 cwd 为 `backend/`
+
+启动 FastAPI：
+
+```powershell
+cd backend
 D:/conda_env/conda_envs/devgis/python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-**代理注意**：本机设置了 http_proxy（端口 7897）。curl 测试加 `--noproxy localhost`；Python 测试前 `del os.environ['http_proxy']`。
+后端核心分层：
 
-**Settings**：永远用 `from app.config import settings`，不用 `os.environ` 直接读。
+```text
+backend/app/
+├── main.py        # FastAPI 应用入口，注册路由、CORS、启动事件
+├── config.py      # Settings 单例
+├── db.py          # SQLAlchemy engine/session
+├── deps.py        # 公共 Depends
+├── models/        # SQLAlchemy ORM
+├── schemas/       # Pydantic 请求/响应模型
+├── routers/       # HTTP 语义和参数校验
+└── services/      # 业务逻辑、PostGIS SQL、GeoServer 调用
+```
+
+Router 只做 HTTP 参数校验和调用 service；业务逻辑放 `services/`。
 
 ---
 
-## 快速参考：空间查询模式
+## 前端快速参考
 
-```python
-# services/spatial.py
+**技术栈**：Vite + React + TypeScript + Tailwind CSS + lucide-react  
+**默认开发地址**：`http://localhost:5173`  
+**默认 API 地址**：`http://localhost:8000/api/v1`
 
-# 1. bbox 过滤（GIST 索引，快速但近似）
-def bbox_filter(bbox_str: str):
-    minx, miny, maxx, maxy = map(float, bbox_str.split(","))
-    return text("geom && ST_MakeEnvelope(:minx,:miny,:maxx,:maxy,4326)").bindparams(...)
+启动前端：
 
-# 2. 多边形精确 within
-def within_filter(geojson_str: str):
-    return text("ST_Within(geom, ST_SetSRID(ST_GeomFromGeoJSON(:geojson),4326))").bindparams(...)
-
-# 3. 球面缓冲区（geography 类型，真实公里数）
-def buffer_filter(lat, lng, radius_km):
-    return text("ST_DWithin(geom::geography, ST_MakePoint(:lng,:lat)::geography, :r)").bindparams(
-        lng=lng, lat=lat, r=radius_km*1000)
-
-# 4. 实时网格聚合（species_key 存在时）
-"""
-SELECT
-  floor(ST_X(geom)/:gs)*:gs + :gs/2 AS center_lon,
-  floor(ST_Y(geom)/:gs)*:gs + :gs/2 AS center_lat,
-  count(*) AS record_count, sum(individual_count) AS individual_sum,
-  ST_AsGeoJSON(ST_MakeEnvelope(..., 4326)) AS geom_json
-FROM occurrence_clean
-WHERE geom && ST_MakeEnvelope(:minx,:miny,:maxx,:maxy,4326)
-  AND (:month IS NULL OR month = :month)
-  AND (:species_key IS NULL OR species_key = :species_key)
-GROUP BY center_lon, center_lat
-LIMIT :max_cells
-"""
+```powershell
+cd frontend
+npm install
+npm run dev
 ```
+
+构建前端：
+
+```powershell
+cd frontend
+npm run build
+```
+
+如后端地址不同，在 `frontend/.env.local` 中配置：
+
+```ini
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+```
+
+前端核心分层：
+
+```text
+frontend/src/
+├── main.tsx
+├── App.tsx
+├── pages/MapQueryPage.tsx
+├── components/
+│   ├── map/MapPanel.tsx
+│   └── query/QueryPanel.tsx, ResultList.tsx
+├── store/queryStore.tsx
+├── api/client.ts, occurrence.ts, species.ts, stats.ts
+└── types/api.ts, geo.ts
+```
+
+当前页面数据流：
+
+```text
+QueryPanel / MapPanel
+    ↓
+QueryProvider
+    ↓
+api/*
+    ↓
+FastAPI /api/v1
+    ↓
+ResultList
+```
+
+`MapPanel` 目前是地图占位和空间范围样例写入点；后续 Cesium 接入应继续通过 `onBboxSelected`、`onPolygonSelected`、`onBufferCenterSelected` 回传空间结果。
 
 ---
 
-## 数据规则（必须遵守，不可违背）
+## API 与地图约定
 
-1. `species` 可为 NULL → 展示时 fallback 到 `scientific_name`，不可因此崩溃
-2. `individual_count` 可为 NULL（约 6%）→ 热力图按记录数；**禁止填充为 1**
-3. geometry 插入必须指定 SRID：`ST_SetSRID(ST_MakePoint(lon, lat), 4326)`
-4. 坐标质量问题记录（`COUNTRY_COORDINATE_MISMATCH` 等）→ 不可静默删除，须记录过滤决策
-5. 点查询硬上限：**5000**（默认 2000）；网格硬上限：**10000**
-6. `/stats/migration` 是观测重心，**不是 GPS 轨迹**，不可描述为"单只鸟迁徙路径"
+基础前缀：`/api/v1`
 
----
+前端当前已封装：
 
-## 常见错误速查
+| 前端函数 | 后端接口 | 用途 |
+|----------|----------|------|
+| `searchSpecies` | `GET /species/search` | 物种搜索 |
+| `queryOccurrenceByBbox` | `GET /occurrence/points` | bbox 点查询 |
+| `queryOccurrenceWithin` | `POST /occurrence/within` | 多边形点查询 |
+| `queryOccurrenceBuffer` | `GET /occurrence/buffer` | 缓冲区点查询 |
+| `queryGrid` | `GET /stats/grid` | 网格热力，待 UI 接入 |
 
-| 错误 | 正确做法 |
-|------|----------|
-| `open(path)` 不指定编码 | `open(path, encoding='utf-8')` |
-| `species` 为 null 时报错 | fallback 到 `scientific_name` |
-| NULL `individual_count` 填为 1 | 保持 NULL，查询层处理 |
-| `ST_MakePoint(lon, lat)` 无 SRID | `ST_SetSRID(ST_MakePoint(lon, lat), 4326)` |
-| 返回无 LIMIT 的全量点 | 始终加 LIMIT，硬上限 5000 |
-| 在 GeoServer 配置前调用图层接口 | 先在 Web UI 建 workspace + datastore |
-| 在 router 里写业务逻辑 | 业务逻辑放 services/ |
-| 直接用 `os.environ` | `from app.config import settings` |
+分级渲染建议：
 
----
+| 视图层级 | 数据来源 | 说明 |
+|----------|----------|------|
+| 全球视角 | GeoServer WMS | `birdscope:occurrence_grid_monthly` |
+| 区域视角 | `GET /api/v1/stats/grid` | 0.5° 或 1.0° 网格 |
+| 本地视角 | `GET /api/v1/occurrence/points` | 真实观测点，默认 limit 2000 |
 
-## Pydantic Schema 速查
-
-```python
-class SpeciesItem(BaseModel):
-    species_key: int
-    species: str | None          # 可为 null
-    scientific_name: str
-    bird_order: str | None
-    family: str | None
-    record_count: int
-
-class OccurrenceFeatureProperties(BaseModel):
-    gbif_id: int
-    species: str | None
-    scientific_name: str
-    individual_count: int | None  # 可为 null
-    event_date: date
-    locality: str | None
-    country_code: str
-    state_province: str | None
-
-class MonthlyTrendItem(BaseModel):
-    month: int
-    record_count: int
-    individual_sum: int | None    # NULL 记录不计入
-
-class GridFeatureProperties(BaseModel):
-    record_count: int
-    individual_sum: int | None
-    center_lon: float
-    center_lat: float
-```
+WMS 注意：请求 `occurrence_grid_monthly` 时必须至少限定 `grid_size` 和 `month`，否则 1.0° / 0.5° 与各月份会叠加渲染。
 
 ---
 
-## 测试数据
+## 数据规则
 
-**当前主要测试数据**：`backend/test_data/dev_sample.tsv`
-- 2000 行，10 国，20 列，与 `occurrence_clean` 完全对应
-- 含 NULL 边界情况（29 行 null species，108 行 null individual_count）
-- 说明文档：`backend/test_data/dev_sample_info.md`
+1. `species` 可为 NULL，展示时 fallback 到 `scientific_name`，不可因此崩溃。
+2. `individual_count` 可为 NULL，展示为“数量未知”；禁止静默填充为 0 或 1。
+3. 所有坐标使用 WGS-84 / EPSG:4326。
+4. bbox 格式为 `minx,miny,maxx,maxy`；GeoJSON coordinates 为 `[longitude, latitude]`。
+5. geometry 入库必须指定 SRID：`ST_SetSRID(ST_MakePoint(lon, lat), 4326)`。
+6. 点查询硬上限 5000（默认 2000）；网格硬上限 10000。
+7. `/stats/migration` 是各月观测重心，不是单只鸟 GPS 轨迹，不可描述为“个体迁徙路径”。
+8. 热力图和统计图表达记录数 / 采样密度，不应直接等同真实种群丰度。
 
 ---
 
-## 完整工作流程
+## 工作流程
 
-### 一、开发流程（每次编码任务）
+### 开发流程
 
-```
-1. 读 AGENT.md（本文件）
-2. 根据任务类型读对应 docs/ 文档
-3. 检查 docs/human_review.md：是否有未批准的相关待审批项
-4. 编写代码，遵守 docs/rules_and_conventions.md
-5. 用 dev_sample.tsv 测试（启动服务 → 访问 /docs → 测试接口）
-6. 完成后更新 docs/progress.md（已完成项打 ✅）
-7. 若修改了接口，同步更新 docs/api_reference.md
-```
+1. 读 `AGENT.md`。
+2. 根据任务选择 `backend-docs/` 或 `frontend-docs/` 的对应文档。
+3. 涉及破坏性操作、数据库 schema、API 响应格式、GeoServer 图层发布/删除、全量数据导入时，先检查 [backend-docs/human_review.md](backend-docs/human_review.md)。
+4. 修改代码并遵守对应规范文档。
+5. 做最小必要验证：后端跑接口/测试，前端跑构建或本地冒烟。
+6. 功能完成后同步更新对应 `progress.md`。
+7. 若接口契约变更，同时更新 [backend-docs/api_reference.md](backend-docs/api_reference.md) 和 [frontend-docs/api_integration.md](frontend-docs/api_integration.md)。
 
-### 二、阶段评估流程（完成里程碑后）
+### 文档更新流程
 
-```
-1. 确定评估视角（GIS 专家 / 安全 / 性能 / 前端对接 等）
-2. 针对该视角分析已实现内容
-3. 创建评估报告：docs/assessments/YYYY-MM-DD_<视角>.md
-4. 在报告中按"亮点 / 问题 / 改进建议（按优先级）"结构输出
-5. 将高优先级问题同步到 docs/progress.md 的"已知技术债"区
-```
+- 后端代码、数据、API、GeoServer 变更：更新 `backend-docs/`。
+- 前端页面、组件、状态、API 调用、地图接入变更：更新 `frontend-docs/`。
+- 项目级结构、关键规则、目录变更：更新 `AGENT.md`。
+- `backend-docs/assessments/` 是历史评估记录；不要改旧报告，只追加新报告。
 
-### 三、更新文档流程（每次功能完成后）
-
-```
-1. docs/progress.md — 更新进度表和下一步目标
-2. docs/api_reference.md — 若接口有变更，更新参数/响应示例
-3. docs/database_design.md — 若 schema 有变更，更新 DDL
-4. AGENT.md — 若有新的关键规则或 schema 变化，同步更新快速参考区
-5. 不要修改 docs/assessments/ 中已有报告（历史记录，只追加）
-```
-
-### 四、人工 Review 流程（涉及破坏性操作时）
-
-**触发条件**（遇到以下情况时，Agent 必须停止操作，在 human_review.md 中提交待审批项，等待开发者审批后再继续）：
-
-- 删除文件、目录或数据
-- 修改数据库 schema（增删字段、变更索引）
-- 变更 API 响应格式（可能破坏前端兼容性）
-- 发布或删除 GeoServer 图层
-- 运行全量数据导入脚本（`prepare_global.py` / `import_to_pg.py`）
-
-**流程**：
-```
-1. Agent 停止执行，在 docs/human_review.md "待审批"区追加新条目
-   - 填写：编号、标题、时间、类型、变更描述、影响范围
-2. 通知开发者查看 docs/human_review.md
-3. 开发者在"审批意见"栏填写：批准 / 拒绝 / 修改后批准
-4. Agent 在下次对话开始时检查 human_review.md：
-   - 批准 → 执行操作
-   - 拒绝 → 放弃该操作，按开发者意见调整方案
-   - 修改后批准 → 按说明调整后执行
-5. 已处理的条目移入 human_review.md "历史记录"区
-```

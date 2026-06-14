@@ -123,7 +123,7 @@ curl "http://localhost:8000/api/v1/species/search?q=corvus"
 ## 8. 接口清单速览
 
 基地址：`http://localhost:8000`，所有业务接口前缀 `/api/v1`。完整参数和返回示例见
-[../docs/api_reference.md](../docs/api_reference.md)。
+[../backend-docs/api_reference.md](../backend-docs/api_reference.md)。
 
 | 接口 | 用途 |
 |------|------|
