@@ -60,6 +60,25 @@ export type GridGeoJSON = {
   total: number;
 };
 
+export type SpeciesRankItem = {
+  species_key: number;
+  species: string | null;
+  record_count: number;
+  individual_sum: number | null;
+};
+
+export type MonthlyTrendItem = {
+  month: number;
+  record_count: number;
+  individual_sum: number | null;
+};
+
+export type ProvinceStatItem = {
+  state_province: string | null;
+  record_count: number;
+  individual_sum: number | null;
+};
+
 export type WithinQueryBody = {
   geometry: GeoJsonPolygon;
   species_key?: number;
