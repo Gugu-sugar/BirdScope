@@ -2,6 +2,10 @@ import { Activity, Database, Globe2, Layers3 } from "lucide-react";
 import { MapPanel } from "../components/map/MapPanel";
 import { QueryPanel } from "../components/query/QueryPanel";
 import { ResultList } from "../components/query/ResultList";
+import { SpeciesRankChart } from "../components/charts/SpeciesRankChart";
+import { MonthlyTrendChart } from "../components/charts/MonthlyTrendChart";
+import { RegionStatsChart } from "../components/charts/RegionStatsChart";
+import { TimeSlider } from "../components/charts/TimeSlider";
 import { useQueryStore } from "../store/queryStore";
 import type { Bbox, GeoJsonPolygon, LngLat } from "../types/geo";
 
@@ -10,9 +14,12 @@ export function MapQueryPage() {
     bbox,
     buffer,
     polygon,
+    month,
+    selectedSpecies,
     setBbox,
     setBufferCenter,
     setPolygon,
+    setMonth,
     setSpatialMode,
     spatialMode
   } = useQueryStore();
@@ -82,7 +89,20 @@ export function MapQueryPage() {
         </section>
 
         <aside className="panel-shell min-h-[420px] overflow-hidden lg:order-3 xl:min-h-0">
-          <ResultList />
+          <div className="flex h-full min-h-0 flex-col gap-3 p-3">
+            <TimeSlider month={month} setMonth={setMonth} />
+            <SpeciesRankChart
+              month={month}
+              speciesKey={selectedSpecies?.species_key ?? undefined}
+            />
+            <MonthlyTrendChart
+              speciesKey={selectedSpecies?.species_key ?? undefined}
+            />
+            <RegionStatsChart
+              month={month}
+              speciesKey={selectedSpecies?.species_key ?? undefined}
+            />
+          </div>
         </aside>
       </section>
 
