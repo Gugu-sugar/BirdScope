@@ -71,7 +71,7 @@ frontend/ React 查询工作台、地图、结果列表、后续图表
 
 ## 后端快速参考
 
-**本机 Python 环境**：`E:/Anaconda3/envs/devgis/python.exe`
+**本机 Python 环境**：`backend/.env` 中的 `PYTHON_PATH`
 **后端工作目录**：所有 `from app.xxx` 导入假设 cwd 为 `backend/`
 
 **本地数据库**：PostgreSQL 18 + PostGIS 3.6，数据库快照位于 `deploy/dump/birdscope.dump`。默认采用本地原生运行，不依赖 Docker。
@@ -80,7 +80,8 @@ frontend/ React 查询工作台、地图、结果列表、后续图表
 
 ```powershell
 cd backend
-E:/Anaconda3/envs/devgis/python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+$PYTHON = ((Get-Content .env | Select-String "^PYTHON_PATH=").Line -split "=",2)[1]
+& $PYTHON -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 后端核心分层：

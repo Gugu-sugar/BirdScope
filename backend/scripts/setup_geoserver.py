@@ -12,10 +12,11 @@ setup_geoserver.py — 一键初始化 GeoServer 图层发布（第三阶段）
 前置：GeoServer 服务必须已启动（默认 http://localhost:8080/geoserver）。
 配置取自 backend/.env（GEOSERVER_* 与 DB_*），通过 app.config.settings 读取。
 
-用法（在 backend/ 目录下）：
-    E:/Anaconda3/envs/devgis/python.exe scripts/setup_geoserver.py
+用法（在 backend/ 目录下，PowerShell）：
+    $PYTHON = ((Get-Content .env | Select-String "^PYTHON_PATH=").Line -split "=",2)[1]
+    & $PYTHON scripts/setup_geoserver.py
     # GeoServer 跑在 Docker、DB 在宿主机时：
-    E:/Anaconda3/envs/devgis/python.exe scripts/setup_geoserver.py --db-host host.docker.internal
+    & $PYTHON scripts/setup_geoserver.py --db-host host.docker.internal
 """
 import argparse
 import os

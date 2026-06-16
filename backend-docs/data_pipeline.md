@@ -120,7 +120,7 @@ eBird 在北美洲的活跃用户密度远高于其他大洲，直接导致：
 ```powershell
 # 1. 运行两个降采样脚本
 cd backend
-$PYTHON = "E:/Anaconda3/envs/devgis/python.exe"
+$PYTHON = ((Get-Content .env | Select-String "^PYTHON_PATH=").Line -split "=",2)[1]
 & $PYTHON scripts/prepare_global.py
 & $PYTHON scripts/prepare_north_america.py
 

@@ -46,7 +46,7 @@ psql -h localhost -U postgres -d birdscope -c "SELECT count(*) FROM occurrence_g
 
 ## 二、后端
 
-项目当前开发环境位于 `E:\Anaconda3\envs\devgis\python.exe`。第一次运行先创建配置：
+Python 解释器路径在 `backend/.env` 的 `PYTHON_PATH` 中配置。第一次运行先创建配置：
 
 ```powershell
 Copy-Item backend\.env.example backend\.env
@@ -67,8 +67,9 @@ APP_DEBUG=true
 
 ```powershell
 cd backend
-E:\Anaconda3\envs\devgis\python.exe -m pip install -r requirements.txt
-E:\Anaconda3\envs\devgis\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+$PYTHON = ((Get-Content .env | Select-String "^PYTHON_PATH=").Line -split "=",2)[1]
+& $PYTHON -m pip install -r requirements.txt
+& $PYTHON -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 验证：
@@ -81,7 +82,8 @@ E:\Anaconda3\envs\devgis\python.exe -m uvicorn app.main:app --host 127.0.0.1 --p
 确认 GeoServer 2.28.1 已启动并可访问 `http://localhost:8080/geoserver/web/`，然后在 `backend/` 目录执行：
 
 ```powershell
-E:\Anaconda3\envs\devgis\python.exe scripts/setup_geoserver.py
+$PYTHON = ((Get-Content .env | Select-String "^PYTHON_PATH=").Line -split "=",2)[1]
+& $PYTHON scripts/setup_geoserver.py
 ```
 
 脚本会创建 `birdscope` workspace、`birdscope_pg` datastore、上传热力样式并发布 `birdscope:occurrence_grid_monthly`。
