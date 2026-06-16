@@ -1,6 +1,6 @@
 # BirdScope 前端技术架构
 
-> 最后更新：2026-06-15
+> 最后更新：2026-06-16
 
 ## 目录
 
@@ -33,7 +33,7 @@ frontend/src/
 App
 └── QueryProvider
     └── MapQueryPage
-        ├── QueryPanel
+        ├── QueryPanel / ResultList
         ├── MapPanel
         ├── TimeSlider
         ├── SpeciesRankChart
@@ -41,7 +41,7 @@ App
         └── RegionStatsChart
 ```
 
-`ResultList` 当前未挂载到组件树。
+`ResultList` 当前挂载在左侧 tab，与 `QueryPanel` 共用侧栏区域。
 
 ## 状态流
 
@@ -53,9 +53,10 @@ App
 - `bbox` / `polygon` / `buffer`
 - `radiusKm`
 - `results`
+- `selectedGbifId`
 - `loading` / `error`
 
-`runCurrentQuery()` 根据空间模式调用对应 occurrence API。地图订阅 `results` 并将 GeoJSON 点转换为 Cesium entity；图表直接根据月份和物种参数请求统计 API。
+`runCurrentQuery()` 根据空间模式调用对应 occurrence API。地图订阅 `results` 并将 GeoJSON 点转换为 Cesium entity，entity id 固定为 `pt-${gbif_id}`；`ResultList` 与地图通过 `selectedGbifId` 双向联动选中、高亮、滚动和气泡展示。图表直接根据月份和物种参数请求统计 API。
 
 ## 地图分层
 

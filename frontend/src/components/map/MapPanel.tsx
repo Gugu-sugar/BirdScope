@@ -1,13 +1,14 @@
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { queryGrid } from "../../api/stats";
 import type { ActiveQuery } from "../../store/queryStore";
 import { useQueryStore } from "../../store/queryStore";
 
 import {
-  CircleDot, Crosshair, Layers3, MapPin, Pentagon, Ruler, Square
+  CircleDot, Crosshair, Layers3, MapPin, Pentagon, Square, X
 } from "lucide-react";
+import type { OccurrenceFeature } from "../../types/api";
 import type {
   Bbox, BufferSelection, GeoJsonPolygon, LngLat, SpatialMode
 } from "../../types/geo";
@@ -29,6 +30,46 @@ function gridCellColor(count: number): Cesium.Color {
 function pickGridSize(bbox: Bbox): number {
   const span = Math.max(bbox[2] - bbox[0], bbox[3] - bbox[1]);
   return span <= 10 ? 0.5 : 1.0;
+}
+
+type PopupPosition = {
+  left: number;
+  top: number;
+  visible: boolean;
+};
+
+function occurrenceLabel(feature: OccurrenceFeature) {
+  return (
+    feature.properties.species ??
+    feature.properties.scientific_name ??
+    "未命名物种"
+  );
+}
+
+function resultPointStyle(isSelected: boolean) {
+  return {
+    pixelSize: isSelected ? 15 : 8,
+    color: isSelected
+      ? Cesium.Color.fromCssColorString("#f59e0b")
+      : Cesium.Color.fromCssColorString("#bef264"),
+    outlineColor: isSelected ? Cesium.Color.WHITE : Cesium.Color.fromCssColorString("#1f2937"),
+    outlineWidth: isSelected ? 3 : 1,
+    disableDepthTestDistance: Number.POSITIVE_INFINITY
+  };
+}
+
+function pickedResultGbifId(picked: unknown) {
+  const entity = (picked as { id?: Cesium.Entity } | undefined)?.id;
+  if (!entity?.properties) return null;
+
+  const entityId = typeof entity.id === "string" ? entity.id : "";
+  if (!entityId.startsWith("pt-")) return null;
+
+  const propertyValue = entity.properties.getValue(Cesium.JulianDate.now())
+    ?.gbif_id;
+  const gbifId =
+    typeof propertyValue === "number" ? propertyValue : Number(entityId.slice(3));
+  return Number.isFinite(gbifId) ? gbifId : null;
 }
 
 const GEOSERVER_WMS_URL =
@@ -58,13 +99,23 @@ export function MapPanel({
   spatialMode, bbox, polygon, buffer, activeQuery, onBboxSelected, onPolygonSelected, onBufferCenterSelected
 }: MapPanelProps) {
 
-  const { results, month } = useQueryStore();
+  const { results, month, selectedGbifId, setSelectedGbifId } = useQueryStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const drawStartPos = useRef<Cesium.Cartesian3 | null>(null);
   const polyPoints = useRef<Cesium.Cartesian3[]>([]);
   const wmsLayerRef = useRef<Cesium.ImageryLayer | null>(null);
   const gridDsRef = useRef<Cesium.GeoJsonDataSource | null>(null);
+  const [popupPosition, setPopupPosition] = useState<PopupPosition | null>(null);
+  const selectedFeature = useMemo(
+    () =>
+      selectedGbifId === null
+        ? null
+        : results?.features.find(
+            (feature) => feature.properties.gbif_id === selectedGbifId
+          ) ?? null,
+    [results, selectedGbifId]
+  );
 
   // 1. 初始化地图
   useEffect(() => {
@@ -89,15 +140,6 @@ export function MapPanel({
     };
     viewer.camera.moveEnd.addEventListener(syncLayerVisibility);
     syncLayerVisibility();
-
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-    handler.setInputAction((movement: any) => {
-      const picked = viewer.scene.pick(movement.position);
-      if (Cesium.defined(picked) && picked.id?.properties) {
-        const p = picked.id.properties;
-        alert(`物种: ${p.species?.getValue() || '未知'}\n地点: ${p.locality?.getValue() || '未知'}`);
-      }
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     return () => {
       viewer.camera.moveEnd.removeEventListener(syncLayerVisibility);
@@ -205,6 +247,14 @@ export function MapPanel({
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
     handler.setInputAction((movement: any) => {
+      const pickedGbifId = pickedResultGbifId(
+        viewer.scene.pick(movement.position)
+      );
+      if (pickedGbifId !== null) {
+        setSelectedGbifId(pickedGbifId);
+        return;
+      }
+
       const cartesian = viewer.scene.pickPosition(movement.position);
       if (!Cesium.defined(cartesian)) return;
       const lng = Cesium.Math.toDegrees(Cesium.Cartographic.fromCartesian(cartesian).longitude);
@@ -247,9 +297,15 @@ export function MapPanel({
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
     return () => handler.destroy();
-  }, [spatialMode, onBboxSelected, onPolygonSelected, onBufferCenterSelected]);
+  }, [
+    spatialMode,
+    onBboxSelected,
+    onPolygonSelected,
+    onBufferCenterSelected,
+    setSelectedGbifId
+  ]);
 
-  // 4. 结果与范围展示
+  // 4. 查询结果点位展示
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer) return;
@@ -259,14 +315,22 @@ export function MapPanel({
     ds.show = viewer.camera.positionCartographic.height <= FAR_VIEW_HEIGHT;
     ds.entities.removeAll();
     if (results) {
-      results.features.forEach((f: any) => {
+      results.features.forEach((f) => {
+        const gbifId = f.properties.gbif_id;
         ds.entities.add({
+          id: `pt-${gbifId}`,
           position: Cesium.Cartesian3.fromDegrees(f.geometry.coordinates[0], f.geometry.coordinates[1]),
-          point: { pixelSize: 8, color: Cesium.Color.fromCssColorString('#bef264'), outlineWidth: 1 },
+          point: resultPointStyle(gbifId === selectedGbifId),
           properties: f.properties,
         });
       });
     }
+  }, [results, selectedGbifId]);
+
+  // 5. 查询范围展示
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
 
     viewer.entities.values.filter(e => e.id?.toString().startsWith('q-l-')).forEach(e => viewer.entities.remove(e));
     if (bbox && spatialMode === 'bbox') {
@@ -274,14 +338,85 @@ export function MapPanel({
       viewer.camera.flyTo({ destination: Cesium.Rectangle.fromDegrees(bbox[0], bbox[1], bbox[2], bbox[3]) });
     }
     if (polygon && spatialMode === 'polygon') {
-      const ent = viewer.entities.add({ id: 'q-l-py', polygon: { hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.coordinates[0].flat()), material: Cesium.Color.LIME.withAlpha(0.3), outline: true, outlineColor: Cesium.Color.LIME } });
+      viewer.entities.add({ id: 'q-l-py', polygon: { hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.coordinates[0].flat()), material: Cesium.Color.LIME.withAlpha(0.3), outline: true, outlineColor: Cesium.Color.LIME } });
       viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(polygon.coordinates[0][0][0], polygon.coordinates[0][0][1], 500000) });
     }
     if (buffer && spatialMode === 'buffer') {
       viewer.entities.add({ id: 'q-l-bc', position: Cesium.Cartesian3.fromDegrees(buffer.lng, buffer.lat), point: { color: Cesium.Color.GOLD, pixelSize: 10 } });
       viewer.entities.add({ id: 'q-l-bi', position: Cesium.Cartesian3.fromDegrees(buffer.lng, buffer.lat), ellipse: { semiMinorAxis: (buffer.radiusKm || 50) * 1000, semiMajorAxis: (buffer.radiusKm || 50) * 1000, material: Cesium.Color.GOLD.withAlpha(0.2), outline: true, outlineColor: Cesium.Color.GOLD } });
     }
-  }, [results, bbox, polygon, buffer, spatialMode]);
+  }, [bbox, polygon, buffer, spatialMode]);
+
+  // 6. 选中点位：列表或地图点选都会飞到目标点。
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer || viewer.isDestroyed() || !selectedFeature) return;
+
+    const [lng, lat] = selectedFeature.geometry.coordinates;
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(lng, lat, 180_000),
+      duration: 0.8
+    });
+  }, [selectedFeature]);
+
+  // 7. 页面气泡跟随选中点位。
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer || viewer.isDestroyed() || !selectedFeature) {
+      setPopupPosition(null);
+      return;
+    }
+
+    const [lng, lat] = selectedFeature.geometry.coordinates;
+    const worldPosition = Cesium.Cartesian3.fromDegrees(lng, lat);
+
+    const updatePopupPosition = () => {
+      const container = containerRef.current;
+      if (!container || viewer.isDestroyed()) return;
+
+      const windowPosition = Cesium.SceneTransforms.worldToWindowCoordinates(
+        viewer.scene,
+        worldPosition
+      );
+
+      if (!Cesium.defined(windowPosition)) {
+        setPopupPosition((previous) =>
+          previous?.visible === false
+            ? previous
+            : { left: 0, top: 0, visible: false }
+        );
+        return;
+      }
+
+      const left = Math.round(windowPosition.x);
+      const top = Math.round(windowPosition.y);
+      const visible =
+        left >= 0 &&
+        left <= container.clientWidth &&
+        top >= 0 &&
+        top <= container.clientHeight;
+
+      setPopupPosition((previous) => {
+        if (
+          previous &&
+          previous.left === left &&
+          previous.top === top &&
+          previous.visible === visible
+        ) {
+          return previous;
+        }
+        return { left, top, visible };
+      });
+    };
+
+    updatePopupPosition();
+    viewer.scene.postRender.addEventListener(updatePopupPosition);
+    return () => {
+      if (!viewer.isDestroyed()) {
+        viewer.scene.postRender.removeEventListener(updatePopupPosition);
+      }
+    };
+  }, [selectedFeature]);
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[#071c1b]">
@@ -306,6 +441,12 @@ export function MapPanel({
           <SelectionSummary bbox={bbox} buffer={buffer} polygon={polygon} />
         </div>
 
+        <ObservationPopup
+          feature={selectedFeature}
+          onClose={() => setSelectedGbifId(null)}
+          position={popupPosition}
+        />
+
         <div className="absolute bottom-4 left-4 right-4 grid gap-3 rounded-md border border-white/15 bg-[#061719]/90 p-3 text-sm text-slate-200 shadow-2xl shadow-black/25 backdrop-blur">
           <div className="grid gap-2 sm:grid-cols-3">
             <button className="map-action border-teal-300/30 bg-teal-300/10" onClick={() => onBboxSelected(SAMPLE_BBOX)} type="button"><Square className="h-4 w-4" /> 中国范围</button>
@@ -314,6 +455,94 @@ export function MapPanel({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ObservationPopup({
+  feature,
+  onClose,
+  position
+}: {
+  feature: OccurrenceFeature | null;
+  onClose: () => void;
+  position: PopupPosition | null;
+}) {
+  if (!feature || !position?.visible) return null;
+
+  const { properties, geometry } = feature;
+  const speciesName = occurrenceLabel(feature);
+  const countText =
+    properties.individual_count === null
+      ? "数量未知"
+      : `${properties.individual_count} 只`;
+
+  return (
+    <div
+      className="pointer-events-auto absolute z-20 w-72 max-w-[calc(100%-2rem)] rounded-md border border-amber-200/70 bg-white p-3 text-sm text-slate-700 shadow-2xl shadow-black/35"
+      style={{
+        left: position.left,
+        top: position.top,
+        transform: "translate(-50%, calc(-100% - 18px))"
+      }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="section-kicker text-amber-700">Selected Point</p>
+          <h3 className="mt-1 line-clamp-2 font-semibold leading-5 text-slate-950">
+            {speciesName}
+          </h3>
+          {properties.scientific_name &&
+          properties.scientific_name !== speciesName ? (
+            <p className="mt-1 truncate text-xs italic text-slate-500">
+              {properties.scientific_name}
+            </p>
+          ) : null}
+        </div>
+        <button
+          className="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900"
+          onClick={onClose}
+          title="关闭点位气泡"
+          type="button"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <dl className="mt-3 grid gap-2 text-xs">
+        <PopupMeta label="日期">{properties.event_date ?? "日期未知"}</PopupMeta>
+        <PopupMeta label="地点">
+          {properties.locality ?? "地点未知"}
+          <span className="block text-slate-400">
+            {properties.state_province ?? "地区未知"} ·{" "}
+            {properties.country_code ?? "国家未知"}
+          </span>
+        </PopupMeta>
+        <PopupMeta label="个体数量">{countText}</PopupMeta>
+      </dl>
+
+      <p className="mt-3 rounded-md border border-slate-100 bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-500">
+        #{properties.gbif_id} · {geometry.coordinates[0].toFixed(4)},{" "}
+        {geometry.coordinates[1].toFixed(4)}
+      </p>
+      <span className="absolute left-1/2 top-full h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-amber-200/70 bg-white" />
+    </div>
+  );
+}
+
+function PopupMeta({
+  children,
+  label
+}: {
+  children: ReactNode;
+  label: string;
+}) {
+  return (
+    <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-2">
+      <dt className="text-slate-400">{label}</dt>
+      <dd className="min-w-0 font-medium leading-5 text-slate-700">
+        {children}
+      </dd>
     </div>
   );
 }

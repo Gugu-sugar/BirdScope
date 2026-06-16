@@ -6,11 +6,13 @@ import {
   Navigation,
   Users
 } from "lucide-react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { useQueryStore } from "../../store/queryStore";
 import type { OccurrenceFeature } from "../../types/api";
 
 export function ResultList() {
-  const { results, loading, error } = useQueryStore();
+  const { results, loading, error, selectedGbifId, setSelectedGbifId } =
+    useQueryStore();
   const features = results?.features ?? [];
 
   return (
@@ -42,7 +44,12 @@ export function ResultList() {
         <div className="min-h-0 flex-1 overflow-auto bg-[#f2f6f0] p-3">
           <div className="space-y-2.5">
             {features.map((feature) => (
-              <ResultItem feature={feature} key={feature.properties.gbif_id} />
+              <ResultItem
+                feature={feature}
+                key={feature.properties.gbif_id}
+                onSelect={() => setSelectedGbifId(feature.properties.gbif_id)}
+                selected={feature.properties.gbif_id === selectedGbifId}
+              />
             ))}
           </div>
         </div>
@@ -90,14 +97,47 @@ function EmptyState({ message = "暂无结果" }: { message?: string }) {
   );
 }
 
-function ResultItem({ feature }: { feature: OccurrenceFeature }) {
+function ResultItem({
+  feature,
+  onSelect,
+  selected
+}: {
+  feature: OccurrenceFeature;
+  onSelect: () => void;
+  selected: boolean;
+}) {
+  const itemRef = useRef<HTMLElement>(null);
   const { properties, geometry } = feature;
   const speciesName =
     properties.species ?? properties.scientific_name ?? "未命名物种";
   const [lng, lat] = geometry.coordinates;
 
+  useEffect(() => {
+    if (selected) {
+      itemRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }, [selected]);
+
   return (
-    <article className="rounded-md border border-emerald-950/10 bg-white p-3 shadow-sm transition hover:border-emerald-800/25 hover:shadow-md">
+    <article
+      aria-pressed={selected}
+      className={`cursor-pointer rounded-md border p-3 shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 ${
+        selected
+          ? "border-amber-500 bg-amber-50 shadow-md shadow-amber-950/10"
+          : "border-emerald-950/10 bg-white hover:border-emerald-800/25 hover:shadow-md"
+      }`}
+      data-gbif-id={properties.gbif_id}
+      onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
+      ref={itemRef}
+      role="button"
+      tabIndex={0}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="line-clamp-2 text-sm font-semibold leading-5 text-slate-950">
@@ -110,7 +150,13 @@ function ResultItem({ feature }: { feature: OccurrenceFeature }) {
             </p>
           ) : null}
         </div>
-        <span className="shrink-0 rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-800">
+        <span
+          className={`shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold ${
+            selected
+              ? "bg-amber-100 text-amber-900"
+              : "bg-emerald-50 text-emerald-800"
+          }`}
+        >
           #{properties.gbif_id}
         </span>
       </div>
@@ -145,7 +191,7 @@ function ResultItem({ feature }: { feature: OccurrenceFeature }) {
 type MetaRowProps = {
   icon: typeof CalendarDays;
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 function MetaRow({ icon: Icon, label, children }: MetaRowProps) {

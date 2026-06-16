@@ -39,6 +39,7 @@ type QueryState = {
   radiusKm: number;
   results: OccurrenceGeoJSON | null;
   activeQuery: ActiveQuery | null;
+  selectedGbifId: number | null;
   loading: boolean;
   error: string | null;
 };
@@ -52,6 +53,7 @@ type QueryActions = {
   setBufferCenter: (point: LngLat | null) => void;
   setRadiusKm: (radiusKm: number) => void;
   setResults: (results: OccurrenceGeoJSON | null) => void;
+  setSelectedGbifId: (gbifId: number | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   runCurrentQuery: () => Promise<void>;
@@ -97,6 +99,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
   const [radiusKm, setRadiusKmState] = useState(DEFAULT_RADIUS_KM);
   const [results, setResults] = useState<OccurrenceGeoJSON | null>(null);
   const [activeQuery, setActiveQuery] = useState<ActiveQuery | null>(null);
+  const [selectedGbifId, setSelectedGbifId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -114,12 +117,14 @@ export function QueryProvider({ children }: { children: ReactNode }) {
   const clearResults = () => {
     setResults(null);
     setActiveQuery(null);
+    setSelectedGbifId(null);
     setError(null);
   };
 
   const runCurrentQuery = async () => {
     setLoading(true);
     setError(null);
+    setSelectedGbifId(null);
 
     try {
       const speciesKey = selectedSpecies?.species_key;
@@ -175,6 +180,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       setResults(null);
       setActiveQuery(null);
+      setSelectedGbifId(null);
       setError(error instanceof Error ? error.message : "查询失败");
     } finally {
       setLoading(false);
@@ -192,6 +198,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       radiusKm,
       results,
       activeQuery,
+      selectedGbifId,
       loading,
       error,
       setSelectedSpecies,
@@ -202,6 +209,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       setBufferCenter,
       setRadiusKm,
       setResults,
+      setSelectedGbifId,
       setLoading,
       setError,
       runCurrentQuery,
@@ -217,6 +225,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       radiusKm,
       results,
       activeQuery,
+      selectedGbifId,
       loading,
       error
     ]

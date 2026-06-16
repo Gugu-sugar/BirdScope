@@ -1,6 +1,6 @@
 # BirdScope 前端文档
 
-> 最后更新：2026-06-15
+> 最后更新：2026-06-16
 
 前端位于 `frontend/`，技术栈为 Vite + React 19 + TypeScript + Tailwind CSS + Cesium + ECharts。
 
@@ -12,13 +12,13 @@
 - 后端观测点回绘
 - 时间滑块和 8–11 月动画
 - 物种排行、月度趋势、区域统计图表
-- `ResultList` 组件已存在，但当前页面没有渲染
+- `ResultList` 已挂载到左侧结果 tab，并与地图点位共享选中态
 
 ## 当前联调问题
 
 1. 后端 `/species/search` 返回数组，前端仍按 `{results, total}` 读取，物种搜索需统一契约。
 2. WMS 当前使用 `viewparams`，项目契约要求 `CQL_FILTER=grid_size=1.0 AND month=X`。
-3. `ResultList` 已导入但未挂回 `MapQueryPage`。
+3. 结果列表和地图点位已做双向选中联动，仍需配合真实查询做浏览器冒烟。
 
 因此“前端可以启动和构建”不代表全部业务已经验收通过。
 

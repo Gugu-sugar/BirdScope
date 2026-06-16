@@ -26,6 +26,7 @@ export function MapQueryPage() {
     results,
     loading,
     error,
+    selectedGbifId,
     setBbox,
     setBufferCenter,
     setPolygon,
@@ -40,6 +41,12 @@ export function MapQueryPage() {
       setSidebarView("results");
     }
   }, [error, loading, results]);
+
+  useEffect(() => {
+    if (selectedGbifId !== null) {
+      setSidebarView("results");
+    }
+  }, [selectedGbifId]);
 
   const handleBboxSelected = (nextBbox: Bbox) => {
     setSpatialMode("bbox");

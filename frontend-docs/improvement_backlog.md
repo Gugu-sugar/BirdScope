@@ -11,8 +11,8 @@
 |------|------|------|------|----------|
 | — | 区域统计无联动 | R1-4 | ✅ 已解决 | — |
 | — | 图表/图层无联动查询 | R1-5 | ✅ 已解决 | — |
-| I1 | 点击点位是浏览器 alert，非页面气泡 | R2 | ⬜ 待做 | 批次① |
-| I2 | 查询结果不与地图矢量点联动选中 | R2 | ⬜ 待做 | 批次① |
+| I1 | 点击点位是浏览器 alert，非页面气泡 | R2 | ✅ 已解决 | 批次① |
+| I2 | 查询结果不与地图矢量点联动选中 | R2 | ✅ 已解决 | 批次① |
 | I3 | 空间绘制无说明 + 逻辑怪 + 难看的暗角掩膜 | R1-6 | ⬜ 待做 | 批次④ |
 | I4 | 热力图在球体上稀疏、在地形上突兀 | R1-1 | ⬜ 待做 | 批次⑤ |
 | I5 | 热力只有一层、放大全是方格（分级渲染未完成） | R1-2 | 🟡 部分 | 批次⑤ |
@@ -42,10 +42,12 @@
 ### I1 点位气泡（替换 alert）
 - 现状：`frontend/src/components/map/MapPanel.tsx` 左键 handler 用 `alert()`；Cesium `infoBox`/`selectionIndicator` 已在初始化关闭。
 - 方案：自定义 HTML 浮层气泡，`Cesium.SceneTransforms.worldToWindowCoordinates` 在 `scene.postRender` 时跟随点位；内容遵守数据规则（物种 fallback `scientific_name`，`individual_count` 为 null 显示"数量未知"）。
+- 完成：已替换为页面内自定义气泡，随选中点位渲染并支持关闭。
 
 ### I2 结果 ↔ 点位双向联动
 - 现状：`ResultList` 已渲染但为静态列表；点位 entity 未设稳定 id；store 无"选中要素"状态。
 - 方案：store 增 `selectedGbifId`。点列表项 → 设选中 + 地图 `flyTo` + 高亮（放大/换色）；点地图点位 → 设选中 + 列表行高亮并 `scrollIntoView`。entity id 用 `pt-${gbif_id}`（`gbif_id` 稳定唯一）。
+- 完成：`ResultList` 与地图点位已共享 `selectedGbifId`，列表点击和地图点选均会联动高亮、飞行定位和滚动定位。
 
 ### I3 空间绘制说明 / 逻辑 / 暗角掩膜
 - 现状：
