@@ -10,11 +10,19 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { InsightPanel } from "../components/charts/InsightPanel";
+import { LayerPanel } from "../components/layers/LayerPanel";
+import { PublishLayerDialog } from "../components/layers/PublishLayerDialog";
 import { MapPanel } from "../components/map/MapPanel";
 import { QueryPanel } from "../components/query/QueryPanel";
 import { ResultList } from "../components/query/ResultList";
 import { useQueryStore, type ActiveQuery } from "../store/queryStore";
-import type { Bbox, BufferSelection, GeoJsonPolygon, LngLat, SpatialMode } from "../types/geo";
+import type {
+  Bbox,
+  BufferSelection,
+  GeoJsonPolygon,
+  LngLat,
+  SpatialMode
+} from "../types/geo";
 
 type WorkspacePanel = "query" | "results" | "charts" | "layers";
 
@@ -44,7 +52,7 @@ const PANEL_META: Record<
   layers: {
     title: "图层管理",
     kicker: "Layers",
-    description: "图层开关与发布列表将在批次③接入。"
+    description: "切换底图、控制图层显隐，并查看已发布的 GeoServer 图层。"
   }
 };
 
@@ -66,12 +74,14 @@ export function MapQueryPage() {
     spatialMode
   } = useQueryStore();
   const [activePanel, setActivePanel] = useState<WorkspacePanel | null>("query");
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [layerRefreshToken, setLayerRefreshToken] = useState(0);
 
   useEffect(() => {
-    if (!loading && (results || error)) {
+    if (!loading && (results || error) && activePanel !== "layers") {
       setActivePanel("results");
     }
-  }, [error, loading, results]);
+  }, [activePanel, error, loading, results]);
 
   const handleBboxSelected = (nextBbox: Bbox) => {
     setSpatialMode("bbox");
@@ -92,6 +102,11 @@ export function MapQueryPage() {
     setBufferCenter(point);
     setBbox(null);
     setPolygon(null);
+  };
+
+  const handlePublished = () => {
+    setLayerRefreshToken((value) => value + 1);
+    setActivePanel("layers");
   };
 
   const panelMeta = activePanel ? PANEL_META[activePanel] : null;
@@ -124,9 +139,9 @@ export function MapQueryPage() {
           </div>
 
           <button
-            className="inline-flex h-10 items-center gap-2 rounded-md border border-emerald-900/15 bg-[#123b3f] px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b2b2e] disabled:cursor-not-allowed disabled:opacity-65"
-            disabled
-            title="批次③将接入 GeoServer 发布接口"
+            className="inline-flex h-10 items-center gap-2 rounded-md border border-emerald-900/15 bg-[#123b3f] px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b2b2e] focus:outline-none focus:ring-2 focus:ring-emerald-700/30"
+            onClick={() => setPublishOpen(true)}
+            title="通过后端 GeoServer API 发布当前网格图层"
             type="button"
           >
             <Upload className="h-4 w-4" />
@@ -183,7 +198,9 @@ export function MapQueryPage() {
                   setMonth={setMonth}
                 />
               ) : null}
-              {activePanel === "layers" ? <LayerPlaceholder /> : null}
+              {activePanel === "layers" ? (
+                <LayerPanel refreshToken={layerRefreshToken} />
+              ) : null}
             </div>
           </aside>
         ) : null}
@@ -210,6 +227,12 @@ export function MapQueryPage() {
           />
         </section>
       </section>
+
+      <PublishLayerDialog
+        onClose={() => setPublishOpen(false)}
+        onPublished={handlePublished}
+        open={publishOpen}
+      />
     </main>
   );
 }
@@ -313,22 +336,6 @@ function InfoRow({ label, value }: { label: string; value: string }) {
       <dd className="truncate font-semibold text-slate-100" title={value}>
         {value}
       </dd>
-    </div>
-  );
-}
-
-function LayerPlaceholder() {
-  return (
-    <div className="flex h-full min-h-0 flex-col bg-[#fbfdf8] p-4">
-      <div className="rounded-md border border-dashed border-emerald-900/20 bg-emerald-50/70 p-4">
-        <div className="flex items-center gap-2 text-sm font-semibold text-emerald-950">
-          <Layers3 className="h-4 w-4" />
-          图层面板预留
-        </div>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
-          批次③会在这里接入底图切换、矢量/热力开关、已发布图层列表和 GeoServer 发布操作。
-        </p>
-      </div>
     </div>
   );
 }

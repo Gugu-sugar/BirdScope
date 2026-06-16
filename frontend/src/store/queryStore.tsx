@@ -32,6 +32,9 @@ export type ActiveQuery = {
 type QueryState = {
   selectedSpecies: SpeciesItem | null;
   month: number | null;
+  gridSize: GridSize;
+  basemap: BasemapKey;
+  layerVisibility: LayerVisibility;
   spatialMode: SpatialMode;
   bbox: Bbox | null;
   polygon: GeoJsonPolygon | null;
@@ -46,6 +49,9 @@ type QueryState = {
 type QueryActions = {
   setSelectedSpecies: (species: SpeciesItem | null) => void;
   setMonth: (month: number | null) => void;
+  setGridSize: (gridSize: GridSize) => void;
+  setBasemap: (basemap: BasemapKey) => void;
+  setLayerVisibility: (layer: keyof LayerVisibility, visible: boolean) => void;
   setSpatialMode: (mode: SpatialMode) => void;
   setBbox: (bbox: Bbox | null) => void;
   setPolygon: (polygon: GeoJsonPolygon | null) => void;
@@ -61,6 +67,21 @@ type QueryActions = {
 type QueryStore = QueryState & QueryActions;
 
 const DEFAULT_RADIUS_KM = 50;
+
+export type GridSize = 0.5 | 1;
+export type BasemapKey = "street" | "imagery" | "terrain";
+
+export type LayerVisibility = {
+  points: boolean;
+  grid: boolean;
+  globalWms: boolean;
+};
+
+const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
+  points: true,
+  grid: true,
+  globalWms: true
+};
 
 const QueryContext = createContext<QueryStore | null>(null);
 
@@ -90,6 +111,11 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     null
   );
   const [month, setMonth] = useState<number | null>(10);
+  const [gridSize, setGridSize] = useState<GridSize>(1);
+  const [basemap, setBasemap] = useState<BasemapKey>("terrain");
+  const [layerVisibility, setLayerVisibilityState] = useState<LayerVisibility>(
+    DEFAULT_LAYER_VISIBILITY
+  );
   const [spatialMode, setSpatialMode] = useState<SpatialMode>("bbox");
   const [bbox, setBbox] = useState<Bbox | null>(null);
   const [polygon, setPolygon] = useState<GeoJsonPolygon | null>(null);
@@ -109,6 +135,16 @@ export function QueryProvider({ children }: { children: ReactNode }) {
 
   const setBufferCenter = (point: LngLat | null) => {
     setBuffer(point ? { ...point, radiusKm } : null);
+  };
+
+  const setLayerVisibility = (
+    layer: keyof LayerVisibility,
+    visible: boolean
+  ) => {
+    setLayerVisibilityState((current) => ({
+      ...current,
+      [layer]: visible
+    }));
   };
 
   const clearResults = () => {
@@ -185,6 +221,9 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     () => ({
       selectedSpecies,
       month,
+      gridSize,
+      basemap,
+      layerVisibility,
       spatialMode,
       bbox,
       polygon,
@@ -196,6 +235,9 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       error,
       setSelectedSpecies,
       setMonth,
+      setGridSize,
+      setBasemap,
+      setLayerVisibility,
       setSpatialMode,
       setBbox,
       setPolygon,
@@ -210,6 +252,9 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     [
       selectedSpecies,
       month,
+      gridSize,
+      basemap,
+      layerVisibility,
       spatialMode,
       bbox,
       polygon,

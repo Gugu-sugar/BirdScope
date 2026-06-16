@@ -1,0 +1,51 @@
+import { requestJson } from "./client";
+
+const GEOSERVER_API_KEY = import.meta.env.VITE_GEOSERVER_API_KEY as
+  | string
+  | undefined;
+
+export type GeoServerLayer = {
+  name: string;
+  href?: string;
+  title?: string;
+  type?: string;
+  [key: string]: unknown;
+};
+
+export type GeoServerLayersResponse = {
+  layers: GeoServerLayer[];
+};
+
+export type PublishGeoServerLayerBody = {
+  layer_name: string;
+  table_name: string;
+  style_name?: string;
+  cql_filter?: string;
+};
+
+export type PublishGeoServerLayerResult = {
+  name?: string;
+  layer_name?: string;
+  status?: string;
+  cql_filter?: string;
+  [key: string]: unknown;
+};
+
+export async function listGeoServerLayers() {
+  const data = await requestJson<GeoServerLayersResponse>("/geoserver/layers");
+  return data.layers ?? [];
+}
+
+export function publishGeoServerLayer(
+  body: PublishGeoServerLayerBody,
+  apiKey = GEOSERVER_API_KEY
+) {
+  return requestJson<PublishGeoServerLayerResult>("/geoserver/layers", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(apiKey ? { "X-API-Key": apiKey } : {})
+    },
+    body: JSON.stringify(body)
+  });
+}
