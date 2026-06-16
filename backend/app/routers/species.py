@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.deps import get_db
+from app.routers.stats import parse_bbox
 from app.schemas.species import SpeciesItem, SpeciesRankItem
 from app.services import spatial
 
@@ -50,9 +51,12 @@ def species_rank(
     month: int | None = Query(None, ge=1, le=12),
     year: int = Query(2024),
     limit: int = Query(20, le=50),
+    bbox: str | None = Query(None, description="minx,miny,maxx,maxy，带则按范围实时联动"),
     db: Session = Depends(get_db),
 ):
-    return spatial.query_species_rank(db, country_code, month, year, limit)
+    return spatial.query_species_rank(
+        db, country_code, month, year, limit, bbox=parse_bbox(bbox)
+    )
 
 
 @router.get("/{species_key}", response_model=SpeciesItem)

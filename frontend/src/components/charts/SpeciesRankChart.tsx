@@ -1,45 +1,48 @@
 import ReactECharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { querySpeciesRank } from "../../api/stats";
+import type { Bbox } from "../../types/geo";
 
 type SpeciesRankChartProps = {
   month: number | null;
+  bbox?: Bbox;
 };
 
-export function SpeciesRankChart({ month }: SpeciesRankChartProps) {
+export function SpeciesRankChart({ month, bbox }: SpeciesRankChartProps) {
   const [data, setData] = useState<{ name: string; value: number }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let active = true;
+    const controller = new AbortController();
     setLoading(true);
     setError(null);
-    querySpeciesRank({ month: month ?? undefined, limit: 8 })
+    querySpeciesRank({
+      month: month ?? undefined,
+      limit: 8,
+      bbox,
+      signal: controller.signal
+    })
       .then((items) => {
-        if (active) {
-          setData(
-            items.map((item) => ({
-              name: item.species ?? `物种 ${item.species_key}`,
-              value: item.record_count
-            }))
-          );
-        }
+        setData(
+          items.map((item) => ({
+            name: item.species ?? `物种 ${item.species_key}`,
+            value: item.record_count
+          }))
+        );
+        setLoading(false);
       })
       .catch((reason) => {
-        if (active) {
-          setData([]);
-          setError(reason instanceof Error ? reason.message : "物种排行加载失败");
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
+        if (controller.signal.aborted) return;
+        setData([]);
+        setError(reason instanceof Error ? reason.message : "物种排行加载失败");
+        setLoading(false);
       });
 
     return () => {
-      active = false;
+      controller.abort();
     };
-  }, [month]);
+  }, [month, bbox]);
 
   return (
     <section className="flex h-full min-h-[360px] flex-col rounded-md border border-slate-200 bg-white p-3 shadow-sm xl:min-h-0">

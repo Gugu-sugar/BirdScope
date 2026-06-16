@@ -11,10 +11,17 @@
 | Cesium 主场景 | 已合入待验收 | 初始化、绘制、点位展示已实现 |
 | GeoServer WMS | 已合入待修正 | 过滤参数当前不符合 CQL_FILTER 契约 |
 | 时间滑块 | 已合入 | 支持 8–11 月播放 |
-| ECharts 图表 | 已合入待联调 | 三个图表组件已渲染 |
+| ECharts 图表 | 已联动 | 三图表按 `activeQuery`（物种+范围）+ 实时月份联动，带 AbortController |
 | ResultList | 组件完成但页面缺失 | `MapQueryPage` 未渲染该组件 |
-| `/stats/grid` 区域网格层 | 待做 | 仅有 API 封装 |
+| `/stats/grid` 区域网格层 | 已接入（查询联动） | 执行查询后按 bbox+物种+月份拉网格，clampToGround 分级配色；缩放自动切层仍待做 |
 | 前端自动化测试 | 待做 | 暂无测试框架和用例 |
+
+## 查询联动（2026-06-16）
+
+- `queryStore` 新增 `activeQuery` 快照：点「执行查询」成功时写入 `{speciesKey, speciesName, bbox}`，三种空间模式（bbox/polygon/buffer）统一归一为 bbox。
+- 物种与空间范围在快照时固定；月份仍由 `store.month` 实时提供，便于时间滑块播放时图层/图表跟随。
+- 图层（`/stats/grid`）与三个图表（rank/monthly/province）均订阅 `activeQuery` + 月份；后端对应接口已加可选 `bbox` 实时聚合路径（含面积护栏）。
+- 所有联动请求带 `AbortController`，新查询发起即取消上一次未完成请求。
 
 ## P0 联调阻塞
 

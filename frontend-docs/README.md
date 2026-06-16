@@ -30,4 +30,5 @@
 - [api_integration.md](api_integration.md)：接口契约
 - [rules_and_conventions.md](rules_and_conventions.md)：开发规范
 - [progress.md](progress.md)：当前进度和阻塞项
+- [improvement_backlog.md](improvement_backlog.md)：两轮联调反馈的待解决问题、决策与分批实施路线
 

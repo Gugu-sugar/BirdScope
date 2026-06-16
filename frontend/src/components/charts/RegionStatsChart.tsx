@@ -1,49 +1,56 @@
 import ReactECharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { queryProvinceStats } from "../../api/stats";
+import type { Bbox } from "../../types/geo";
 
 type RegionStatsChartProps = {
   month: number | null;
   speciesKey?: number;
+  bbox?: Bbox;
 };
 
-export function RegionStatsChart({ month, speciesKey }: RegionStatsChartProps) {
+export function RegionStatsChart({
+  month,
+  speciesKey,
+  bbox
+}: RegionStatsChartProps) {
   const [data, setData] = useState<{ name: string; value: number }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let active = true;
+    const controller = new AbortController();
     setLoading(true);
     setError(null);
-    queryProvinceStats({ month: month ?? undefined, speciesKey })
+    queryProvinceStats({
+      month: month ?? undefined,
+      speciesKey,
+      bbox,
+      signal: controller.signal
+    })
       .then((items) => {
-        if (active) {
-          setData(
-            items
-              .slice(0, 8)
-              .map((item) => ({
-                name: item.state_province ?? "未知省份",
-                value: item.record_count
-              }))
-              .sort((a, b) => b.value - a.value)
-          );
-        }
+        setData(
+          items
+            .slice(0, 8)
+            .map((item) => ({
+              name: item.state_province ?? "未知省份",
+              value: item.record_count
+            }))
+            .sort((a, b) => b.value - a.value)
+        );
+        setLoading(false);
       })
       .catch((reason) => {
-        if (active) {
-          setData([]);
-          setError(reason instanceof Error ? reason.message : "区域统计加载失败");
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
+        if (controller.signal.aborted) return;
+        setData([]);
+        setError(reason instanceof Error ? reason.message : "区域统计加载失败");
+        setLoading(false);
       });
 
     return () => {
-      active = false;
+      controller.abort();
     };
-  }, [month, speciesKey]);
+  }, [month, speciesKey, bbox]);
 
   return (
     <section className="flex h-full min-h-[360px] flex-col rounded-md border border-slate-200 bg-white p-3 shadow-sm xl:min-h-0">

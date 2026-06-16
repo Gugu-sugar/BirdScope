@@ -25,6 +25,37 @@ def _build_filters(
     return where, params
 
 
+# 图表实时空间聚合的 bbox 面积上限（平方度）。超过则回退预聚合事实表，
+# 避免大洲/全球范围实时扫描 occurrence_clean 拖慢响应。
+MAX_REALTIME_BBOX_AREA_DEG2 = 3000.0
+# 实时聚合语句超时（毫秒），兜底防止个别慢查询拖垮连接。
+_REALTIME_STATEMENT_TIMEOUT_MS = 8000
+
+Bbox = tuple[float, float, float, float]
+
+
+def _bbox_realtime_ok(bbox: Bbox | None) -> bool:
+    """bbox 存在且面积在护栏内时，才走 occurrence_clean 实时聚合，否则回退事实表。"""
+    if not bbox:
+        return False
+    minx, miny, maxx, maxy = bbox
+    return abs((maxx - minx) * (maxy - miny)) <= MAX_REALTIME_BBOX_AREA_DEG2
+
+
+def _bbox_params(bbox: Bbox) -> dict:
+    minx, miny, maxx, maxy = bbox
+    return {"minx": minx, "miny": miny, "maxx": maxx, "maxy": maxy}
+
+
+# 走 GIST 索引的 bbox 过滤片段（聚合统计用外接框即可，无需精确 ST_Within）。
+_BBOX_FILTER = "geom && ST_MakeEnvelope(:minx, :miny, :maxx, :maxy, 4326)"
+
+
+def _apply_statement_timeout(db: Session) -> None:
+    # SET LOCAL 仅在当前事务内生效，随提交/回滚自动失效。
+    db.execute(text(f"SET LOCAL statement_timeout = {_REALTIME_STATEMENT_TIMEOUT_MS}"))
+
+
 def _row_to_feature(row: Any) -> dict:
     species = row.species or row.scientific_name
     return {
@@ -238,12 +269,41 @@ def _query_grid_realtime(
     ]
 
 
+def _monthly_trend_realtime(
+    db: Session, species_key: int | None, year: int, bbox: Bbox
+) -> list[dict]:
+    _apply_statement_timeout(db)
+    clauses = ["year = :year", _BBOX_FILTER]
+    params: dict = {"year": year, **_bbox_params(bbox)}
+    if species_key is not None:
+        clauses.append("species_key = :species_key")
+        params["species_key"] = species_key
+    where = " AND ".join(clauses)
+    sql = text(f"""
+        SELECT month,
+               COUNT(*)::int              AS record_count,
+               SUM(individual_count)::int AS individual_sum
+        FROM occurrence_clean
+        WHERE {where}
+        GROUP BY month ORDER BY month
+    """)
+    rows = db.execute(sql, params).fetchall()
+    return [
+        {"month": r.month, "record_count": r.record_count, "individual_sum": r.individual_sum}
+        for r in rows
+    ]
+
+
 def query_monthly_trend(
     db: Session,
     species_key: int | None = None,
     country_code: str | None = None,
     year: int = 2024,
+    bbox: Bbox | None = None,
 ) -> list[dict]:
+    # 带 bbox（且面积在护栏内）→ 实时聚合明细表，按画的框联动；否则走预聚合事实表。
+    if _bbox_realtime_ok(bbox):
+        return _monthly_trend_realtime(db, species_key, year, bbox)  # type: ignore[arg-type]
     # 走预聚合事实表 occurrence_stats_monthly，按 month SUM 上卷（见 build_stats.py）
     clauses = ["year = :year"]
     params: dict = {"year": year}
@@ -269,13 +329,40 @@ def query_monthly_trend(
     ]
 
 
+def _province_stats_realtime(
+    db: Session, month: int | None, year: int, species_key: int | None, bbox: Bbox
+) -> list[dict]:
+    _apply_statement_timeout(db)
+    clauses = ["year = :year", "state_province IS NOT NULL", _BBOX_FILTER]
+    params: dict = {"year": year, **_bbox_params(bbox)}
+    if month:
+        clauses.append("month = :month")
+        params["month"] = month
+    if species_key is not None:
+        clauses.append("species_key = :species_key")
+        params["species_key"] = species_key
+    where = " AND ".join(clauses)
+    sql = text(f"""
+        SELECT state_province, COUNT(*)::int AS record_count
+        FROM occurrence_clean
+        WHERE {where}
+        GROUP BY state_province ORDER BY record_count DESC
+        LIMIT 50
+    """)
+    rows = db.execute(sql, params).fetchall()
+    return [{"state_province": r.state_province, "record_count": r.record_count} for r in rows]
+
+
 def query_province_stats(
     db: Session,
     country_code: str | None = None,
     month: int | None = None,
     year: int = 2024,
     species_key: int | None = None,
+    bbox: Bbox | None = None,
 ) -> list[dict]:
+    if _bbox_realtime_ok(bbox):
+        return _province_stats_realtime(db, month, year, species_key, bbox)  # type: ignore[arg-type]
     # 走预聚合事实表，按 state_province SUM 上卷
     clauses = ["year = :year", "state_province IS NOT NULL"]
     params: dict = {"year": year}
@@ -322,13 +409,57 @@ def query_migration(
     ]
 
 
+def _species_rank_realtime(
+    db: Session, month: int | None, year: int, limit: int, bbox: Bbox
+) -> list[dict]:
+    _apply_statement_timeout(db)
+    clauses = ["year = :year", "species_key IS NOT NULL", _BBOX_FILTER]
+    params: dict = {"year": year, "limit": limit, **_bbox_params(bbox)}
+    if month:
+        clauses.append("month = :month")
+        params["month"] = month
+    where = " AND ".join(clauses)
+    sql = text(f"""
+        WITH agg AS (
+            SELECT species_key,
+                   COUNT(*)::int              AS record_count,
+                   SUM(individual_count)::int AS individual_sum
+            FROM occurrence_clean
+            WHERE {where}
+            GROUP BY species_key
+            ORDER BY record_count DESC
+            LIMIT :limit
+        )
+        SELECT a.species_key,
+               COALESCE(s.species, s.scientific_name, a.species_key::text) AS species,
+               a.record_count,
+               a.individual_sum
+        FROM agg a
+        LEFT JOIN species_lookup s ON s.species_key = a.species_key
+        ORDER BY a.record_count DESC
+    """)
+    rows = db.execute(sql, params).fetchall()
+    return [
+        {
+            "species_key": r.species_key,
+            "species": r.species,
+            "record_count": r.record_count,
+            "individual_sum": r.individual_sum,
+        }
+        for r in rows
+    ]
+
+
 def query_species_rank(
     db: Session,
     country_code: str | None = None,
     month: int | None = None,
     year: int = 2024,
     limit: int = 20,
+    bbox: Bbox | None = None,
 ) -> list[dict]:
+    if _bbox_realtime_ok(bbox):
+        return _species_rank_realtime(db, month, year, limit, bbox)  # type: ignore[arg-type]
     # 先在事实表上按整数 species_key 聚合并取 top-N，再 JOIN species_lookup 取展示名。
     # 关键：JOIN 与按文本排序只作用于已截断的 N 行，避免对全部 ~1 万物种 JOIN 后再排序。
     clauses = ["year = :year", "species_key IS NOT NULL"]

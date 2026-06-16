@@ -53,8 +53,9 @@
 - `month: int | None` — 1–12
 - `year: int = 2024`
 - `limit: int = 20`
+- `bbox: str | None` — `"minx,miny,maxx,maxy"`。带 bbox 时按该范围**实时聚合** `occurrence_clean`（地图联动用）；不带时走预聚合事实表。bbox 面积超护栏（默认 3000 平方度）自动回退预聚合，避免大范围全表扫描。
 
-**示例**：`GET /api/v1/species/rank?country_code=CN&month=10`
+**示例**：`GET /api/v1/species/rank?bbox=116,39,118,41&month=10`（北京范围联动）
 
 **响应** `List[SpeciesRankItem]`：
 ```json
@@ -154,8 +155,9 @@ PostGIS 查询：`ST_DWithin(geom::geography, ST_MakePoint(:lng, :lat)::geograph
 - `species_key: int | None`
 - `country_code: str | None`
 - `year: int = 2024`
+- `bbox: str | None` — 带则按范围实时聚合（地图联动），含面积护栏，同 `/species/rank`
 
-**示例**：`GET /api/v1/stats/monthly?country_code=CN`
+**示例**：`GET /api/v1/stats/monthly?bbox=116,39,118,41`
 
 **响应** `List[MonthlyTrendItem]`：
 ```json
@@ -175,8 +177,10 @@ PostGIS 查询：`ST_DWithin(geom::geography, ST_MakePoint(:lng, :lat)::geograph
 - `country_code: str = "CN"`
 - `month: int | None`
 - `year: int = 2024`
+- `species_key: int | None`
+- `bbox: str | None` — 带则按范围实时聚合（地图联动），含面积护栏，同 `/species/rank`
 
-**示例**：`GET /api/v1/stats/province?country_code=CN`
+**示例**：`GET /api/v1/stats/province?bbox=116,39,118,41&month=10`
 
 **响应**：
 ```json

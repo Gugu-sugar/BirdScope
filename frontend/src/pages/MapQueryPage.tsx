@@ -22,7 +22,7 @@ export function MapQueryPage() {
     buffer,
     polygon,
     month,
-    selectedSpecies,
+    activeQuery,
     results,
     loading,
     error,
@@ -116,6 +116,7 @@ export function MapQueryPage() {
 
         <section className="panel-shell min-h-[620px] overflow-hidden xl:h-full xl:min-h-0">
           <MapPanel
+            activeQuery={activeQuery}
             bbox={bbox}
             buffer={buffer}
             onBboxSelected={handleBboxSelected}
@@ -128,12 +129,9 @@ export function MapQueryPage() {
 
         <aside className="panel-shell min-h-[620px] overflow-hidden xl:h-full xl:min-h-0">
           <InsightPanel
+            activeQuery={activeQuery}
             month={month}
             setMonth={setMonth}
-            speciesKey={selectedSpecies?.species_key ?? undefined}
-            speciesName={
-              selectedSpecies?.display_name ?? selectedSpecies?.scientific_name
-            }
           />
         </aside>
       </section>
