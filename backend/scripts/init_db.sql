@@ -55,7 +55,31 @@ CREATE INDEX IF NOT EXISTS grid_geom_idx ON occurrence_grid_monthly USING GIST (
 CREATE INDEX IF NOT EXISTS grid_size_time_idx ON occurrence_grid_monthly (grid_size, year, month);
 
 -- ============================================================
--- 3. species_lookup  物种索引表
+-- 3. occurrence_stats_monthly  图表月度事实表
+-- ============================================================
+-- 单张全维事实表，覆盖 /stats/monthly、/stats/province、/stats/migration、
+-- /species/rank 四个图表接口。查询时按所需维度 SUM 上卷，避免对 400 万行明细实时扫描。
+-- 重心（migration）由 sum_lon/sum_lat 与 record_count 还原加权平均，口径与明细 AVG 一致。
+CREATE TABLE IF NOT EXISTS occurrence_stats_monthly (
+    id             SERIAL PRIMARY KEY,
+    year           SMALLINT NOT NULL,
+    month          SMALLINT NOT NULL,
+    country_code   CHAR(2),
+    state_province TEXT,
+    species_key    BIGINT,
+    record_count   INTEGER          NOT NULL,
+    individual_sum BIGINT,
+    sum_lon        DOUBLE PRECISION,
+    sum_lat        DOUBLE PRECISION
+);
+
+-- 时间 + 国家维度：monthly / province / rank 的主过滤路径
+CREATE INDEX IF NOT EXISTS stats_ym_cc_idx ON occurrence_stats_monthly (year, month, country_code);
+-- 物种维度：migration 及带 species_key 过滤的 monthly / province
+CREATE INDEX IF NOT EXISTS stats_species_idx ON occurrence_stats_monthly (species_key, year);
+
+-- ============================================================
+-- 4. species_lookup  物种索引表
 -- ============================================================
 CREATE TABLE IF NOT EXISTS species_lookup (
     species_key     BIGINT PRIMARY KEY,

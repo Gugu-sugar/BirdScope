@@ -244,6 +244,7 @@ def query_monthly_trend(
     country_code: str | None = None,
     year: int = 2024,
 ) -> list[dict]:
+    # 走预聚合事实表 occurrence_stats_monthly，按 month SUM 上卷（见 build_stats.py）
     clauses = ["year = :year"]
     params: dict = {"year": year}
     if species_key:
@@ -255,9 +256,9 @@ def query_monthly_trend(
     where = " AND ".join(clauses)
     sql = text(f"""
         SELECT month,
-               COUNT(*)::int AS record_count,
-               SUM(individual_count)::int AS individual_sum
-        FROM occurrence_clean
+               SUM(record_count)::int   AS record_count,
+               SUM(individual_sum)::int AS individual_sum
+        FROM occurrence_stats_monthly
         WHERE {where}
         GROUP BY month ORDER BY month
     """)
@@ -275,6 +276,7 @@ def query_province_stats(
     year: int = 2024,
     species_key: int | None = None,
 ) -> list[dict]:
+    # 走预聚合事实表，按 state_province SUM 上卷
     clauses = ["year = :year", "state_province IS NOT NULL"]
     params: dict = {"year": year}
     if country_code:
@@ -288,8 +290,8 @@ def query_province_stats(
         params["species_key"] = species_key
     where = " AND ".join(clauses)
     sql = text(f"""
-        SELECT state_province, COUNT(*)::int AS record_count
-        FROM occurrence_clean
+        SELECT state_province, SUM(record_count)::int AS record_count
+        FROM occurrence_stats_monthly
         WHERE {where}
         GROUP BY state_province ORDER BY record_count DESC
         LIMIT 50
@@ -303,12 +305,13 @@ def query_migration(
     species_key: int,
     year: int = 2024,
 ) -> list[dict]:
+    # 重心 = 加权平均：SUM(sum_lon)/SUM(record_count)，与明细 AVG(ST_X) 口径一致
     sql = text("""
         SELECT month,
-               AVG(ST_X(geom))::float AS center_lon,
-               AVG(ST_Y(geom))::float AS center_lat,
-               COUNT(*)::int AS record_count
-        FROM occurrence_clean
+               (SUM(sum_lon) / NULLIF(SUM(record_count), 0))::float AS center_lon,
+               (SUM(sum_lat) / NULLIF(SUM(record_count), 0))::float AS center_lat,
+               SUM(record_count)::int AS record_count
+        FROM occurrence_stats_monthly
         WHERE species_key = :species_key AND year = :year
         GROUP BY month ORDER BY month
     """)
@@ -326,26 +329,35 @@ def query_species_rank(
     year: int = 2024,
     limit: int = 20,
 ) -> list[dict]:
-    clauses = ["o.year = :year", "o.species_key IS NOT NULL"]
+    # 先在事实表上按整数 species_key 聚合并取 top-N，再 JOIN species_lookup 取展示名。
+    # 关键：JOIN 与按文本排序只作用于已截断的 N 行，避免对全部 ~1 万物种 JOIN 后再排序。
+    clauses = ["year = :year", "species_key IS NOT NULL"]
     params: dict = {"year": year, "limit": limit}
     if country_code:
-        clauses.append("o.country_code = :country_code")
+        clauses.append("country_code = :country_code")
         params["country_code"] = country_code
     if month:
-        clauses.append("o.month = :month")
+        clauses.append("month = :month")
         params["month"] = month
     where = " AND ".join(clauses)
     sql = text(f"""
-        SELECT o.species_key,
-               COALESCE(s.species, s.scientific_name, o.scientific_name, o.species_key::text) AS species,
-               COUNT(*)::int AS record_count,
-               SUM(o.individual_count)::int AS individual_sum
-        FROM occurrence_clean o
-        LEFT JOIN species_lookup s ON s.species_key = o.species_key
-        WHERE {where}
-        GROUP BY o.species_key, COALESCE(s.species, s.scientific_name, o.scientific_name, o.species_key::text)
-        ORDER BY record_count DESC
-        LIMIT :limit
+        WITH agg AS (
+            SELECT species_key,
+                   SUM(record_count)::int   AS record_count,
+                   SUM(individual_sum)::int AS individual_sum
+            FROM occurrence_stats_monthly
+            WHERE {where}
+            GROUP BY species_key
+            ORDER BY record_count DESC
+            LIMIT :limit
+        )
+        SELECT a.species_key,
+               COALESCE(s.species, s.scientific_name, a.species_key::text) AS species,
+               a.record_count,
+               a.individual_sum
+        FROM agg a
+        LEFT JOIN species_lookup s ON s.species_key = a.species_key
+        ORDER BY a.record_count DESC
     """)
     rows = db.execute(sql, params).fetchall()
     return [
