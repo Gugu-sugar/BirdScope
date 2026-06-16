@@ -1,8 +1,8 @@
 import { buildQuery, requestJson } from "./client";
-import type { SpeciesSearchResult } from "../types/api";
+import type { SpeciesItem } from "../types/api";
 
 export function searchSpecies(q: string, limit = 10) {
-  return requestJson<SpeciesSearchResult>(
+  return requestJson<SpeciesItem[]>(
     `/species/search${buildQuery({ q, limit })}`
   );
 }

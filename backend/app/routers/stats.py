@@ -22,9 +22,10 @@ def province_stats(
     country_code: str | None = Query(None, min_length=2, max_length=2),
     month: int | None = Query(None, ge=1, le=12),
     year: int = Query(2024),
+    species_key: int | None = Query(None),
     db: Session = Depends(get_db),
 ):
-    return spatial.query_province_stats(db, country_code, month, year)
+    return spatial.query_province_stats(db, country_code, month, year, species_key)
 
 
 @router.get("/grid", response_model=GridGeoJSON)

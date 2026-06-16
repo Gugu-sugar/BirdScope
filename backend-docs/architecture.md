@@ -1,7 +1,7 @@
 # BirdScope 技术架构
 
 > 来源整合：BirdScope_后端开发方案.md（第二、六节）、BirdScope_数据使用方案.md、AGENT.md 目录结构  
-> 最后更新：2026-06-06
+> 最后更新：2026-06-15
 
 ---
 
@@ -39,11 +39,8 @@ backend/
 │   ├── dev_sample.tsv        # 2000行全球样本，当前主要测试数据
 │   └── dev_sample_info.md    # 测试数据说明
 ├── tests/
-│   ├── conftest.py
-│   ├── test_occurrence.py
-│   ├── test_species.py
-│   └── test_stats.py
-├── docker-compose.yml        # 给组员用的一键 PG+GeoServer 环境
+│   └── test_app.py           # health/OpenAPI/GeoServer 鉴权冒烟测试
+├── ../deploy/                # 数据库 dump 与可选 Docker 交付配置
 ├── .env                      # 本机配置（不提交 git）
 ├── .env.example              # 配置模板（提交 git）
 └── requirements.txt

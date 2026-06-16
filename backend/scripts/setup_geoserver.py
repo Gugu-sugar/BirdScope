@@ -13,9 +13,9 @@ setup_geoserver.py — 一键初始化 GeoServer 图层发布（第三阶段）
 配置取自 backend/.env（GEOSERVER_* 与 DB_*），通过 app.config.settings 读取。
 
 用法（在 backend/ 目录下）：
-    D:/conda_env/conda_envs/devgis/python.exe scripts/setup_geoserver.py
+    E:/Anaconda3/envs/devgis/python.exe scripts/setup_geoserver.py
     # GeoServer 跑在 Docker、DB 在宿主机时：
-    D:/conda_env/conda_envs/devgis/python.exe scripts/setup_geoserver.py --db-host host.docker.internal
+    E:/Anaconda3/envs/devgis/python.exe scripts/setup_geoserver.py --db-host host.docker.internal
 """
 import argparse
 import os

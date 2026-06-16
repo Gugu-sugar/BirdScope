@@ -273,6 +273,7 @@ def query_province_stats(
     country_code: str | None = None,
     month: int | None = None,
     year: int = 2024,
+    species_key: int | None = None,
 ) -> list[dict]:
     clauses = ["year = :year", "state_province IS NOT NULL"]
     params: dict = {"year": year}
@@ -282,6 +283,9 @@ def query_province_stats(
     if month:
         clauses.append("month = :month")
         params["month"] = month
+    if species_key is not None:
+        clauses.append("species_key = :species_key")
+        params["species_key"] = species_key
     where = " AND ".join(clauses)
     sql = text(f"""
         SELECT state_province, COUNT(*)::int AS record_count

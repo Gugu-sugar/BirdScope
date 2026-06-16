@@ -1,7 +1,7 @@
 # BirdScope 数据规则与开发规范
 
 > 来源整合：AGENT.md 数据规则章节、Common Mistakes  
-> 最后更新：2026-06-06
+> 最后更新：2026-06-15
 
 ---
 
@@ -54,7 +54,7 @@ ST_MakePoint(lon, lat)   # 无 SRID，PostGIS 不知道坐标系
 ```python
 # 正确
 from app.config import settings
-db_host = settings.DB_HOST
+db_host = settings.db_host
 
 # 错误
 import os
@@ -99,7 +99,7 @@ with open(path, encoding='utf-8', newline='') as f:
 | 在 GeoServer 配置前调用图层接口 | 先在 Web UI 建 workspace + datastore |
 | 在 router 层写业务逻辑 | 业务逻辑放 services/，router 只做参数校验 |
 | 在 services 层直接用 `os.environ` | `from app.config import settings` |
-| bbox 解析放在 router 里 | bbox 解析在 `services/spatial.py`，schema 层验证格式 |
+| bbox 解析异常未转为明确 400 | router/schema 层校验格式并返回明确错误；空间 SQL 留在 service |
 | 把迁徙重心描述为 GPS 轨迹 | 明确说明是"各月观测重心"，不是追踪数据 |
 
 ---

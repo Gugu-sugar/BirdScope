@@ -10,6 +10,11 @@ import type {
   Bbox, BufferSelection, GeoJsonPolygon, LngLat, SpatialMode
 } from "../../types/geo";
 
+const GEOSERVER_WMS_URL =
+  import.meta.env.VITE_GEOSERVER_WMS_URL ??
+  "http://localhost:8080/geoserver/birdscope/wms";
+const FAR_VIEW_HEIGHT = 2_500_000;
+
 type MapPanelProps = {
   spatialMode: SpatialMode;
   bbox: Bbox | null;
@@ -51,22 +56,16 @@ export function MapPanel({
     (viewer.cesiumWidget.creditContainer as HTMLElement).style.display = "none";
     viewerRef.current = viewer;
 
-    // 接入 WMS
-    const wmsProvider = new Cesium.WebMapServiceImageryProvider({
-      url: "http://localhost:8080/geoserver/birdscope/wms",
-      layers: "birdscope:occurrence_grid_monthly",
-      parameters: { transparent: true, format: "image/png", viewparams: `month:${month || 10}` },
-    });
-    wmsLayerRef.current = viewer.imageryLayers.addImageryProvider(wmsProvider);
-
     // 分级渲染监听
-    viewer.camera.moveEnd.addEventListener(() => {
+    const syncLayerVisibility = () => {
       const height = viewer.camera.positionCartographic.height;
-      const isFar = height > 2500000; 
+      const isFar = height > FAR_VIEW_HEIGHT;
       if (wmsLayerRef.current) wmsLayerRef.current.show = isFar;
       const ds = viewer.dataSources.getByName("bird-results")[0];
       if (ds) ds.show = !isFar;
-    });
+    };
+    viewer.camera.moveEnd.addEventListener(syncLayerVisibility);
+    syncLayerVisibility();
 
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
     handler.setInputAction((movement: any) => {
@@ -78,6 +77,7 @@ export function MapPanel({
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     return () => {
+      viewer.camera.moveEnd.removeEventListener(syncLayerVisibility);
       if (viewerRef.current) {
         viewerRef.current.destroy();
         viewerRef.current = null;
@@ -85,20 +85,37 @@ export function MapPanel({
     };
   }, []);
 
-  // 2. 月份联动 - 【修复报错的关键位置】
+  // 2. 月份联动：普通 FeatureType 使用 CQL_FILTER，切换月份时替换图层。
   useEffect(() => {
-    if (!viewerRef.current || !wmsLayerRef.current) return;
-    
-    const provider = wmsLayerRef.current.imageryProvider as any; // 强制转为 any 避开检查
-    if (provider && provider._parameters) {
-      // 动态修改隐藏的 viewparams 属性
-      provider._parameters.viewparams = `month:${month}`;
-      
-      // 强制刷新图层（使用更兼容的刷新方式）
-      const layer = wmsLayerRef.current;
-      layer.show = false;
-      setTimeout(() => { layer.show = viewerRef.current!.camera.positionCartographic.height > 2500000; }, 10);
+    const viewer = viewerRef.current;
+    if (!viewer || viewer.isDestroyed()) return;
+
+    const previousLayer = wmsLayerRef.current;
+    const provider = new Cesium.WebMapServiceImageryProvider({
+      url: GEOSERVER_WMS_URL,
+      layers: "birdscope:occurrence_grid_monthly",
+      parameters: {
+        transparent: true,
+        format: "image/png",
+        CQL_FILTER: `year=2024 AND grid_size=1.0 AND month=${month ?? 10}`
+      }
+    });
+    const nextLayer = viewer.imageryLayers.addImageryProvider(provider);
+    nextLayer.show = viewer.camera.positionCartographic.height > FAR_VIEW_HEIGHT;
+    wmsLayerRef.current = nextLayer;
+
+    if (previousLayer && viewer.imageryLayers.contains(previousLayer)) {
+      viewer.imageryLayers.remove(previousLayer, true);
     }
+
+    return () => {
+      if (!viewer.isDestroyed() && viewer.imageryLayers.contains(nextLayer)) {
+        viewer.imageryLayers.remove(nextLayer, true);
+      }
+      if (wmsLayerRef.current === nextLayer) {
+        wmsLayerRef.current = null;
+      }
+    };
   }, [month]);
 
   // 3. 交互绘图逻辑
@@ -159,6 +176,7 @@ export function MapPanel({
 
     let ds = viewer.dataSources.getByName("bird-results")[0] || new Cesium.CustomDataSource("bird-results");
     if (!viewer.dataSources.contains(ds)) viewer.dataSources.add(ds);
+    ds.show = viewer.camera.positionCartographic.height <= FAR_VIEW_HEIGHT;
     ds.entities.removeAll();
     if (results) {
       results.features.forEach((f: any) => {
@@ -186,12 +204,12 @@ export function MapPanel({
   }, [results, bbox, polygon, buffer, spatialMode]);
 
   return (
-    <div className="flex h-full min-h-[560px] flex-col bg-[#071c1b]">
+    <div className="flex h-full min-h-0 flex-col bg-[#071c1b]">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#092321] px-4 py-3 text-white">
         <div>
           <p className="section-kicker text-lime-200/80">Spatial Canvas</p>
           <h2 className="text-lg font-semibold tracking-tight">地图工作区</h2>
-          <p className="mt-1 text-sm text-slate-300">Cesium 主场景已接入 · 支持全模式交互</p>
+          <p className="mt-1 text-sm text-slate-300">全球 WMS 热力 · 局部观测点 · 空间绘制</p>
         </div>
         <ModeBadge mode={spatialMode} />
       </div>

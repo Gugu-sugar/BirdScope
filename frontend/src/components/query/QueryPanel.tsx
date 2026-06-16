@@ -66,7 +66,7 @@ export function QueryPanel() {
       searchSpecies(keyword, 8)
         .then((data) => {
           if (active) {
-            setSpeciesOptions(data.results);
+            setSpeciesOptions(data);
           }
         })
         .catch((error) => {

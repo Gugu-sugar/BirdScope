@@ -12,11 +12,6 @@ export type SpeciesItem = {
   display_name: string;
 };
 
-export type SpeciesSearchResult = {
-  results: SpeciesItem[];
-  total: number;
-};
-
 export type OccurrenceProperties = {
   gbif_id: number;
   species: string | null;

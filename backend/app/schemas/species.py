@@ -13,11 +13,6 @@ class SpeciesItem(BaseModel):
     display_name: str  # species 优先，fallback scientific_name
 
 
-class SpeciesSearchResult(BaseModel):
-    results: list[SpeciesItem]
-    total: int
-
-
 class SpeciesRankItem(BaseModel):
     species_key: int
     species: str

@@ -1,15 +1,20 @@
-# 把数据库 dump 放这里
+# BirdScope 数据库快照
 
-这个目录用来存放 BirdScope 数据库的快照文件：
+当前快照：`birdscope.dump`
 
+- PostgreSQL custom format
+- 由 PostgreSQL 18.4 导出
+- 约 307 MB
+- 本地恢复建议使用 PostgreSQL 18 + PostGIS 3.6
+
+从仓库根目录恢复：
+
+```powershell
+$env:PGPASSWORD="你的 postgres 密码"
+createdb -h localhost -U postgres birdscope
+pg_restore -h localhost -U postgres -d birdscope `
+  --no-owner --no-privileges `
+  deploy/dump/birdscope.dump
 ```
-deploy/dump/birdscope.dump
-```
 
-- 文件名必须是 **`birdscope.dump`**（`initdb/20-restore.sh` 按这个名字找）。
-- 文件约几百 MB，**不在 git 仓库里**，由后端同学通过网盘/U盘单独发给你。
-- 把下载到的 `birdscope.dump` 直接拷进这个目录即可，然后回到 `deploy/` 执行
-  `docker compose up -d`，首次启动会自动把数据导入数据库。
-
-> 这是 PostgreSQL 18 自定义格式（`pg_dump -Fc`）的压缩备份，只能由 compose 里
-> `postgis/postgis:18-3.6` 镜像（PG 18）恢复，请勿改动数据库镜像主版本号。
+完整步骤见 [deploy/README.md](../README.md)。

@@ -1,9 +1,9 @@
 # BirdScope 数据库设计
 
 > 来源整合：AGENT.md DB Schema、BirdScope_后端开发方案.md 第四节  
-> 最后更新：2026-06-06
+> 最后更新：2026-06-15
 
-数据库名：`birdscope`（PostgreSQL 16 + PostGIS 3.4）
+数据库名：`birdscope`（当前快照由 PostgreSQL 18.4 导出，建议使用 PostgreSQL 18 + PostGIS 3.6）
 
 ---
 

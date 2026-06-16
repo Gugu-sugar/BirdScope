@@ -1,6 +1,6 @@
 # BirdScope 数据处理流程
 
-> 最后更新：2026-06-08
+> 最后更新：2026-06-15
 
 ---
 
@@ -120,14 +120,15 @@ eBird 在北美洲的活跃用户密度远高于其他大洲，直接导致：
 ```powershell
 # 1. 运行两个降采样脚本
 cd backend
-D:/conda_env/conda_envs/devgis/python.exe scripts/prepare_global.py
-D:/conda_env/conda_envs/devgis/python.exe scripts/prepare_north_america.py
+$PYTHON = "E:/Anaconda3/envs/devgis/python.exe"
+& $PYTHON scripts/prepare_global.py
+& $PYTHON scripts/prepare_north_america.py
 
 # 2. 合并文件
 Get-Content data\na_thinned.tsv | Add-Content data\global_thinned.tsv
 
 # 3. 导入数据库（需先在 backend-docs/human_review.md 提交审批）
-D:/conda_env/conda_envs/devgis/python.exe scripts/import_to_pg.py --input data/global_thinned.tsv
+& $PYTHON scripts/import_to_pg.py --input data/global_thinned.tsv
 ```
 
 **必须处理的 NULL**：`species`、`individual_count`、`species_key`、`bird_order` 等均可能为空，不能写死非空约束。

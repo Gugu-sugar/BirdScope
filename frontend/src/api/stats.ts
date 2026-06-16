@@ -18,7 +18,6 @@ export type GridQueryParams = {
 export type SpeciesRankQueryParams = {
   month?: number;
   year?: number;
-  speciesKey?: number;
   limit?: number;
 };
 
@@ -54,14 +53,12 @@ export function queryGrid({
 export function querySpeciesRank({
   month,
   year = 2024,
-  speciesKey,
   limit = 8
 }: SpeciesRankQueryParams) {
   return requestJson<SpeciesRankItem[]>(
     `/species/rank${buildQuery({
       month,
       year,
-      species_key: speciesKey,
       limit
     })}`
   );

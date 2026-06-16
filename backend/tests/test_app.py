@@ -38,6 +38,11 @@ class AppSmokeTests(unittest.TestCase):
             for item in paths["/api/v1/stats/grid"]["get"]["parameters"]
         }
         self.assertIn("max_cells", grid_params)
+        province_params = {
+            item["name"]
+            for item in paths["/api/v1/stats/province"]["get"]["parameters"]
+        }
+        self.assertIn("species_key", province_params)
 
     def test_env_file_is_resolved_from_backend_dir(self) -> None:
         self.assertEqual(ENV_FILE.name, ".env")
@@ -71,6 +76,26 @@ class AppSmokeTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "mocked"})
         mocked.assert_called_once_with("x", "y", None, "month=8 AND year=2024")
+
+    def test_province_stats_forwards_species_filter(self) -> None:
+        with patch(
+            "app.routers.stats.spatial.query_province_stats",
+            return_value=[],
+        ) as mocked:
+            response = self.client.get(
+                "/api/v1/stats/province",
+                params={
+                    "country_code": "CN",
+                    "month": 10,
+                    "year": 2024,
+                    "species_key": 5228134,
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), [])
+        call_args = mocked.call_args.args
+        self.assertEqual(call_args[1:], ("CN", 10, 2024, 5228134))
 
 
 if __name__ == "__main__":

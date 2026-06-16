@@ -1,5 +1,7 @@
 # eBird 数据清洗与 PostGIS / GeoServer 工作笔记
 
+> 历史交接记录。全量数据导入、预聚合、数据库 dump 和 GeoServer 发布已经完成。当前运行步骤以根目录 `README.md`、`backend-docs/dev_plan.md` 和 `frontend-docs/progress.md` 为准，不要把本文末尾的“立即可执行下一步”当作当前待办。
+
 ## 1. 本次仓库审核结论
 
 已阅读并确认以下关键文件：

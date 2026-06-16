@@ -1,7 +1,7 @@
 # BirdScope 项目概述
 
 > 来源整合：BirdScope_开题报告.md  
-> 最后更新：2026-06-06
+> 最后更新：2026-06-15
 
 ---
 
@@ -53,7 +53,7 @@ eBird/GBIF 批量数据 (15GB TSV)
 Python 数据清洗、降采样（scripts/prepare_global.py）
     │
     ▼
-PostGIS（PostgreSQL 16 + PostGIS 3.4，数据库 birdscope）
+PostGIS（当前本地快照为 PostgreSQL 18.4 + PostGIS 3.6，数据库 birdscope）
     │
     ├──▶ GeoServer 2.28.1 ──▶ WMS 图层 ──┐
     │                                      │

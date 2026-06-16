@@ -1,78 +1,76 @@
-# BirdScope 前端开发与联调
+# BirdScope 前端本地运行与联调
 
-> 最后更新：2026-06-14
+> 最后更新：2026-06-15
 
-## 环境
+## 前置
 
-- Node.js：按 `frontend/package-lock.json` 对应版本安装依赖。
-- 包管理：当前仓库使用 `npm`。
-- 开发服务器：Vite，默认端口 `5173`。
+- Node.js：当前本机 `v24.14.0`
+- npm：当前本机 `11.9.0`
+- FastAPI：`http://localhost:8000`
+- GeoServer：`http://localhost:8080/geoserver`
 
-## 安装与启动
+## 安装和启动
 
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-
-默认访问地址：
-
-```text
-http://localhost:5173
-```
-
-## 构建
+PowerShell 中使用 `npm.cmd`，避免 `npm.ps1` 执行策略问题：
 
 ```powershell
 cd frontend
-npm run build
+npm.cmd ci
+npm.cmd run dev
 ```
 
-构建脚本会先执行 TypeScript build，再执行 Vite build：
+访问 `http://localhost:5173`。
 
-```json
-"build": "tsc -b && vite build"
-```
+当前 `package-lock.json` 已包含 Cesium 和 ECharts 依赖，干净环境应优先使用 `npm ci`，不要随意删除 lock 文件。
 
-## 后端联调
+## API 配置
 
-前端默认请求：
+默认值：
 
 ```text
 http://localhost:8000/api/v1
 ```
 
-如需覆盖地址，在 `frontend/.env.local` 中设置：
+需要覆盖时：
+
+```powershell
+Copy-Item .env.example .env.local
+```
 
 ```ini
 VITE_API_BASE_URL=http://localhost:8000/api/v1
 ```
 
-联调前确认后端服务可用：
+## 构建
 
 ```powershell
-Invoke-WebRequest http://localhost:8000/health
+npm.cmd run build
 ```
 
-## 手工冒烟流程
+构建产物位于 `frontend/dist/`。当前 Cesium + ECharts 主包较大，Vite 会提示 chunk size warning，但不阻止构建。
 
-1. 启动后端 FastAPI 服务。
-2. 启动前端 Vite 服务。
-3. 打开 `http://localhost:5173`。
-4. 输入至少 2 个字符搜索物种，如 `Passer`。
-5. 选择月份。
-6. 在地图区域点击一个空间样例。
-7. 点击“执行查询”。
-8. 右侧结果列表应出现观测记录，或展示明确错误信息。
+## 联调前检查
 
-## 常见问题
+```powershell
+Invoke-WebRequest -UseBasicParsing http://localhost:8000/health
+Invoke-WebRequest -UseBasicParsing http://localhost:8080/geoserver/web/
+```
 
-| 问题 | 检查点 |
-|------|--------|
-| 物种搜索失败 | 后端 `/api/v1/species/search` 是否可访问；`VITE_API_BASE_URL` 是否正确 |
-| 查询按钮返回“请选择空间范围” | 当前空间模式下没有写入对应 `bbox` / `polygon` / `buffer` |
-| CORS 报错 | 后端 FastAPI CORS 是否允许前端地址 |
-| 返回空结果 | 检查月份、物种、空间范围组合是否过窄 |
-| 中文显示乱码 | 确认文件按 UTF-8 读取和保存 |
+## 手工冒烟
+
+1. 打开 `http://localhost:5173`，确认 Cesium 画布出现。
+2. 打开浏览器开发者工具 Console 和 Network。
+3. 选择 8–11 月并播放时间滑块。
+4. 使用 bbox、polygon、buffer 三种空间选择。
+5. 执行查询，检查 occurrence 请求返回 200，地图出现点位。
+6. 检查三个统计接口返回 200，ECharts 有数据。
+7. 缩放到全球视图，检查 WMS 请求和热力图。
+
+## 当前预期问题
+
+- 物种搜索可能因数组/包装对象响应不一致而报错。
+- WMS 请求尚未按契约使用 `CQL_FILTER`，热力图可能叠加多个粒度和月份。
+- 查询结果列表当前不显示，只能在地图查看点位。
+
+上述问题修复并通过浏览器冒烟前，不应将前端标记为完整联调完成。
 

@@ -10,29 +10,46 @@ type RegionStatsChartProps = {
 export function RegionStatsChart({ month, speciesKey }: RegionStatsChartProps) {
   const [data, setData] = useState<{ name: string; value: number }[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
     setLoading(true);
+    setError(null);
     queryProvinceStats({ month: month ?? undefined, speciesKey })
       .then((items) => {
-        setData(
-          items
-            .slice(0, 8)
-            .map((item) => ({
-              name: item.state_province ?? "未知省份",
-              value: item.record_count
-            }))
-            .sort((a, b) => b.value - a.value)
-        );
+        if (active) {
+          setData(
+            items
+              .slice(0, 8)
+              .map((item) => ({
+                name: item.state_province ?? "未知省份",
+                value: item.record_count
+              }))
+              .sort((a, b) => b.value - a.value)
+          );
+        }
       })
-      .finally(() => setLoading(false));
+      .catch((reason) => {
+        if (active) {
+          setData([]);
+          setError(reason instanceof Error ? reason.message : "区域统计加载失败");
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, [month, speciesKey]);
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <section className="flex h-full min-h-[360px] flex-col rounded-md border border-slate-200 bg-white p-3 shadow-sm xl:min-h-0">
+      <div className="mb-2 flex shrink-0 items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+          <p className="text-xs font-semibold uppercase text-slate-500">
             区域统计
           </p>
           <h3 className="mt-1 text-sm font-semibold text-slate-900">
@@ -41,10 +58,22 @@ export function RegionStatsChart({ month, speciesKey }: RegionStatsChartProps) {
         </div>
         {loading ? <span className="text-xs text-slate-500">加载中…</span> : null}
       </div>
-      <ReactECharts
-        option={{
+      {error ? (
+        <div className="flex flex-1 items-center justify-center rounded-md border border-red-200 bg-red-50 px-4 text-center text-sm text-red-700">
+          {error}
+        </div>
+      ) : null}
+      {!error && data.length === 0 && !loading ? (
+        <div className="flex flex-1 items-center justify-center rounded-md border border-slate-100 bg-slate-50 px-4 text-center text-sm text-slate-500">
+          当前条件暂无区域数据
+        </div>
+      ) : null}
+      {!error && (data.length > 0 || loading) ? (
+        <div className="min-h-0 flex-1">
+          <ReactECharts
+            option={{
           tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-          grid: { left: "10%", right: "5%", top: "12%", bottom: "10%" },
+          grid: { left: 12, right: 12, top: 12, bottom: 12, containLabel: true },
           xAxis: { type: "value" },
           yAxis: {
             type: "category",
@@ -61,9 +90,11 @@ export function RegionStatsChart({ month, speciesKey }: RegionStatsChartProps) {
               emphasis: { itemStyle: { color: "#1e429f" } }
             }
           ]
-        }}
-        style={{ width: "100%", height: "320px" }}
-      />
+            }}
+            style={{ width: "100%", height: "100%", minHeight: "260px" }}
+          />
+        </div>
+      ) : null}
     </section>
   );
 }
