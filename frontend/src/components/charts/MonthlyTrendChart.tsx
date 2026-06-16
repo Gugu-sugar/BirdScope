@@ -1,40 +1,40 @@
 import ReactECharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { queryMonthlyTrend } from "../../api/stats";
+import type { Bbox } from "../../types/geo";
 
 type MonthlyTrendChartProps = {
   speciesKey?: number;
+  bbox?: Bbox;
 };
 
-export function MonthlyTrendChart({ speciesKey }: MonthlyTrendChartProps) {
+export function MonthlyTrendChart({ speciesKey, bbox }: MonthlyTrendChartProps) {
   const [data, setData] = useState<{ month: number; count: number }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let active = true;
+    const controller = new AbortController();
     setLoading(true);
     setError(null);
-    queryMonthlyTrend({ speciesKey })
+    queryMonthlyTrend({ speciesKey, bbox, signal: controller.signal })
       .then((items) => {
-        if (active) {
-          setData(items.map((item) => ({ month: item.month, count: item.record_count })));
-        }
+        setData(
+          items.map((item) => ({ month: item.month, count: item.record_count }))
+        );
+        setLoading(false);
       })
       .catch((reason) => {
-        if (active) {
-          setData([]);
-          setError(reason instanceof Error ? reason.message : "月度趋势加载失败");
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
+        if (controller.signal.aborted) return;
+        setData([]);
+        setError(reason instanceof Error ? reason.message : "月度趋势加载失败");
+        setLoading(false);
       });
 
     return () => {
-      active = false;
+      controller.abort();
     };
-  }, [speciesKey]);
+  }, [speciesKey, bbox]);
 
   return (
     <section className="flex h-full min-h-[360px] flex-col rounded-md border border-slate-200 bg-white p-3 shadow-sm xl:min-h-0">

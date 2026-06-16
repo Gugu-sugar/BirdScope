@@ -1,6 +1,6 @@
 # BirdScope 前端 API 联调
 
-> 最后更新：2026-06-15
+> 最后更新：2026-06-16
 
 API base：`VITE_API_BASE_URL`，默认 `http://localhost:8000/api/v1`。
 
@@ -12,10 +12,12 @@ API base：`VITE_API_BASE_URL`，默认 `http://localhost:8000/api/v1`。
 | `queryOccurrenceByBbox` | `GET /occurrence/points` | `queryStore` |
 | `queryOccurrenceWithin` | `POST /occurrence/within` | `queryStore` |
 | `queryOccurrenceBuffer` | `GET /occurrence/buffer` | `queryStore` |
-| `queryGrid` | `GET /stats/grid` | 已封装，地图未消费 |
+| `queryGrid` | `GET /stats/grid` | `MapPanel`（查询联动热力网格） |
 | `querySpeciesRank` | `GET /species/rank` | `SpeciesRankChart` |
 | `queryMonthlyTrend` | `GET /stats/monthly` | `MonthlyTrendChart` |
 | `queryProvinceStats` | `GET /stats/province` | `RegionStatsChart` |
+
+所有图表/网格请求均支持可选 `bbox` 与 `AbortSignal`；`bbox` 来自 `queryStore.activeQuery`（执行查询时的范围快照），月份取实时 `store.month`。
 
 ## 契约差异
 
@@ -35,13 +37,12 @@ API base：`VITE_API_BASE_URL`，默认 `http://localhost:8000/api/v1`。
 
 联调时必须统一为一种格式。按当前后端文档，建议前端直接使用数组。
 
-### 图表筛选
+### 图表筛选（2026-06-16 已联动）
 
-- `/stats/monthly` 支持 `species_key`。
-- `/species/rank` 不支持 `species_key`，只支持 `country_code/month/year/limit`。
-- `/stats/province` 不支持 `species_key`，只支持 `country_code/month/year`。
-
-前端目前向后两者发送 `species_key`，FastAPI 会忽略未知 query 参数，因此这些图表不会按选中物种过滤。
+- `/stats/monthly`：`species_key` + `bbox`（按月跨月趋势，月份本身不作过滤）。
+- `/stats/province`：`species_key` + `month` + `bbox`。
+- `/species/rank`：`month` + `bbox`（**不支持** `species_key`——排行本身是跨物种 top-N，过滤到单物种无意义）。
+- 三者带 `bbox` 时后端走 `occurrence_clean` 实时聚合，按地图框联动；不带时走预聚合事实表。bbox 面积超护栏自动回退预聚合。
 
 ### WMS
 

@@ -7,7 +7,7 @@
 
 | 组件 | 当前约定 |
 |------|----------|
-| Python | `E:\Anaconda3\envs\devgis\python.exe`（Python 3.11） |
+| Python | `backend/.env` 中的 `PYTHON_PATH`（Python 3.11） |
 | PostgreSQL | 18，端口 `5432` |
 | PostGIS | 3.6，与 PostgreSQL 18 对应 |
 | 数据库 | `birdscope` |
@@ -93,8 +93,9 @@ APP_DEBUG=true
 
 ```powershell
 cd backend
-E:\Anaconda3\envs\devgis\python.exe -m pip install -r requirements.txt
-E:\Anaconda3\envs\devgis\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+$PYTHON = ((Get-Content .env | Select-String "^PYTHON_PATH=").Line -split "=",2)[1]
+& $PYTHON -m pip install -r requirements.txt
+& $PYTHON -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 验证：
@@ -119,7 +120,8 @@ http://localhost:8080/geoserver/web/
 然后在 `backend/` 目录运行：
 
 ```powershell
-E:\Anaconda3\envs\devgis\python.exe scripts/setup_geoserver.py
+$PYTHON = ((Get-Content .env | Select-String "^PYTHON_PATH=").Line -split "=",2)[1]
+& $PYTHON scripts/setup_geoserver.py
 ```
 
 脚本会幂等完成：
@@ -150,8 +152,9 @@ Invoke-RestMethod "http://localhost:8000/api/v1/stats/grid?bbox=70,20,140,55&gri
 当前 `tests/test_app.py` 使用 FastAPI `TestClient`，需要额外安装 `httpx`：
 
 ```powershell
-E:\Anaconda3\envs\devgis\python.exe -m pip install httpx
-E:\Anaconda3\envs\devgis\python.exe -m unittest discover -s tests -v
+$PYTHON = ((Get-Content .env | Select-String "^PYTHON_PATH=").Line -split "=",2)[1]
+& $PYTHON -m pip install httpx
+& $PYTHON -m unittest discover -s tests -v
 ```
 
 现有测试覆盖 health、OpenAPI 路径和 GeoServer 写接口鉴权，尚未覆盖真实数据库查询。

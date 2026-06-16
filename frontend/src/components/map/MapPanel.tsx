@@ -1,6 +1,8 @@
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { useEffect, useRef } from "react"; 
+import { useEffect, useRef } from "react";
+import { queryGrid } from "../../api/stats";
+import type { ActiveQuery } from "../../store/queryStore";
 import { useQueryStore } from "../../store/queryStore";
 
 import {
@@ -9,6 +11,25 @@ import {
 import type {
   Bbox, BufferSelection, GeoJsonPolygon, LngLat, SpatialMode
 } from "../../types/geo";
+
+// 联动热力网格的分级配色（YlOrRd），断点与 grid_heatmap.sld 一致。
+function gridCellColor(count: number): Cesium.Color {
+  const hex =
+    count <= 10 ? "#ffffb2"
+    : count <= 50 ? "#fed976"
+    : count <= 150 ? "#feb24c"
+    : count <= 400 ? "#fd8d3c"
+    : count <= 1000 ? "#fc4e2a"
+    : count <= 2500 ? "#e31a1c"
+    : "#b10026";
+  return Cesium.Color.fromCssColorString(hex).withAlpha(0.55);
+}
+
+// 按 bbox 跨度选网格粒度：小范围 0.5°，大范围 1.0°（与后端预聚合粒度对齐）。
+function pickGridSize(bbox: Bbox): number {
+  const span = Math.max(bbox[2] - bbox[0], bbox[3] - bbox[1]);
+  return span <= 10 ? 0.5 : 1.0;
+}
 
 const GEOSERVER_WMS_URL =
   import.meta.env.VITE_GEOSERVER_WMS_URL ??
@@ -20,6 +41,7 @@ type MapPanelProps = {
   bbox: Bbox | null;
   polygon: GeoJsonPolygon | null;
   buffer: BufferSelection | null;
+  activeQuery: ActiveQuery | null;
   onBboxSelected: (bbox: Bbox) => void;
   onPolygonSelected: (geometry: GeoJsonPolygon) => void;
   onBufferCenterSelected: (point: LngLat) => void;
@@ -33,15 +55,16 @@ const SAMPLE_POLYGON: GeoJsonPolygon = {
 const SAMPLE_BUFFER_CENTER: LngLat = { lng: 121.5, lat: 31.2 };
 
 export function MapPanel({
-  spatialMode, bbox, polygon, buffer, onBboxSelected, onPolygonSelected, onBufferCenterSelected
+  spatialMode, bbox, polygon, buffer, activeQuery, onBboxSelected, onPolygonSelected, onBufferCenterSelected
 }: MapPanelProps) {
-  
+
   const { results, month } = useQueryStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const drawStartPos = useRef<Cesium.Cartesian3 | null>(null);
   const polyPoints = useRef<Cesium.Cartesian3[]>([]);
   const wmsLayerRef = useRef<Cesium.ImageryLayer | null>(null);
+  const gridDsRef = useRef<Cesium.GeoJsonDataSource | null>(null);
 
   // 1. 初始化地图
   useEffect(() => {
@@ -117,6 +140,63 @@ export function MapPanel({
       }
     };
   }, [month]);
+
+  // 2b. 查询联动热力网格：执行查询后按 activeQuery(范围+物种) + 当前月份拉 /stats/grid，
+  //     渲染为分级配色网格面，替代/叠加在全球 WMS 之上，反映"画的框 + 选的物种"。
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer || viewer.isDestroyed()) return;
+
+    const removeGrid = () => {
+      if (gridDsRef.current && viewer.dataSources.contains(gridDsRef.current)) {
+        viewer.dataSources.remove(gridDsRef.current, true);
+      }
+      gridDsRef.current = null;
+    };
+
+    if (!activeQuery) {
+      removeGrid();
+      return;
+    }
+
+    const controller = new AbortController();
+    let cancelled = false;
+
+    queryGrid({
+      bbox: activeQuery.bbox,
+      gridSize: pickGridSize(activeQuery.bbox),
+      speciesKey: activeQuery.speciesKey,
+      month: month ?? undefined,
+      signal: controller.signal
+    })
+      .then((fc) => Cesium.GeoJsonDataSource.load(fc, { clampToGround: true })
+        .then((ds) => {
+          if (cancelled || viewer.isDestroyed()) return;
+          ds.name = "bird-grid";
+          ds.entities.values.forEach((ent, i) => {
+            const count = fc.features[i]?.properties.record_count ?? 0;
+            if (ent.polygon) {
+              ent.polygon.material = new Cesium.ColorMaterialProperty(
+                gridCellColor(count)
+              );
+              ent.polygon.outline = new Cesium.ConstantProperty(false);
+            }
+          });
+          removeGrid();
+          viewer.dataSources.add(ds);
+          gridDsRef.current = ds;
+        }))
+      .catch((err) => {
+        if (!controller.signal.aborted) {
+          console.warn("网格热力加载失败", err);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [activeQuery, month]);
 
   // 3. 交互绘图逻辑
   useEffect(() => {

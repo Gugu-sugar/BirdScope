@@ -19,6 +19,16 @@ import type {
   SpatialMode
 } from "../types/geo";
 
+/**
+ * 已执行查询的快照：点「执行查询」成功时写入，统一驱动热力图层与三个图表的联动。
+ * 物种与空间范围在此快照，月份仍由 store.month 实时提供（便于时间滑块播放）。
+ */
+export type ActiveQuery = {
+  speciesKey?: number;
+  speciesName?: string | null;
+  bbox: Bbox;
+};
+
 type QueryState = {
   selectedSpecies: SpeciesItem | null;
   month: number | null;
@@ -28,6 +38,7 @@ type QueryState = {
   buffer: BufferSelection | null;
   radiusKm: number;
   results: OccurrenceGeoJSON | null;
+  activeQuery: ActiveQuery | null;
   loading: boolean;
   error: string | null;
 };
@@ -53,6 +64,27 @@ const DEFAULT_RADIUS_KM = 50;
 
 const QueryContext = createContext<QueryStore | null>(null);
 
+/** 多边形外接矩形 bbox。 */
+function polygonBbox(polygon: GeoJsonPolygon): Bbox {
+  const ring = polygon.coordinates[0];
+  const xs = ring.map((c) => c[0]);
+  const ys = ring.map((c) => c[1]);
+  return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+}
+
+/** 缓冲区中心 ± 半径换算为度的外接矩形（粗略联动用，非精确圆）。 */
+function bufferBbox(buffer: BufferSelection): Bbox {
+  const dLat = buffer.radiusKm / 111;
+  const cos = Math.cos((buffer.lat * Math.PI) / 180);
+  const dLng = buffer.radiusKm / (111 * (Math.abs(cos) < 1e-6 ? 1e-6 : cos));
+  return [
+    buffer.lng - dLng,
+    buffer.lat - dLat,
+    buffer.lng + dLng,
+    buffer.lat + dLat
+  ];
+}
+
 export function QueryProvider({ children }: { children: ReactNode }) {
   const [selectedSpecies, setSelectedSpecies] = useState<SpeciesItem | null>(
     null
@@ -64,6 +96,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
   const [buffer, setBuffer] = useState<BufferSelection | null>(null);
   const [radiusKm, setRadiusKmState] = useState(DEFAULT_RADIUS_KM);
   const [results, setResults] = useState<OccurrenceGeoJSON | null>(null);
+  const [activeQuery, setActiveQuery] = useState<ActiveQuery | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,6 +113,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
 
   const clearResults = () => {
     setResults(null);
+    setActiveQuery(null);
     setError(null);
   };
 
@@ -90,11 +124,13 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     try {
       const speciesKey = selectedSpecies?.species_key;
       let nextResults: OccurrenceGeoJSON;
+      let queriedBbox: Bbox;
 
       if (spatialMode === "bbox") {
         if (!bbox) {
           throw new Error("请先在地图上选择矩形范围");
         }
+        queriedBbox = bbox;
         nextResults = await queryOccurrenceByBbox({
           bbox,
           speciesKey,
@@ -104,6 +140,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
         if (!polygon) {
           throw new Error("请先在地图上绘制多边形");
         }
+        queriedBbox = polygonBbox(polygon);
         nextResults = await queryOccurrenceWithin({
           geometry: polygon,
           species_key: speciesKey,
@@ -115,6 +152,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
         if (!buffer) {
           throw new Error("请先在地图上选择缓冲区中心点");
         }
+        queriedBbox = bufferBbox(buffer);
         nextResults = await queryOccurrenceBuffer({
           lat: buffer.lat,
           lng: buffer.lng,
@@ -125,8 +163,18 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       }
 
       setResults(nextResults);
+      // 快照本次查询的物种与空间范围，统一驱动图层与图表联动（月份仍实时）。
+      setActiveQuery({
+        speciesKey,
+        speciesName:
+          selectedSpecies?.display_name ??
+          selectedSpecies?.scientific_name ??
+          null,
+        bbox: queriedBbox
+      });
     } catch (error) {
       setResults(null);
+      setActiveQuery(null);
       setError(error instanceof Error ? error.message : "查询失败");
     } finally {
       setLoading(false);
@@ -143,6 +191,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       buffer,
       radiusKm,
       results,
+      activeQuery,
       loading,
       error,
       setSelectedSpecies,
@@ -167,6 +216,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       buffer,
       radiusKm,
       results,
+      activeQuery,
       loading,
       error
     ]

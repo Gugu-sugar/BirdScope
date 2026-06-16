@@ -29,7 +29,11 @@ D:/EBIRD/North Amarica/0011005-260519110011954.csv（21.8GB，约 4380 万条）
     │
     ▼ scripts/build_grid.py（约 10 分钟）
     │
-    └──▶ occurrence_grid_monthly（预聚合热力网格）
+    ├──▶ occurrence_grid_monthly（预聚合热力网格）
+    │
+    ▼ scripts/build_stats.py（约 15 秒）
+    │
+    └──▶ occurrence_stats_monthly（图表月度事实表）
 ```
 
 ---
@@ -120,7 +124,7 @@ eBird 在北美洲的活跃用户密度远高于其他大洲，直接导致：
 ```powershell
 # 1. 运行两个降采样脚本
 cd backend
-$PYTHON = "E:/Anaconda3/envs/devgis/python.exe"
+$PYTHON = ((Get-Content .env | Select-String "^PYTHON_PATH=").Line -split "=",2)[1]
 & $PYTHON scripts/prepare_global.py
 & $PYTHON scripts/prepare_north_america.py
 
@@ -162,6 +166,44 @@ GROUP BY year, month, floor(ST_X(geom)), floor(ST_Y(geom));
 ```
 
 100 万行约 10 分钟。后续可补充 0.5 度和 0.1 度网格（同一 `grid_size` 字段区分）。
+
+---
+
+## 图表事实表聚合（build_stats.py）
+
+从 `occurrence_clean` 生成图表月度事实表 `occurrence_stats_monthly`，覆盖
+`/stats/monthly`、`/stats/province`、`/stats/migration`、`/species/rank` 四个图表接口。
+四接口此前都对约 400 万行明细实时 `GROUP BY`（全种聚合 ~400–740ms），改走事实表后
+按所需维度 SUM 上卷，端到端降至 ~10–130ms。
+
+聚合粒度 `(year, month, country_code, state_province, species_key)`，约 **77.6 万行**
+（明细的约 1/5），保留 `record_count / individual_sum / sum_lon / sum_lat`。迁徙重心
+由 `SUM(sum_lon)/SUM(record_count)` 还原加权平均，与明细 `AVG(ST_X(geom))` 口径**完全一致**
+（实测 diff=0）。
+
+```sql
+INSERT INTO occurrence_stats_monthly
+  (year, month, country_code, state_province, species_key,
+   record_count, individual_sum, sum_lon, sum_lat)
+SELECT year, month, country_code, state_province, species_key,
+       count(*), sum(individual_count), sum(ST_X(geom)), sum(ST_Y(geom))
+FROM occurrence_clean
+WHERE year IS NOT NULL AND month IS NOT NULL
+GROUP BY year, month, country_code, state_province, species_key;
+```
+
+幂等：每次运行先 `TRUNCATE ... RESTART IDENTITY` 再全量重建（约 15 秒）。
+**明细数据变更后须重跑** `build_stats.py`（与 `build_grid.py` 一样属下游派生表）。
+
+```powershell
+cd backend
+$PYTHON = ((Get-Content .env | Select-String "^PYTHON_PATH=").Line -split "=",2)[1]
+& $PYTHON scripts/build_stats.py
+```
+
+> 物种排行 `/species/rank` 的 SQL 先在事实表上按整数 `species_key` 聚合取 top-N，
+> **再** JOIN `species_lookup` 取展示名——避免对全部约 1 万物种 JOIN 后再排序
+> （实测该改写使排行从 ~717ms 降至 ~133ms）。
 
 ---
 

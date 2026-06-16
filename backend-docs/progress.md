@@ -10,7 +10,7 @@
 | 阶段 | 状态 | 完成时间 |
 |------|------|----------|
 | 目录结构 + 三层架构代码 | ✅ 完成 | 2026-06-05 |
-| 数据库建表（3 张表 + 索引）| ✅ 完成 | 2026-06-05 |
+| 数据库建表（4 张表 + 索引，含图表事实表）| ✅ 完成 | 2026-06-16 |
 | dev_sample.tsv 导入（2000 条全球样本）| ✅ 完成 | 2026-06-05 |
 | 全部 API 接口（9 个，occurrence / species / stats / geoserver）| ✅ 完成 | 2026-06-05 |
 | FastAPI 服务启动、/docs 可访问 | ✅ 完成 | 2026-06-05 |
@@ -88,15 +88,32 @@
 | `/stats/grid`（预聚合）| 25–360ms | ✅（P0 已优化）|
 | `/stats/migration` | 15ms | ✅ |
 | `/species/search` | ~130ms，功能正常（Pass→Passer 等）| ✅ |
-| `/stats/monthly` `/province` `/species/rank` | ~1s（冷缓存）| 🟡 见下 |
+| `/stats/monthly` `/province` `/species/rank` | ~1s（冷缓存）| ✅ 已优化（见下，预聚合后 ~10–130ms）|
 
 - 地图关键路径（点/网格/缓冲/搜索）全部达标。
 - ⚠️ 测试时本机电池供电（CPU 降频），以上为冷缓存数字，**偏悲观**；插电 + 热缓存下普遍更快。
-- monthly/province/rank ~1s：根因为数据全是 2024 年，`year=2024` 选中 100% 行 → 全表 Seq Scan，索引无效（EXPLAIN 确认）。对"图表面板加载一次"可接受。**正解是预聚合表/物化视图（数据使用方案 §C），留作后续优化**；引入多年份数据后 `(year,month)` 索引亦将自然生效。
+
+### ✅ 图表接口预聚合完成（2026-06-16）：解决"时间序列 / 物种排行加载慢"
+
+- 根因：四个图表接口此前对约 400 万行明细实时 `GROUP BY`，且数据全为 2024 年，`year=2024` 选中 100% 行 → 全表 Seq Scan，`(year,month)` 索引无效。
+- 方案：新增**单张全维月度事实表** `occurrence_stats_monthly`（`scripts/build_stats.py`，约 **77.6 万行**，构建 12.5s），`monthly/province/migration/rank` 四接口改走 SUM 上卷。迁徙重心由 `sum_lon/sum_lat ÷ record_count` 还原，口径与明细 `AVG(ST_X)` **完全一致（实测 diff=0）**。
+- 排行额外优化：SQL 改为先按整数 `species_key` 聚合取 top-N **再** JOIN `species_lookup`，避免对约 1 万物种 JOIN 后排序。
+- 实测端到端（TestClient，含序列化）：
+
+  | 接口 | 改造前 | 改造后 |
+  |------|--------|--------|
+  | `/stats/monthly`（全种）| 398ms | ~110–125ms |
+  | `/stats/province`（全种）| 493ms | ~80–115ms |
+  | `/species/rank`（全种，时间序列重点）| 600–717ms | ~130ms |
+  | `/stats/migration`（单种，时间序列重点）| 742ms | **~10ms** |
+  | `/stats/monthly`（选中单种）| — | **~10ms** |
+
+- 新增 `tests/test_chart_scenarios.py`：真实 DB 端到端情景测试（页面初始加载 / 选中物种联动 / 时间滑块按月过滤），校验状态码 + 结构 + 口径 sanity + 延迟预算；无 DB 环境自动 skip。
+- 注：引入多年份数据后事实表行数会随 `year` 增长，`(year,month,country_code)` 索引届时自然生效。
 
 ### 优先级 🟢（留待以后）
 
-1. **图表接口预聚合**：month_counts / species_rank / province_counts 物化视图（解 ~1s）
+1. ✅ ~~**图表接口预聚合**~~：已完成（2026-06-16，单张事实表 `occurrence_stats_monthly`，见上）
 2. **数据扩容路径 A**：中国多年份（需去重键加 year，见 [扩容评估](assessments/2026-06-11_data_scaling_feasibility.md)）
 
 ### ✅ 第三阶段完成（2026-06-14）：GeoServer 图层发布 + 管控接口鉴权
@@ -123,7 +140,7 @@
 | 问题 | 风险 | 状态 |
 |------|------|------|
 | ~~GeoServer 管控接口无鉴权~~ | 高 | ✅ 已解决（2026-06-14，X-API-Key 鉴权）|
-| `tests/test_app.py` 仅覆盖 health/OpenAPI/GeoServer 鉴权，缺数据接口 happy path | 中 | ⏳ 待补充；测试环境还需声明 `httpx` |
+| `tests/test_app.py` 仅覆盖 health/OpenAPI/GeoServer 鉴权，缺数据接口 happy path | 中 | 🟡 部分解决：`test_chart_scenarios.py` 已覆盖四个图表接口真实 DB 端到端；`/occurrence/*`、`/species/search` 仍待补 |
 | `requirements.txt` 未 pin 精确版本 | 低 | ⏳ 可在收尾阶段处理 |
 | `occurrence_grid_monthly` 无物种维度 | 中 | ⏳ 长期优化项 |
 | ~~`/stats/grid` 实时聚合超标，且为扩容运行瓶颈~~ | 高 | ✅ 已解决（2026-06-11 P0 接线预聚合表，降至毫秒级）|

@@ -4,16 +4,16 @@ import {
   MapPinned
 } from "lucide-react";
 import { useState } from "react";
+import type { ActiveQuery } from "../../store/queryStore";
 import { MonthlyTrendChart } from "./MonthlyTrendChart";
 import { RegionStatsChart } from "./RegionStatsChart";
 import { SpeciesRankChart } from "./SpeciesRankChart";
 import { TimeSlider } from "./TimeSlider";
 
 type InsightPanelProps = {
+  activeQuery: ActiveQuery | null;
   month: number | null;
   setMonth: (month: number) => void;
-  speciesKey?: number;
-  speciesName?: string | null;
 };
 
 type InsightView = "rank" | "trend" | "region";
@@ -29,12 +29,14 @@ const TABS: Array<{
 ];
 
 export function InsightPanel({
+  activeQuery,
   month,
-  setMonth,
-  speciesKey,
-  speciesName
+  setMonth
 }: InsightPanelProps) {
   const [activeView, setActiveView] = useState<InsightView>("rank");
+  const speciesKey = activeQuery?.speciesKey;
+  const speciesName = activeQuery?.speciesName;
+  const bbox = activeQuery?.bbox;
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[#fbfdf8]">
@@ -46,7 +48,11 @@ export function InsightPanel({
               时空统计
             </h2>
             <p className="mt-1 truncate text-xs text-slate-500">
-              {speciesName ? `当前物种：${speciesName}` : "当前范围：全部物种"}
+              {!activeQuery
+                ? "执行查询后按范围联动"
+                : speciesName
+                  ? `当前物种：${speciesName} · 已限定范围`
+                  : "全部物种 · 已限定范围"}
             </p>
           </div>
           <span className="rounded-md border border-emerald-900/10 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">
@@ -87,12 +93,14 @@ export function InsightPanel({
       </div>
 
       <div className="min-h-0 flex-1 p-3">
-        {activeView === "rank" ? <SpeciesRankChart month={month} /> : null}
+        {activeView === "rank" ? (
+          <SpeciesRankChart month={month} bbox={bbox} />
+        ) : null}
         {activeView === "trend" ? (
-          <MonthlyTrendChart speciesKey={speciesKey} />
+          <MonthlyTrendChart speciesKey={speciesKey} bbox={bbox} />
         ) : null}
         {activeView === "region" ? (
-          <RegionStatsChart month={month} speciesKey={speciesKey} />
+          <RegionStatsChart month={month} speciesKey={speciesKey} bbox={bbox} />
         ) : null}
       </div>
     </div>
