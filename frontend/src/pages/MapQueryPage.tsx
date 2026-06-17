@@ -1,20 +1,52 @@
 import {
-  Activity,
-  Database,
-  Globe2,
+  BarChart3,
+  Info,
   Layers3,
   List,
-  SlidersHorizontal
+  Search,
+  Upload,
+  X,
+  type LucideIcon
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { InsightPanel } from "../components/charts/InsightPanel";
 import { MapPanel } from "../components/map/MapPanel";
 import { QueryPanel } from "../components/query/QueryPanel";
 import { ResultList } from "../components/query/ResultList";
-import { useQueryStore } from "../store/queryStore";
-import type { Bbox, GeoJsonPolygon, LngLat } from "../types/geo";
+import { useQueryStore, type ActiveQuery } from "../store/queryStore";
+import type { Bbox, BufferSelection, GeoJsonPolygon, LngLat, SpatialMode } from "../types/geo";
 
-type SidebarView = "query" | "results";
+type WorkspacePanel = "query" | "results" | "charts" | "layers";
+
+const PANEL_META: Record<
+  WorkspacePanel,
+  {
+    title: string;
+    kicker: string;
+    description: string;
+  }
+> = {
+  query: {
+    title: "查询条件",
+    kicker: "Query",
+    description: "按物种、月份和空间范围筛选观测记录。"
+  },
+  results: {
+    title: "查询结果",
+    kicker: "Records",
+    description: "查看当前查询返回的观测点列表。"
+  },
+  charts: {
+    title: "统计图表",
+    kicker: "Charts",
+    description: "物种排行、月度趋势与区域统计。"
+  },
+  layers: {
+    title: "图层管理",
+    kicker: "Layers",
+    description: "图层开关与发布列表将在批次③接入。"
+  }
+};
 
 export function MapQueryPage() {
   const {
@@ -33,11 +65,11 @@ export function MapQueryPage() {
     setSpatialMode,
     spatialMode
   } = useQueryStore();
-  const [sidebarView, setSidebarView] = useState<SidebarView>("query");
+  const [activePanel, setActivePanel] = useState<WorkspacePanel | null>("query");
 
   useEffect(() => {
     if (!loading && (results || error)) {
-      setSidebarView("results");
+      setActivePanel("results");
     }
   }, [error, loading, results]);
 
@@ -62,10 +94,21 @@ export function MapQueryPage() {
     setPolygon(null);
   };
 
+  const panelMeta = activePanel ? PANEL_META[activePanel] : null;
+  const railItems = useMemo(
+    () => [
+      { id: "query" as const, label: "查询", Icon: Search },
+      { id: "results" as const, label: "结果", Icon: List, badge: results?.total },
+      { id: "charts" as const, label: "图表", Icon: BarChart3 },
+      { id: "layers" as const, label: "图层", Icon: Layers3 }
+    ],
+    [results?.total]
+  );
+
   return (
     <main className="app-shell flex h-dvh min-h-0 flex-col overflow-hidden text-slate-950">
-      <header className="relative z-10 shrink-0 border-b border-emerald-950/10 bg-[#f8fbf6]/90 px-4 py-2 shadow-[0_1px_0_rgba(15,23,42,0.04)] backdrop-blur md:px-6">
-        <div className="mx-auto flex w-full max-w-[1920px] flex-wrap items-center justify-between gap-3">
+      <header className="relative z-30 shrink-0 border-b border-emerald-950/10 bg-[#f8fbf6]/92 px-4 py-2 shadow-[0_1px_0_rgba(15,23,42,0.04)] backdrop-blur md:px-6">
+        <div className="mx-auto flex w-full max-w-[1920px] items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-emerald-900/15 bg-[#102f2b] text-sm font-semibold text-lime-200 shadow-sm">
               BS
@@ -80,41 +123,72 @@ export function MapQueryPage() {
             </div>
           </div>
 
-          <div className="hidden gap-2 text-xs text-slate-600 md:grid md:grid-cols-3">
-            <StatusPill icon={Globe2} label="坐标系" value="WGS-84" />
-            <StatusPill icon={Activity} label="样本季" value="2024.08-11" />
-            <StatusPill icon={Database} label="数据源" value="GBIF / eBird" />
-          </div>
+          <button
+            className="inline-flex h-10 items-center gap-2 rounded-md border border-emerald-900/15 bg-[#123b3f] px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b2b2e] disabled:cursor-not-allowed disabled:opacity-65"
+            disabled
+            title="批次③将接入 GeoServer 发布接口"
+            type="button"
+          >
+            <Upload className="h-4 w-4" />
+            发布当前图层
+          </button>
         </div>
       </header>
 
-      <section className="mx-auto grid min-h-0 w-full max-w-[1920px] flex-1 grid-cols-1 gap-3 overflow-auto p-3 xl:grid-cols-[340px_minmax(0,1fr)_380px] xl:grid-rows-[minmax(0,1fr)] xl:overflow-hidden">
-        <aside className="panel-shell flex min-h-[620px] flex-col overflow-hidden xl:h-full xl:min-h-0">
-          <div
-            aria-label="查询侧栏选择"
-            className="grid shrink-0 grid-cols-2 gap-1 border-b border-emerald-950/10 bg-white/75 p-2"
-            role="tablist"
-          >
-            <SidebarTab
-              active={sidebarView === "query"}
-              icon={SlidersHorizontal}
-              label="查询条件"
-              onClick={() => setSidebarView("query")}
+      <section className="mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 gap-3 p-3">
+        <nav
+          aria-label="工作台面板"
+          className="z-20 flex w-[68px] shrink-0 flex-col items-center gap-2 rounded-md border border-emerald-950/10 bg-[#f8fbf6]/90 p-2 shadow-xl shadow-slate-950/10 backdrop-blur"
+        >
+          {railItems.map(({ id, label, Icon, badge }) => (
+            <RailButton
+              active={activePanel === id}
+              badge={badge}
+              icon={Icon}
+              key={id}
+              label={label}
+              onClick={() => setActivePanel(activePanel === id ? null : id)}
             />
-            <SidebarTab
-              active={sidebarView === "results"}
-              badge={results?.total}
-              icon={List}
-              label="查询结果"
-              onClick={() => setSidebarView("results")}
-            />
-          </div>
-          <div className="min-h-0 flex-1">
-            {sidebarView === "query" ? <QueryPanel /> : <ResultList />}
-          </div>
-        </aside>
+          ))}
+        </nav>
 
-        <section className="panel-shell min-h-[620px] overflow-hidden xl:h-full xl:min-h-0">
+        {activePanel ? (
+          <aside className="z-20 flex w-[360px] shrink-0 flex-col overflow-hidden rounded-md border border-emerald-950/10 bg-[#fbfdf8] shadow-2xl shadow-slate-950/12">
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-emerald-950/10 bg-white/70 p-3">
+              <div className="min-w-0">
+                <p className="section-kicker">{panelMeta?.kicker}</p>
+                <h2 className="mt-1 text-lg font-semibold tracking-tight text-slate-950">
+                  {panelMeta?.title}
+                </h2>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  {panelMeta?.description}
+                </p>
+              </div>
+              <button
+                aria-label="收起面板"
+                className="rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900"
+                onClick={() => setActivePanel(null)}
+                type="button"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="min-h-0 flex-1">
+              {activePanel === "query" ? <QueryPanel /> : null}
+              {activePanel === "results" ? <ResultList /> : null}
+              {activePanel === "charts" ? (
+                <InsightPanel
+                  activeQuery={activeQuery}
+                  month={month}
+                  setMonth={setMonth}
+                />
+              ) : null}
+              {activePanel === "layers" ? <LayerPlaceholder /> : null}
+            </div>
+          </aside>
+        ) : null}
+
+        <section className="relative min-w-0 flex-1 overflow-hidden rounded-md border border-emerald-950/10 bg-[#071c1b] shadow-2xl shadow-slate-950/15">
           <MapPanel
             activeQuery={activeQuery}
             bbox={bbox}
@@ -125,84 +199,158 @@ export function MapQueryPage() {
             polygon={polygon}
             spatialMode={spatialMode}
           />
-        </section>
-
-        <aside className="panel-shell min-h-[620px] overflow-hidden xl:h-full xl:min-h-0">
-          <InsightPanel
+          <FloatingInfoCard
             activeQuery={activeQuery}
+            bbox={bbox}
+            buffer={buffer}
             month={month}
-            setMonth={setMonth}
+            polygon={polygon}
+            resultsTotal={results?.total}
+            spatialMode={spatialMode}
           />
-        </aside>
+        </section>
       </section>
-
-      <footer className="shrink-0 border-t border-emerald-950/10 bg-[#f8fbf6]/80 px-4 py-1.5 text-xs text-slate-500 md:px-6">
-        <div className="mx-auto flex w-full max-w-[1920px] items-center justify-between gap-2">
-          <span>生态观测数据仅代表记录采样密度，请结合空间范围解读。</span>
-          <span className="inline-flex items-center gap-1 text-emerald-800">
-            <Layers3 className="h-3.5 w-3.5" />
-            查询预览层 · 统计结果联动
-          </span>
-        </div>
-      </footer>
     </main>
   );
 }
 
-type SidebarTabProps = {
+type RailButtonProps = {
   active: boolean;
   badge?: number;
-  icon: typeof List;
+  icon: LucideIcon;
   label: string;
   onClick: () => void;
 };
 
-function SidebarTab({
-  active,
-  badge,
-  icon: Icon,
-  label,
-  onClick
-}: SidebarTabProps) {
+function RailButton({ active, badge, icon: Icon, label, onClick }: RailButtonProps) {
   return (
     <button
-      aria-selected={active}
-      className={`flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition ${
+      aria-label={label}
+      aria-pressed={active}
+      className={`group relative flex h-12 w-12 items-center justify-center rounded-md border text-sm transition ${
         active
-          ? "bg-[#123b3f] text-white shadow-sm"
-          : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-900"
+          ? "border-emerald-900/15 bg-[#123b3f] text-lime-100 shadow-sm"
+          : "border-transparent bg-white/70 text-slate-600 hover:border-emerald-900/10 hover:bg-emerald-50 hover:text-emerald-900"
       }`}
       onClick={onClick}
-      role="tab"
+      title={label}
       type="button"
     >
-      <Icon className="h-4 w-4" />
-      {label}
+      <Icon className="h-5 w-5" />
       {badge !== undefined ? (
-        <span
-          className={`rounded px-1.5 py-0.5 text-[10px] ${
-            active ? "bg-white/15 text-white" : "bg-slate-100 text-slate-600"
-          }`}
-        >
-          {badge}
+        <span className="absolute -right-1 -top-1 rounded bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold text-amber-950 shadow-sm">
+          {badge > 999 ? "999+" : badge}
         </span>
       ) : null}
+      <span className="pointer-events-none absolute left-[calc(100%+0.5rem)] hidden whitespace-nowrap rounded bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-lg group-hover:block">
+        {label}
+      </span>
     </button>
   );
 }
 
-type StatusPillProps = {
-  icon: typeof Globe2;
-  label: string;
-  value: string;
-};
+function FloatingInfoCard({
+  activeQuery,
+  bbox,
+  buffer,
+  month,
+  polygon,
+  resultsTotal,
+  spatialMode
+}: {
+  activeQuery: ActiveQuery | null;
+  bbox: Bbox | null;
+  buffer: BufferSelection | null;
+  month: number | null;
+  polygon: GeoJsonPolygon | null;
+  resultsTotal?: number;
+  spatialMode: SpatialMode;
+}) {
+  const rangeText = activeQuery
+    ? formatBbox(activeQuery.bbox)
+    : describeCurrentSelection(spatialMode, bbox, polygon, buffer);
 
-function StatusPill({ icon: Icon, label, value }: StatusPillProps) {
   return (
-    <div className="flex items-center gap-2 rounded-md border border-emerald-950/10 bg-white/80 px-3 py-2 shadow-sm">
-      <Icon className="h-4 w-4 shrink-0 text-emerald-700" />
-      <span className="text-slate-500">{label}</span>
-      <span className="font-medium text-slate-900">{value}</span>
+    <aside className="pointer-events-auto absolute right-4 top-4 z-20 w-[310px] rounded-md border border-white/15 bg-[#061719]/88 p-4 text-sm text-slate-200 shadow-2xl shadow-black/25 backdrop-blur">
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-lime-200/20 bg-lime-200/10 text-lime-100">
+          <Info className="h-4 w-4" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase text-lime-200/80">
+            Live Context
+          </p>
+          <h2 className="mt-1 text-base font-semibold text-white">
+            当前地图上下文
+          </h2>
+        </div>
+      </div>
+
+      <dl className="mt-4 grid gap-2 text-xs">
+        <InfoRow label="月份" value={month ? `${month} 月` : "未选择"} />
+        <InfoRow
+          label="记录"
+          value={resultsTotal === undefined ? "等待查询" : `${resultsTotal} 条`}
+        />
+        <InfoRow
+          label="物种"
+          value={activeQuery?.speciesName ?? "全部物种"}
+        />
+        <InfoRow label="范围" value={rangeText} />
+      </dl>
+
+      <p className="mt-4 rounded-md border border-amber-200/20 bg-amber-200/10 px-3 py-2 text-xs leading-5 text-amber-50">
+        数据仅代表 GBIF / eBird 观测记录采样密度，不等同真实种群丰度；当前样本覆盖 2024 年 8–11 月。
+      </p>
+    </aside>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[4rem_minmax(0,1fr)] gap-2">
+      <dt className="text-slate-400">{label}</dt>
+      <dd className="truncate font-semibold text-slate-100" title={value}>
+        {value}
+      </dd>
     </div>
   );
+}
+
+function LayerPlaceholder() {
+  return (
+    <div className="flex h-full min-h-0 flex-col bg-[#fbfdf8] p-4">
+      <div className="rounded-md border border-dashed border-emerald-900/20 bg-emerald-50/70 p-4">
+        <div className="flex items-center gap-2 text-sm font-semibold text-emerald-950">
+          <Layers3 className="h-4 w-4" />
+          图层面板预留
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          批次③会在这里接入底图切换、矢量/热力开关、已发布图层列表和 GeoServer 发布操作。
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function describeCurrentSelection(
+  spatialMode: SpatialMode,
+  bbox: Bbox | null,
+  polygon: GeoJsonPolygon | null,
+  buffer: BufferSelection | null
+) {
+  if (bbox && spatialMode === "bbox") {
+    return formatBbox(bbox);
+  }
+  if (polygon && spatialMode === "polygon") {
+    return `${polygon.coordinates[0]?.length ?? 0} 点多边形`;
+  }
+  if (buffer && spatialMode === "buffer") {
+    return `${buffer.lng.toFixed(2)}, ${buffer.lat.toFixed(2)} / ${buffer.radiusKm}km`;
+  }
+  return "尚未选择范围";
+}
+
+function formatBbox(bbox: Bbox) {
+  return bbox.map((value) => value.toFixed(2)).join(", ");
 }
