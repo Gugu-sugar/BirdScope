@@ -150,7 +150,7 @@ export function MapQueryPage() {
       <section className="mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 gap-3 p-3">
         <nav
           aria-label="工作台面板"
-          className="z-20 flex w-[68px] shrink-0 flex-col items-center gap-2 rounded-md border border-emerald-950/10 bg-[#f8fbf6]/90 p-2 shadow-xl shadow-slate-950/10 backdrop-blur"
+          className="z-30 flex w-[68px] shrink-0 flex-col items-center gap-2 rounded-md border border-emerald-950/10 bg-[#f8fbf6]/90 p-2 shadow-xl shadow-slate-950/10 backdrop-blur"
         >
           {railItems.map(({ id, label, Icon, badge }) => (
             <RailButton
@@ -263,7 +263,7 @@ function RailButton({ active, badge, icon: Icon, label, onClick }: RailButtonPro
           {badge > 999 ? "999+" : badge}
         </span>
       ) : null}
-      <span className="pointer-events-none absolute left-[calc(100%+0.5rem)] hidden whitespace-nowrap rounded bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-lg group-hover:block">
+      <span className="pointer-events-none absolute left-[calc(100%+0.5rem)] z-50 hidden whitespace-nowrap rounded bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-lg group-hover:block">
         {label}
       </span>
     </button>

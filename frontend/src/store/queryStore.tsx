@@ -64,6 +64,7 @@ type QueryActions = {
   setError: (error: string | null) => void;
   runCurrentQuery: () => Promise<void>;
   clearResults: () => void;
+  clearSpatialSelection: () => void;
 };
 
 type QueryStore = QueryState & QueryActions;
@@ -155,6 +156,14 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     setActiveQuery(null);
     setSelectedGbifId(null);
     setError(null);
+  };
+
+  /** 清空当前所有空间选区与查询结果，回到未选状态。 */
+  const clearSpatialSelection = () => {
+    setBbox(null);
+    setPolygon(null);
+    setBuffer(null);
+    clearResults();
   };
 
   const runCurrentQuery = async () => {
@@ -255,7 +264,8 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       setLoading,
       setError,
       runCurrentQuery,
-      clearResults
+      clearResults,
+      clearSpatialSelection
     }),
     [
       selectedSpecies,
