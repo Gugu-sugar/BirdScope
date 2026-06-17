@@ -148,6 +148,59 @@ input {
   }
 }
 
+.map-glass-card {
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.26);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04)),
+    rgba(3, 15, 20, 0.9);
+  box-shadow:
+    0 20px 48px rgba(2, 6, 23, 0.34),
+    0 1px 0 rgba(255, 255, 255, 0.18) inset;
+  color: #f8fafc;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(18px) saturate(1.18);
+  -webkit-backdrop-filter: blur(18px) saturate(1.18);
+}
+
+.map-glass-card::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 18% 0%, rgba(190, 242, 100, 0.16), transparent 46%);
+}
+
+.map-glass-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.map-glass-chip {
+  border-color: rgba(226, 232, 240, 0.28);
+  background:
+    linear-gradient(135deg, rgba(190, 242, 100, 0.16), rgba(20, 184, 166, 0.08)),
+    rgba(3, 15, 20, 0.9);
+  box-shadow:
+    0 12px 32px rgba(2, 6, 23, 0.3),
+    0 1px 0 rgba(255, 255, 255, 0.16) inset;
+  color: #f8fafc;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(16px) saturate(1.16);
+  -webkit-backdrop-filter: blur(16px) saturate(1.16);
+}
+
+.map-glass-card :where(dt, .map-muted-text),
+.map-glass-chip :where(.map-muted-text) {
+  color: rgba(226, 232, 240, 0.84);
+}
+
+.map-glass-card :where(dd, h2, h3, .map-strong-text),
+.map-glass-chip :where(.map-strong-text) {
+  color: #ffffff;
+}
+
 .map-atmosphere {
   background:
     radial-gradient(circle at 28% 30%, rgba(45, 212, 191, 0.18), transparent 18rem),

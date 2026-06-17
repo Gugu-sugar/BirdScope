@@ -4,16 +4,19 @@ import {
   Layers3,
   List,
   Search,
-  Upload,
+  Send,
   X,
   type LucideIcon
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { InsightPanel } from "../components/charts/InsightPanel";
+import { LayerPanel } from "../components/layers/LayerPanel";
+import { PublishLayerDialog } from "../components/layers/PublishLayerDialog";
 import { MapPanel } from "../components/map/MapPanel";
 import { QueryPanel } from "../components/query/QueryPanel";
 import { ResultList } from "../components/query/ResultList";
 import { useQueryStore, type ActiveQuery } from "../store/queryStore";
+import type { OccurrenceFeature } from "../types/api";
 import type { Bbox, BufferSelection, GeoJsonPolygon, LngLat, SpatialMode } from "../types/geo";
 
 type WorkspacePanel = "query" | "results" | "charts" | "layers";
@@ -56,6 +59,7 @@ export function MapQueryPage() {
     month,
     activeQuery,
     results,
+    selectedGbifId,
     loading,
     error,
     setBbox,
@@ -66,6 +70,8 @@ export function MapQueryPage() {
     spatialMode
   } = useQueryStore();
   const [activePanel, setActivePanel] = useState<WorkspacePanel | null>("query");
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [layerRefreshToken, setLayerRefreshToken] = useState(0);
 
   useEffect(() => {
     if (!loading && (results || error)) {
@@ -95,6 +101,12 @@ export function MapQueryPage() {
   };
 
   const panelMeta = activePanel ? PANEL_META[activePanel] : null;
+  const selectedFeature =
+    selectedGbifId === null
+      ? null
+      : results?.features.find(
+          (feature) => feature.properties.gbif_id === selectedGbifId
+        ) ?? null;
   const railItems = useMemo(
     () => [
       { id: "query" as const, label: "查询", Icon: Search },
@@ -125,11 +137,11 @@ export function MapQueryPage() {
 
           <button
             className="inline-flex h-10 items-center gap-2 rounded-md border border-emerald-900/15 bg-[#123b3f] px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b2b2e] disabled:cursor-not-allowed disabled:opacity-65"
-            disabled
-            title="批次③将接入 GeoServer 发布接口"
+            onClick={() => setPublishOpen(true)}
+            title="将当前月份和网格粒度发布为 GeoServer 图层"
             type="button"
           >
-            <Upload className="h-4 w-4" />
+            <Send className="h-4 w-4" />
             发布当前图层
           </button>
         </div>
@@ -183,7 +195,9 @@ export function MapQueryPage() {
                   setMonth={setMonth}
                 />
               ) : null}
-              {activePanel === "layers" ? <LayerPlaceholder /> : null}
+              {activePanel === "layers" ? (
+                <LayerPanel refreshToken={layerRefreshToken} />
+              ) : null}
             </div>
           </aside>
         ) : null}
@@ -206,10 +220,17 @@ export function MapQueryPage() {
             month={month}
             polygon={polygon}
             resultsTotal={results?.total}
+            selectedFeature={selectedFeature}
             spatialMode={spatialMode}
           />
         </section>
       </section>
+
+      <PublishLayerDialog
+        onClose={() => setPublishOpen(false)}
+        onPublished={() => setLayerRefreshToken((value) => value + 1)}
+        open={publishOpen}
+      />
     </main>
   );
 }
@@ -256,6 +277,7 @@ function FloatingInfoCard({
   month,
   polygon,
   resultsTotal,
+  selectedFeature,
   spatialMode
 }: {
   activeQuery: ActiveQuery | null;
@@ -264,6 +286,7 @@ function FloatingInfoCard({
   month: number | null;
   polygon: GeoJsonPolygon | null;
   resultsTotal?: number;
+  selectedFeature: OccurrenceFeature | null;
   spatialMode: SpatialMode;
 }) {
   const rangeText = activeQuery
@@ -271,16 +294,16 @@ function FloatingInfoCard({
     : describeCurrentSelection(spatialMode, bbox, polygon, buffer);
 
   return (
-    <aside className="pointer-events-auto absolute right-4 top-4 z-20 w-[310px] rounded-md border border-white/15 bg-[#061719]/88 p-4 text-sm text-slate-200 shadow-2xl shadow-black/25 backdrop-blur">
+    <aside className="map-glass-card pointer-events-auto absolute right-4 top-4 z-20 w-[310px] rounded-md p-4 text-sm text-slate-200">
       <div className="flex items-start gap-3">
         <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-lime-200/20 bg-lime-200/10 text-lime-100">
           <Info className="h-4 w-4" />
         </span>
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase text-lime-200/80">
+          <p className="text-xs font-semibold uppercase text-lime-200">
             Live Context
           </p>
-          <h2 className="mt-1 text-base font-semibold text-white">
+          <h2 className="map-strong-text mt-1 text-base font-semibold">
             当前地图上下文
           </h2>
         </div>
@@ -296,10 +319,18 @@ function FloatingInfoCard({
           label="物种"
           value={activeQuery?.speciesName ?? "全部物种"}
         />
+        <InfoRow
+          label="选中"
+          value={
+            selectedFeature
+              ? occurrenceLabel(selectedFeature)
+              : "尚未选择点位"
+          }
+        />
         <InfoRow label="范围" value={rangeText} />
       </dl>
 
-      <p className="mt-4 rounded-md border border-amber-200/20 bg-amber-200/10 px-3 py-2 text-xs leading-5 text-amber-50">
+      <p className="mt-4 rounded-md border border-amber-100/40 bg-amber-200/15 px-3 py-2 text-xs font-medium leading-5 text-amber-50">
         数据仅代表 GBIF / eBird 观测记录采样密度，不等同真实种群丰度；当前样本覆盖 2024 年 8–11 月。
       </p>
     </aside>
@@ -309,26 +340,10 @@ function FloatingInfoCard({
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid grid-cols-[4rem_minmax(0,1fr)] gap-2">
-      <dt className="text-slate-400">{label}</dt>
-      <dd className="truncate font-semibold text-slate-100" title={value}>
+      <dt className="map-muted-text">{label}</dt>
+      <dd className="map-strong-text truncate font-semibold" title={value}>
         {value}
       </dd>
-    </div>
-  );
-}
-
-function LayerPlaceholder() {
-  return (
-    <div className="flex h-full min-h-0 flex-col bg-[#fbfdf8] p-4">
-      <div className="rounded-md border border-dashed border-emerald-900/20 bg-emerald-50/70 p-4">
-        <div className="flex items-center gap-2 text-sm font-semibold text-emerald-950">
-          <Layers3 className="h-4 w-4" />
-          图层面板预留
-        </div>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
-          批次③会在这里接入底图切换、矢量/热力开关、已发布图层列表和 GeoServer 发布操作。
-        </p>
-      </div>
     </div>
   );
 }
@@ -353,4 +368,12 @@ function describeCurrentSelection(
 
 function formatBbox(bbox: Bbox) {
   return bbox.map((value) => value.toFixed(2)).join(", ");
+}
+
+function occurrenceLabel(feature: OccurrenceFeature) {
+  return (
+    feature.properties.species ??
+    feature.properties.scientific_name ??
+    `#${feature.properties.gbif_id}`
+  );
 }

@@ -1,6 +1,6 @@
 # BirdScope 前端文档
 
-> 最后更新：2026-06-15
+> 最后更新：2026-06-17
 
 前端位于 `frontend/`，技术栈为 Vite + React 19 + TypeScript + Tailwind CSS + Cesium + ECharts。
 
@@ -12,15 +12,17 @@
 - 后端观测点回绘
 - 时间滑块和 8–11 月动画
 - 物种排行、月度趋势、区域统计图表
-- `ResultList` 组件已存在，但当前页面没有渲染
+- 结果列表与地图点位双向选中联动
+- 左侧图层管理面板：底图切换、点位/网格/WMS 开关、已发布图层列表
+- 顶栏发布当前图层弹窗
 
-## 当前联调问题
+## 当前注意事项
 
-1. 后端 `/species/search` 返回数组，前端仍按 `{results, total}` 读取，物种搜索需统一契约。
-2. WMS 当前使用 `viewparams`，项目契约要求 `CQL_FILTER=grid_size=1.0 AND month=X`。
-3. `ResultList` 已导入但未挂回 `MapQueryPage`。
+1. 发布当前图层的语义是发布现成表 `occurrence_grid_monthly`，按 `grid_size/year/month` 生成 `CQL_FILTER`；该表不含物种维度。
+2. 后续批次仍需优化热力观感和更完整的按相机高度自动分级渲染。
+3. Cesium 与 ECharts 体积较大，生产构建会提示 chunk 超过 500 kB。
 
-因此“前端可以启动和构建”不代表全部业务已经验收通过。
+当前前端可以启动和构建，但仍建议在本地后端、GeoServer 和测试数据库都运行时做完整业务冒烟。
 
 ## 文档导航
 

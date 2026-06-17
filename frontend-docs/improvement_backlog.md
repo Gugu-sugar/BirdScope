@@ -11,17 +11,17 @@
 |------|------|------|------|----------|
 | — | 区域统计无联动 | R1-4 | ✅ 已解决 | — |
 | — | 图表/图层无联动查询 | R1-5 | ✅ 已解决 | — |
-| I1 | 点击点位是浏览器 alert，非页面气泡 | R2 | ⬜ 待做 | 批次① |
-| I2 | 查询结果不与地图矢量点联动选中 | R2 | ⬜ 待做 | 批次① |
-| I3 | 空间绘制无说明 + 逻辑怪 + 难看的暗角掩膜 | R1-6 | ⬜ 待做 | 批次④ |
+| I1 | 点击点位是浏览器 alert，非页面气泡 | R2 | ✅ 已解决 | 批次① |
+| I2 | 查询结果不与地图矢量点联动选中 | R2 | ✅ 已解决 | 批次① |
+| I3 | 空间绘制无说明 + 逻辑怪 + 难看的暗角掩膜 | R1-6 | ✅ 已解决 | 批次④ |
 | I4 | 热力图在球体上稀疏、在地形上突兀 | R1-1 | ⬜ 待做 | 批次⑤ |
 | I5 | 热力只有一层、放大全是方格（分级渲染未完成） | R1-2 | 🟡 部分 | 批次⑤ |
-| I6 | 工作区拥挤、两侧固定栏挤占地图 | R1-3 + R2-5 | ⬜ 待做 | 批次② |
-| I7 | 删冗余栏：地图标题栏 / 底部示例按钮 / 页面底栏 | R2-3, R2-5 | ⬜ 待做 | 批次② |
-| I8 | 顶栏三个信息栏 → 功能区（只留"发布当前图层"） | R2-4 | ⬜ 待做 | 批次② |
-| I9 | 右侧改为常驻悬浮信息卡（含数据免责声明） | R2-5, 决策C | ⬜ 待做 | 批次② |
-| I10 | 侧边栏图层面板：换底图 / 矢量·热力开关 / 已发布图层列表 | R2-3, 决策B | ⬜ 待做 | 批次③ |
-| I11 | 发布当前图层 | R1-7 + R2-4, 决策A | ⬜ 待做 | 批次③ |
+| I6 | 工作区拥挤、两侧固定栏挤占地图 | R1-3 + R2-5 | ✅ 已解决 | 批次② |
+| I7 | 删冗余栏：地图标题栏 / 底部示例按钮 / 页面底栏 | R2-3, R2-5 | ✅ 已解决 | 批次② |
+| I8 | 顶栏三个信息栏 → 功能区（只留"发布当前图层"） | R2-4 | ✅ 已解决 | 批次② |
+| I9 | 右侧改为常驻悬浮信息卡（含数据免责声明） | R2-5, 决策C | ✅ 已解决 | 批次② |
+| I10 | 侧边栏图层面板：换底图 / 矢量·热力开关 / 已发布图层列表 | R2-3, 决策B | ✅ 已解决 | 批次③ |
+| I11 | 发布当前图层 | R1-7 + R2-4, 决策A | ✅ 已解决 | 批次③ |
 
 > R1 = 第一轮反馈，R2 = 第二轮反馈。🟡 部分 = 已加查询联动网格层，但核心分级渲染未完成。
 
@@ -40,20 +40,13 @@
 ## 2. 问题明细与处置方案
 
 ### I1 点位气泡（替换 alert）
-- 现状：`frontend/src/components/map/MapPanel.tsx` 左键 handler 用 `alert()`；Cesium `infoBox`/`selectionIndicator` 已在初始化关闭。
-- 方案：自定义 HTML 浮层气泡，`Cesium.SceneTransforms.worldToWindowCoordinates` 在 `scene.postRender` 时跟随点位；内容遵守数据规则（物种 fallback `scientific_name`，`individual_count` 为 null 显示"数量未知"）。
+- 状态：已完成。`frontend/src/components/map/MapPanel.tsx` 使用页面内 `ObservationPopup`，`Cesium.SceneTransforms.worldToWindowCoordinates` 在 `scene.postRender` 时跟随点位；不再使用浏览器 `alert()`。
 
 ### I2 结果 ↔ 点位双向联动
-- 现状：`ResultList` 已渲染但为静态列表；点位 entity 未设稳定 id；store 无"选中要素"状态。
-- 方案：store 增 `selectedGbifId`。点列表项 → 设选中 + 地图 `flyTo` + 高亮（放大/换色）；点地图点位 → 设选中 + 列表行高亮并 `scrollIntoView`。entity id 用 `pt-${gbif_id}`（`gbif_id` 稳定唯一）。
+- 状态：已完成。store 增 `selectedGbifId`；点列表项与地图点位共享选中态，地图 `flyTo` + 点位高亮，列表行自动 `scrollIntoView`。entity id 使用 `pt-${gbif_id}`。
 
 ### I3 空间绘制说明 / 逻辑 / 暗角掩膜
-- 现状：
-  - 无任何绘制用法提示；
-  - 矩形仅落红点、无橡皮筋预览（代码里 `removeById("preview-rect")` 删的预览框从未创建）；
-  - 多边形右键时还会多 push 一个点再闭合，手感怪；
-  - `MapPanel.tsx` 那层 `shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]` 全屏内阴影即"难看的掩膜"。
-- 方案：加绘制态文字提示（如"点击两点确定矩形"/"左键加点、右键闭合"）；矩形加鼠标移动橡皮筋预览；修顺多边形闭合逻辑；删除暗角浮层。
+- 状态：已完成。地图左上增加随模式变化的绘制提示；矩形框选增加 `preview-rect` 橡皮筋预览；多边形右键只闭合已有左键顶点，不再额外 push 当前鼠标点；已删除全屏暗角掩膜。
 
 ### I4 热力观感（稀疏 / 突兀）
 - 现状：全球 WMS 用 1.0° 离散网格 + YlOrRd 不透明填充贴在真实地形上；空格不渲染 → 稀疏；平铺贴图压在三维地形上 → 突兀。
@@ -64,19 +57,13 @@
 - 方案（批次⑤）：按相机高度自动在 WMS / 网格 / 点位间切换；中比例尺改用更细网格（0.5°）。
 
 ### I6 / I7 / I8 / I9 布局重构
-- 现状：固定三栏 `340px | 地图 | 380px` + 顶栏 3 个 `StatusPill` + 底栏；地图被挤小；MapPanel 顶部标题栏、底部三个示例按钮（中国范围/北京样例/上海中心）、左上 `Cesium Engine`/`Layer Stack` 徽章均为冗余。
-- 方案：
-  - **左侧图标导航栏（icon rail）**：查询 / 结果 / 图表 / 图层 等图标，点击呼出抽屉式面板，再点收起；
-  - **右侧常驻悬浮信息卡**：当前范围、选中要素、记录数、数据免责声明（决策 C），不占布局列宽；
-  - **呼出/收起面板时拉伸地图容器**——技术坑：Cesium canvas 不自动跟随容器尺寸，需 `ResizeObserver` + `viewer.resize()`；
-  - 删除 MapPanel 标题栏、底部示例按钮栏、页面底栏；顶栏 `StatusPill` ×3 → 功能区，目前只放"发布当前图层"。
+- 状态：已完成。当前页面为左侧 icon rail + 抽屉面板 + 地图主画布 + 右侧常驻上下文卡；MapPanel 标题栏、底部示例按钮栏、页面底栏已删除；顶栏保留发布入口；Cesium 已接入 `ResizeObserver` + `viewer.resize()`。
 
 ### I10 侧边栏图层面板（决策 B）
-- 能力：更换底图（`Cesium.ImageryLayer` 切换，如 OSM/影像/地形）；显示开关（点位 / 联动热力网格 / 全球 WMS）；已发布图层列表（新增 `frontend/src/api/geoserver.ts` 调 `GET /geoserver/layers`）。
+- 状态：已完成。`LayerPanel` 支持更换底图（街道/影像/地形）、显示开关（点位 / 联动热力网格 / 全球 WMS）、网格粒度和已发布图层列表（`GET /geoserver/layers`）。
 
 ### I11 发布当前图层（决策 A=丙）
-- 现状：后端 `/geoserver/layers`（发布/删除/改样式，带 API key）已就绪；前端无 `api/geoserver.ts`、无发布入口。
-- 方案：新增 `api/geoserver.ts` + 顶栏"发布当前图层"按钮 → 弹出对话框，按现成表 `occurrence_grid_monthly` + 当前 `grid_size`/`month` 组 `CQL_FILTER` 调 `POST /geoserver/layers`；发布成功后可在 I10 的已发布列表看到。物化"精确查询"语义后续再议。
+- 状态：已完成。顶栏"发布当前图层"打开 `PublishLayerDialog`，按现成表 `occurrence_grid_monthly` + 当前 `grid_size`/`year`/`month` 组 `CQL_FILTER` 调 `POST /geoserver/layers`；发布成功后刷新已发布列表。物化"精确查询"语义后续再议。
 
 ---
 
