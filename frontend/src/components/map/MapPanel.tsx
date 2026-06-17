@@ -5,9 +5,7 @@ import { queryGrid } from "../../api/stats";
 import type { ActiveQuery } from "../../store/queryStore";
 import { useQueryStore } from "../../store/queryStore";
 
-import {
-  CircleDot, Crosshair, Layers3, MapPin, Pentagon, Ruler, Square
-} from "lucide-react";
+import { Compass, MapPin } from "lucide-react";
 import type {
   Bbox, BufferSelection, GeoJsonPolygon, LngLat, SpatialMode
 } from "../../types/geo";
@@ -35,6 +33,12 @@ const GEOSERVER_WMS_URL =
   import.meta.env.VITE_GEOSERVER_WMS_URL ??
   "http://localhost:8080/geoserver/birdscope/wms";
 const FAR_VIEW_HEIGHT = 2_500_000;
+const DEFAULT_VIEW_BBOX: Bbox = [70, 15, 140, 55];
+const TOP_DOWN_ORIENTATION = {
+  heading: 0,
+  pitch: Cesium.Math.toRadians(-90),
+  roll: 0
+};
 
 type MapPanelProps = {
   spatialMode: SpatialMode;
@@ -47,12 +51,82 @@ type MapPanelProps = {
   onBufferCenterSelected: (point: LngLat) => void;
 };
 
-const SAMPLE_BBOX: Bbox = [70, 20, 140, 55];
-const SAMPLE_POLYGON: GeoJsonPolygon = {
-  type: "Polygon",
-  coordinates: [[[116, 39], [117, 39], [117, 40], [116, 40], [116, 39]]]
+type CameraFocusInput = {
+  spatialMode: SpatialMode;
+  bbox: Bbox | null;
+  polygon: GeoJsonPolygon | null;
+  buffer: BufferSelection | null;
+  activeQuery: ActiveQuery | null;
 };
-const SAMPLE_BUFFER_CENTER: LngLat = { lng: 121.5, lat: 31.2 };
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function rectangleFromBbox(bbox: Bbox) {
+  const [minx, miny, maxx, maxy] = bbox;
+  return Cesium.Rectangle.fromDegrees(
+    clamp(Math.min(minx, maxx), -180, 180),
+    clamp(Math.min(miny, maxy), -89, 89),
+    clamp(Math.max(minx, maxx), -180, 180),
+    clamp(Math.max(miny, maxy), -89, 89)
+  );
+}
+
+function rectangleFromPolygon(polygon: GeoJsonPolygon) {
+  const ring = polygon.coordinates[0] ?? [];
+  if (ring.length === 0) {
+    return rectangleFromBbox(DEFAULT_VIEW_BBOX);
+  }
+
+  const lngs = ring.map(([lng]) => lng);
+  const lats = ring.map(([, lat]) => lat);
+  const pad = 0.25;
+  return Cesium.Rectangle.fromDegrees(
+    clamp(Math.min(...lngs) - pad, -180, 180),
+    clamp(Math.min(...lats) - pad, -89, 89),
+    clamp(Math.max(...lngs) + pad, -180, 180),
+    clamp(Math.max(...lats) + pad, -89, 89)
+  );
+}
+
+function rectangleFromBuffer(buffer: BufferSelection) {
+  const latDelta = Math.max(buffer.radiusKm / 111, 0.25);
+  const lngDelta = Math.max(
+    buffer.radiusKm /
+      (111 * Math.max(Math.cos(Cesium.Math.toRadians(buffer.lat)), 0.2)),
+    0.25
+  );
+
+  return Cesium.Rectangle.fromDegrees(
+    clamp(buffer.lng - lngDelta, -180, 180),
+    clamp(buffer.lat - latDelta, -89, 89),
+    clamp(buffer.lng + lngDelta, -180, 180),
+    clamp(buffer.lat + latDelta, -89, 89)
+  );
+}
+
+function focusRectangle({
+  spatialMode,
+  bbox,
+  polygon,
+  buffer,
+  activeQuery
+}: CameraFocusInput) {
+  if (spatialMode === "bbox" && bbox) {
+    return rectangleFromBbox(bbox);
+  }
+  if (spatialMode === "polygon" && polygon) {
+    return rectangleFromPolygon(polygon);
+  }
+  if (spatialMode === "buffer" && buffer) {
+    return rectangleFromBuffer(buffer);
+  }
+  if (activeQuery) {
+    return rectangleFromBbox(activeQuery.bbox);
+  }
+  return rectangleFromBbox(DEFAULT_VIEW_BBOX);
+}
 
 export function MapPanel({
   spatialMode, bbox, polygon, buffer, activeQuery, onBboxSelected, onPolygonSelected, onBufferCenterSelected
@@ -68,15 +142,23 @@ export function MapPanel({
 
   // 1. 初始化地图
   useEffect(() => {
-    if (!containerRef.current || viewerRef.current) return;
+    const container = containerRef.current;
+    if (!container || viewerRef.current) return;
 
-    const viewer = new Cesium.Viewer(containerRef.current, {
+    const viewer = new Cesium.Viewer(container, {
       animation: false, timeline: false, fullscreenButton: false,
       baseLayerPicker: false, infoBox: false, selectionIndicator: false,
+      geocoder: false, homeButton: false,
       navigationHelpButton: false, sceneModePicker: false,
       terrain: Cesium.Terrain.fromWorldTerrain(),
     });
     (viewer.cesiumWidget.creditContainer as HTMLElement).style.display = "none";
+    const toolbar = viewer.container.querySelector(
+      ".cesium-viewer-toolbar"
+    ) as HTMLElement | null;
+    if (toolbar) {
+      toolbar.style.display = "none";
+    }
     viewerRef.current = viewer;
 
     // 分级渲染监听
@@ -90,6 +172,13 @@ export function MapPanel({
     viewer.camera.moveEnd.addEventListener(syncLayerVisibility);
     syncLayerVisibility();
 
+    const resizeObserver = new ResizeObserver(() => {
+      if (!viewer.isDestroyed()) {
+        viewer.resize();
+      }
+    });
+    resizeObserver.observe(container);
+
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
     handler.setInputAction((movement: any) => {
       const picked = viewer.scene.pick(movement.position);
@@ -100,6 +189,8 @@ export function MapPanel({
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     return () => {
+      resizeObserver.disconnect();
+      handler.destroy();
       viewer.camera.moveEnd.removeEventListener(syncLayerVisibility);
       if (viewerRef.current) {
         viewerRef.current.destroy();
@@ -271,49 +362,66 @@ export function MapPanel({
     viewer.entities.values.filter(e => e.id?.toString().startsWith('q-l-')).forEach(e => viewer.entities.remove(e));
     if (bbox && spatialMode === 'bbox') {
       viewer.entities.add({ id: 'q-l-bx', rectangle: { coordinates: Cesium.Rectangle.fromDegrees(bbox[0], bbox[1], bbox[2], bbox[3]), material: Cesium.Color.TEAL.withAlpha(0.3), outline: true, outlineColor: Cesium.Color.TEAL } });
-      viewer.camera.flyTo({ destination: Cesium.Rectangle.fromDegrees(bbox[0], bbox[1], bbox[2], bbox[3]) });
+      viewer.camera.flyTo({
+        destination: rectangleFromBbox(bbox),
+        orientation: TOP_DOWN_ORIENTATION
+      });
     }
     if (polygon && spatialMode === 'polygon') {
-      const ent = viewer.entities.add({ id: 'q-l-py', polygon: { hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.coordinates[0].flat()), material: Cesium.Color.LIME.withAlpha(0.3), outline: true, outlineColor: Cesium.Color.LIME } });
-      viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(polygon.coordinates[0][0][0], polygon.coordinates[0][0][1], 500000) });
+      viewer.entities.add({ id: 'q-l-py', polygon: { hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.coordinates[0].flat()), material: Cesium.Color.LIME.withAlpha(0.3), outline: true, outlineColor: Cesium.Color.LIME } });
+      viewer.camera.flyTo({
+        destination: rectangleFromPolygon(polygon),
+        orientation: TOP_DOWN_ORIENTATION
+      });
     }
     if (buffer && spatialMode === 'buffer') {
       viewer.entities.add({ id: 'q-l-bc', position: Cesium.Cartesian3.fromDegrees(buffer.lng, buffer.lat), point: { color: Cesium.Color.GOLD, pixelSize: 10 } });
       viewer.entities.add({ id: 'q-l-bi', position: Cesium.Cartesian3.fromDegrees(buffer.lng, buffer.lat), ellipse: { semiMinorAxis: (buffer.radiusKm || 50) * 1000, semiMajorAxis: (buffer.radiusKm || 50) * 1000, material: Cesium.Color.GOLD.withAlpha(0.2), outline: true, outlineColor: Cesium.Color.GOLD } });
+      viewer.camera.flyTo({
+        destination: rectangleFromBuffer(buffer),
+        orientation: TOP_DOWN_ORIENTATION
+      });
     }
   }, [results, bbox, polygon, buffer, spatialMode]);
 
+  const resetCamera = () => {
+    const viewer = viewerRef.current;
+    if (!viewer || viewer.isDestroyed()) return;
+
+    viewer.resize();
+    viewer.camera.flyTo({
+      destination: focusRectangle({
+        activeQuery,
+        bbox,
+        buffer,
+        polygon,
+        spatialMode
+      }),
+      duration: 0.8,
+      orientation: TOP_DOWN_ORIENTATION
+    });
+  };
+
   return (
-    <div className="flex h-full min-h-0 flex-col bg-[#071c1b]">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#092321] px-4 py-3 text-white">
-        <div>
-          <p className="section-kicker text-lime-200/80">Spatial Canvas</p>
-          <h2 className="text-lg font-semibold tracking-tight">地图工作区</h2>
-          <p className="mt-1 text-sm text-slate-300">全球 WMS 热力 · 局部观测点 · 空间绘制</p>
-        </div>
+    <div className="relative h-full min-h-0 overflow-hidden bg-[#071c1b]">
+      <div ref={containerRef} className="absolute inset-0 h-full w-full cursor-crosshair" />
+      <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]" />
+
+      <div className="absolute left-4 top-4 z-10 grid max-w-[min(30rem,calc(100%-23rem))] gap-2 text-xs text-slate-200">
         <ModeBadge mode={spatialMode} />
+        <SelectionSummary bbox={bbox} buffer={buffer} polygon={polygon} />
       </div>
 
-      <div className="relative flex flex-1 overflow-hidden bg-[#071c1b]">
-        <div ref={containerRef} className="absolute inset-0 h-full w-full cursor-crosshair" />
-        <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]" />
-
-        <div className="absolute left-4 top-4 grid max-w-[calc(100%-2rem)] gap-2 text-xs text-slate-200">
-          <MapBadge icon={Crosshair} title="Cesium Engine" detail="WGS-84 · Zoom Adaptive" />
-          <div className="hidden sm:block">
-            <MapBadge icon={Layers3} title="Layer Stack" detail="WMS Heatmap · Observation" />
-          </div>
-          <SelectionSummary bbox={bbox} buffer={buffer} polygon={polygon} />
-        </div>
-
-        <div className="absolute bottom-4 left-4 right-4 grid gap-3 rounded-md border border-white/15 bg-[#061719]/90 p-3 text-sm text-slate-200 shadow-2xl shadow-black/25 backdrop-blur">
-          <div className="grid gap-2 sm:grid-cols-3">
-            <button className="map-action border-teal-300/30 bg-teal-300/10" onClick={() => onBboxSelected(SAMPLE_BBOX)} type="button"><Square className="h-4 w-4" /> 中国范围</button>
-            <button className="map-action border-lime-300/30 bg-lime-300/10" onClick={() => onPolygonSelected(SAMPLE_POLYGON)} type="button"><Pentagon className="h-4 w-4" /> 北京样例</button>
-            <button className="map-action border-amber-300/30 bg-amber-300/10" onClick={() => onBufferCenterSelected(SAMPLE_BUFFER_CENTER)} type="button"><CircleDot className="h-4 w-4" /> 上海中心</button>
-          </div>
-        </div>
-      </div>
+      <button
+        aria-label="回正地图视角"
+        className="absolute bottom-4 right-4 z-20 inline-flex h-11 items-center gap-2 rounded-md border border-lime-200/20 bg-[#061719]/90 px-3 text-xs font-semibold text-lime-100 shadow-2xl shadow-black/25 backdrop-blur transition hover:border-lime-200/40 hover:bg-lime-200/15 hover:text-white focus:outline-none focus:ring-2 focus:ring-lime-200/60"
+        onClick={resetCamera}
+        title="回到当前范围并恢复俯视视角"
+        type="button"
+      >
+        <Compass className="h-4 w-4" />
+        回正
+      </button>
     </div>
   );
 }
@@ -327,9 +435,6 @@ function SelectionSummary({ bbox, polygon, buffer }: any) {
 function ModeBadge({ mode }: { mode: SpatialMode }) {
   const label = mode === "bbox" ? "矩形框选" : mode === "polygon" ? "多边形" : "缓冲区";
   return <span className="inline-flex items-center gap-1.5 rounded-md border border-lime-200/20 bg-lime-200/10 px-2.5 py-1.5 text-xs font-semibold text-lime-100"><MapPin className="h-3.5 w-3.5" /> {label}</span>;
-}
-function MapBadge({ icon: Icon, title, detail }: any) {
-  return <div className="rounded-md border border-white/15 bg-[#061719]/85 px-3 py-2 shadow-xl shadow-black/20 backdrop-blur"><div className="flex items-center gap-2 font-semibold text-white"><Icon className="h-3.5 w-3.5 text-teal-300" /> {title}</div><p className="mt-1 text-slate-400">{detail}</p></div>;
 }
 function SummaryText({ label, value, tone }: any) {
   const toneClass = tone === "teal" ? "border-teal-300/25 bg-teal-300/10" : tone === "lime" ? "border-lime-300/25 bg-lime-300/10" : tone === "amber" ? "border-amber-300/25 bg-amber-300/10" : "border-white/15 bg-[#061719]/80";
