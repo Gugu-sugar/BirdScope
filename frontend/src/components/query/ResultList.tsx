@@ -17,23 +17,6 @@ export function ResultList() {
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[#fbfdf8]">
-      <div className="panel-header">
-        <p className="section-kicker">Observation Records</p>
-        <div className="mt-1 flex items-end justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold tracking-tight text-slate-950">
-              查询结果
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              {results ? `${results.total} 条观测记录` : "等待查询条件"}
-            </p>
-          </div>
-          <span className="rounded-md border border-emerald-900/10 bg-white px-2.5 py-1 text-xs font-semibold text-emerald-800">
-            GeoJSON
-          </span>
-        </div>
-      </div>
-
       {loading ? <LoadingState /> : null}
       {!loading && error ? <ErrorState message={error} /> : null}
       {!loading && !error && !results ? <EmptyState /> : null}

@@ -74,6 +74,8 @@ type QueryActions = {
 type QueryStore = QueryState & QueryActions;
 
 const DEFAULT_RADIUS_KM = 50;
+// 未选定空间范围时的默认查询范围：全球。后端按面积自适应走 TABLESAMPLE 随机采样。
+const WORLD_BBOX: Bbox = [-180, -90, 180, 90];
 
 export type GridSize = 0.5 | 1;
 export type BasemapKey = "street" | "imagery" | "terrain";
@@ -192,20 +194,14 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       let nextResults: OccurrenceGeoJSON;
       let queriedBbox: Bbox;
 
-      if (spatialMode === "bbox") {
-        if (!bbox) {
-          throw new Error("请先在地图上选择矩形范围");
-        }
+      if (spatialMode === "bbox" && bbox) {
         queriedBbox = bbox;
         nextResults = await queryOccurrenceByBbox({
           bbox,
           speciesKey,
           months
         });
-      } else if (spatialMode === "polygon") {
-        if (!polygon) {
-          throw new Error("请先在地图上绘制多边形");
-        }
+      } else if (spatialMode === "polygon" && polygon) {
         queriedBbox = polygonBbox(polygon);
         nextResults = await queryOccurrenceWithin({
           geometry: polygon,
@@ -214,10 +210,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
           year: 2024,
           limit: 800
         });
-      } else {
-        if (!buffer) {
-          throw new Error("请先在地图上选择缓冲区中心点");
-        }
+      } else if (spatialMode === "buffer" && buffer) {
         queriedBbox = bufferBbox(buffer);
         nextResults = await queryOccurrenceBuffer({
           lat: buffer.lat,
@@ -226,9 +219,19 @@ export function QueryProvider({ children }: { children: ReactNode }) {
           speciesKey,
           months
         });
+      } else {
+        // 未选定任何空间范围 → 默认全球范围查询。
+        queriedBbox = WORLD_BBOX;
+        nextResults = await queryOccurrenceByBbox({
+          bbox: WORLD_BBOX,
+          speciesKey,
+          months
+        });
       }
 
       setResults(nextResults);
+      // 查询完成后自动隐藏全球热力图，避免与结果点位/联动网格叠加干扰。
+      setLayerVisibility("globalWms", false);
       // 快照本次查询的物种与空间范围，统一驱动图层与图表联动（月份仍实时）。
       setActiveQuery({
         speciesKey,

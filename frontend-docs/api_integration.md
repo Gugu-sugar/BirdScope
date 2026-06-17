@@ -35,6 +35,10 @@ const API_BASE_URL =
 
 > **月份语义拆分**：查询表单用 `queryStore.queryMonths`（`number[]`，多选，空数组 = 全年），仅作用于观测点查询；显示月份 `queryStore.month` 单独驱动热力图层与统计图表，由「时空动态」时间轴控制，两者互不影响。`queryMonths` 为空时不发送 `months` 参数（即全年）。
 
+> **未选范围默认全球**：`runCurrentQuery` 在当前模式无空间选区时，自动以全球 bbox `[-180,-90,180,90]` 走 `queryOccurrenceByBbox`（后端按面积自适应 `TABLESAMPLE` 随机采样，~0.5s）。
+
+> **查询后自动隐藏全球热力**：查询成功后置 `layerVisibility.globalWms = false`，避免全球 WMS 热力与结果点位/联动网格叠加；图层面板对应复选框同步取消，用户可手动重开。结果点位（封顶 800、已聚合）不再随相机高度隐藏，全球范围查询也能看到结果。
+
 ### 矩形查询
 
 ```ts

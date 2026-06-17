@@ -129,8 +129,9 @@
 ### ✅ 观测点多选月份 + 均匀采样（2026-06-17）
 
 - `/occurrence/{points,within,buffer}` 三接口新增 `months: list[int] | None`（重复传参 `months=8&months=9`），非空时优先于单 `month`，缺省/空表示全年；单 `month` 保留向后兼容。`_build_filters` 用 `month = ANY(:months)`。
-- 三接口 SQL 在 `LIMIT` 前加 `ORDER BY random()`，返回点在选区内均匀抽样，修复"点集中在框内一角"。代价：大 bbox 需扫描全部候选行（点位接口面向本地视角，正常缩放候选有限，可接受）。
-- 配合前端：查询表单月份与显示图层月份语义拆分（前端 `queryMonths` vs `month`），bbox/polygon 默认 limit 降到 800。契约见 [api_reference.md](api_reference.md)。
+- 三接口 SQL 在 `LIMIT` 前加 `ORDER BY random()`，返回点在选区内均匀抽样，修复"点集中在框内一角"。
+- **大范围自适应采样**（修大框慢）：`query_bbox`/`query_within` 按选区外接框面积分流——≤50 平方度走精确 `ORDER BY random()`；超过则 `FROM occurrence_clean TABLESAMPLE SYSTEM (3)` 物理页抽样后随机取 N。实测大框 15°×20° 从 3.6s → ~0.55s、全球 bbox ~0.56s（800 点铺满全球），本地框 ~0.06s。`buffer` 半径上限 500km 保持精确。
+- 配合前端：查询表单月份与显示图层月份语义拆分（前端 `queryMonths` vs `month`），bbox/polygon 默认 limit 降到 800；前端未选范围时默认传全球 bbox（`-180,-90,180,90`）查询。契约见 [api_reference.md](api_reference.md)。
 
 ### 优先级 🟢（第四 / 五阶段）
 

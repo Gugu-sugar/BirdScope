@@ -37,6 +37,17 @@
 - **结果均匀分布 + 限额**：后端观测点查询改 `ORDER BY random()`，bbox/polygon 默认 `limit` 降到 800；返回点铺满整个选区，不再集中一角。
 - **面板弹出动画**：抽屉改为常驻 + `width/opacity/margin` 过渡（180ms ease-out）；`displayedPanel` 在收缩期保留上一面板内容避免空盒塌陷；父容器去 `gap`、改 margin 控制间距，收起后栏与地图保持 12px。
 
+## 底图/图层/交互二轮优化（2026-06-17）
+
+- **双标题清理（续）**：删除 `ResultList`、`LayerPanel` 内部 `panel-header`；结果计数改由 rail 按钮角标体现。
+- **时空动态时间轴**：`TimeSlider` 四按钮 + 静态进度条 → 原生 `<input type="range">`（8–11 月，拖动即切 `month`），保留播放/重置，下方月份刻度做参照。
+- **矢量点聚合**：结果 `DataSource` 开 Cesium 原生聚合（`pixelRange=28`、`minimumClusterSize=3`），过密点合并为带数量圆泡（黄→红按密度），放大自动散开，解决重叠观感。
+- **底图全面国内化**：街道/影像/地形改用天地图 WMTS（`vec`/`img`/`ter` + 注记 `cva`/`cia`/`cta`），`createBasemapProviders` 返回 `{base,label}` 双层；token 暂硬编码于 `MapPanel`（后续可迁 `VITE_TIANDITU_TOKEN`）。
+- **注记盖在热力图之上**：注记层 `labelLayerRef` 单独持有，底图置底、注记 `raiseToTop`；WMS 热力重建后再次 `raiseToTop` 注记，保证地名清晰。注：贴地的联动网格（`/stats/grid` 实体）渲染层级恒在影像图层之上，注记无法盖其上。
+- **未选范围默认全球查询** + **查询后自动隐藏全球 WMS 热力**：见 [api_integration.md](api_integration.md)；结果点位不再随相机高度隐藏。
+- **清空选区按钮可用条件修正**：原仅在有 bbox/polygon/buffer 时显示，导致"未选范围的全球查询"结果无法清空；改为"有选区**或**有结果"时显示（`clearSpatialSelection` 本就同时清选区+结果）。
+- **浮动卡片月份显示修正**：「当前地图上下文」卡片原显示**显示月份** `month`（时间轴控制、默认 10），与查询脱节；改为显示查询的**迁徙月份** `queryMonths`——不选=「全年」、单选「10 月」、多选「9、10 月」，标签同步改为「迁徙月份」。
+
 ## 查询联动
 
 - `queryStore.activeQuery` 在执行查询成功时写入 `{speciesKey, speciesName, bbox}`，三种空间模式（bbox/polygon/buffer）统一归一为 bbox。

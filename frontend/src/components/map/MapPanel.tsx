@@ -251,6 +251,8 @@ export function MapPanel({
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const baseLayerRef = useRef<Cesium.ImageryLayer | null>(null);
+  // 天地图注记层：单独持有，始终置于热力图之上，保证地名不被热力图遮盖。
+  const labelLayerRef = useRef<Cesium.ImageryLayer | null>(null);
   const drawStartPos = useRef<Cesium.Cartesian3 | null>(null);
   const polyPoints = useRef<Cesium.Cartesian3[]>([]);
   const wmsLayerRef = useRef<Cesium.ImageryLayer | null>(null);
@@ -327,7 +329,8 @@ export function MapPanel({
       }
       const pointDs = viewer.dataSources.getByName("bird-results")[0];
       if (pointDs) {
-        pointDs.show = visibility.points && !isFar;
+        // 结果点位（封顶 800、已聚合）任意层级都可显示，便于全球范围查询时也能看到结果。
+        pointDs.show = visibility.points;
       }
       if (gridDsRef.current) {
         gridDsRef.current.show = visibility.grid;
@@ -363,11 +366,16 @@ export function MapPanel({
       viewer.imageryLayers.remove(baseLayerRef.current, false);
       baseLayerRef.current = null;
     }
+    if (labelLayerRef.current) {
+      viewer.imageryLayers.remove(labelLayerRef.current, false);
+      labelLayerRef.current = null;
+    }
 
-    baseLayerRef.current = viewer.imageryLayers.addImageryProvider(
-      createBasemapProvider(basemap),
-      0
-    );
+    const { base, label } = createBasemapProviders(basemap);
+    // 底图置于最底层；注记后加并提到最顶，使其盖在 WMS 热力图之上。
+    baseLayerRef.current = viewer.imageryLayers.addImageryProvider(base, 0);
+    labelLayerRef.current = viewer.imageryLayers.addImageryProvider(label);
+    viewer.imageryLayers.raiseToTop(labelLayerRef.current);
   }, [basemap]);
 
   // 2. 月份 / 网格粒度联动：普通 FeatureType 使用 CQL_FILTER，切换时替换图层。
@@ -388,6 +396,10 @@ export function MapPanel({
     });
     const nextLayer = viewer.imageryLayers.addImageryProvider(provider);
     wmsLayerRef.current = nextLayer;
+    // WMS 加在顶部后，把天地图注记重新提到最顶，确保地名盖在热力图之上。
+    if (labelLayerRef.current && viewer.imageryLayers.contains(labelLayerRef.current)) {
+      viewer.imageryLayers.raiseToTop(labelLayerRef.current);
+    }
     syncLayerVisibilityRef.current?.();
 
     if (previousLayer && viewer.imageryLayers.contains(previousLayer)) {
@@ -917,26 +929,35 @@ function PopupMeta({
   );
 }
 
-function createBasemapProvider(basemap: BasemapKey) {
-  if (basemap === "imagery") {
-    return new Cesium.UrlTemplateImageryProvider({
-      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      credit: "Tiles Esri"
-    });
-  }
+// 天地图 WMTS 令牌（参考作业项目；建议后续迁移到 VITE_TIANDITU_TOKEN 环境变量）。
+const TIANDITU_TOKEN = "330550341ec4298fe24d2021ec48a47a";
+const TIANDITU_SUBDOMAINS = ["0", "1", "2", "3", "4", "5", "6", "7"];
 
-  if (basemap === "terrain") {
-    return new Cesium.UrlTemplateImageryProvider({
-      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
-      credit: "Tiles Esri"
-    });
-  }
+// 天地图各底图的「底图层 / 注记层」图层代码：
+// vec 矢量、img 影像、ter 地形晕渲；cva/cia/cta 为对应注记。
+const TIANDITU_LAYERS: Record<BasemapKey, { base: string; label: string }> = {
+  street: { base: "vec", label: "cva" },
+  imagery: { base: "img", label: "cia" },
+  terrain: { base: "ter", label: "cta" }
+};
 
-  return new Cesium.UrlTemplateImageryProvider({
-    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    maximumLevel: 19,
-    credit: "OpenStreetMap contributors"
+function tiandituProvider(layer: string) {
+  return new Cesium.WebMapTileServiceImageryProvider({
+    url: `https://t{s}.tianditu.gov.cn/${layer}_w/wmts?tk=${TIANDITU_TOKEN}`,
+    layer,
+    style: "default",
+    format: "tiles",
+    tileMatrixSetID: "w",
+    subdomains: TIANDITU_SUBDOMAINS,
+    maximumLevel: 18,
+    tilingScheme: new Cesium.WebMercatorTilingScheme()
   });
+}
+
+/** 返回 { 底图 provider, 注记 provider }，注记单独提供以便置于热力图之上。 */
+function createBasemapProviders(basemap: BasemapKey) {
+  const { base, label } = TIANDITU_LAYERS[basemap];
+  return { base: tiandituProvider(base), label: tiandituProvider(label) };
 }
 
 function buildWmsCqlFilter(gridSize: GridSize, month: number) {
@@ -953,8 +974,37 @@ function getOrCreateDataSource(viewer: Cesium.Viewer, name: string) {
   const existing = viewer.dataSources.getByName(name)[0];
   if (existing) return existing as Cesium.CustomDataSource;
   const ds = new Cesium.CustomDataSource(name);
+  enablePointClustering(ds);
   viewer.dataSources.add(ds);
   return ds;
+}
+
+// 观测点过密时重叠不美观：开启 Cesium 原生聚合，邻近点合并成带数量的圆泡，放大后自动散开。
+function enablePointClustering(ds: Cesium.CustomDataSource) {
+  ds.clustering.enabled = true;
+  ds.clustering.pixelRange = 28;
+  ds.clustering.minimumClusterSize = 3;
+  ds.clustering.clusterEvent.addEventListener((clustered, cluster) => {
+    cluster.billboard.show = false;
+    cluster.label.show = true;
+    cluster.label.text = String(clustered.length);
+    cluster.label.font = "bold 12px sans-serif";
+    cluster.label.fillColor = Cesium.Color.WHITE;
+    cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+    cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+    cluster.point.show = true;
+    // 圆泡随聚合数量放大（封顶），颜色随密度由黄到红。
+    const count = clustered.length;
+    cluster.point.pixelSize = Math.min(16 + count * 1.2, 34);
+    cluster.point.color = (count >= 50
+      ? Cesium.Color.fromCssColorString("#e31a1c")
+      : count >= 15
+        ? Cesium.Color.fromCssColorString("#fd8d3c")
+        : Cesium.Color.fromCssColorString("#fed976")
+    ).withAlpha(0.9);
+    cluster.point.outlineColor = Cesium.Color.WHITE;
+    cluster.point.outlineWidth = 2;
+  });
 }
 
 function SelectionSummary({ bbox, polygon, buffer }: any) {

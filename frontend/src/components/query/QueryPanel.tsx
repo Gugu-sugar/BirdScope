@@ -45,7 +45,8 @@ export function QueryPanel() {
     clearSpatialSelection,
     bbox,
     polygon,
-    buffer
+    buffer,
+    results
   } = useQueryStore();
   const [searchText, setSearchText] = useState("");
   const [speciesOptions, setSpeciesOptions] = useState<SpeciesItem[]>([]);
@@ -53,7 +54,8 @@ export function QueryPanel() {
   const [searchError, setSearchError] = useState<string | null>(null);
 
   const canClearSpecies = Boolean(selectedSpecies || searchText);
-  const hasSpatialSelection = Boolean(bbox || polygon || buffer);
+  // 有选区或有查询结果（含未选范围的全球查询）时都可清空。
+  const hasSpatialSelection = Boolean(bbox || polygon || buffer || results);
 
   useEffect(() => {
     const keyword = searchText.trim();

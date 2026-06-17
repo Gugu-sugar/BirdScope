@@ -57,6 +57,7 @@ export function MapQueryPage() {
     buffer,
     polygon,
     month,
+    queryMonths,
     activeQuery,
     results,
     selectedGbifId,
@@ -233,7 +234,7 @@ export function MapQueryPage() {
             activeQuery={activeQuery}
             bbox={bbox}
             buffer={buffer}
-            month={month}
+            queryMonths={queryMonths}
             polygon={polygon}
             resultsTotal={results?.total}
             selectedFeature={selectedFeature}
@@ -290,7 +291,7 @@ function FloatingInfoCard({
   activeQuery,
   bbox,
   buffer,
-  month,
+  queryMonths,
   polygon,
   resultsTotal,
   selectedFeature,
@@ -299,7 +300,7 @@ function FloatingInfoCard({
   activeQuery: ActiveQuery | null;
   bbox: Bbox | null;
   buffer: BufferSelection | null;
-  month: number | null;
+  queryMonths: number[];
   polygon: GeoJsonPolygon | null;
   resultsTotal?: number;
   selectedFeature: OccurrenceFeature | null;
@@ -308,6 +309,9 @@ function FloatingInfoCard({
   const rangeText = activeQuery
     ? formatBbox(activeQuery.bbox)
     : describeCurrentSelection(spatialMode, bbox, polygon, buffer);
+  // 迁徙月份未选 = 全年；多选时列出月份。
+  const monthsText =
+    queryMonths.length === 0 ? "全年" : `${queryMonths.join("、")} 月`;
 
   return (
     <aside className="map-glass-card pointer-events-auto absolute right-4 top-4 z-20 w-[310px] rounded-md p-4 text-sm text-slate-200">
@@ -326,7 +330,7 @@ function FloatingInfoCard({
       </div>
 
       <dl className="mt-4 grid gap-2 text-xs">
-        <InfoRow label="月份" value={month ? `${month} 月` : "未选择"} />
+        <InfoRow label="迁徙月份" value={monthsText} />
         <InfoRow
           label="记录"
           value={resultsTotal === undefined ? "等待查询" : `${resultsTotal} 条`}

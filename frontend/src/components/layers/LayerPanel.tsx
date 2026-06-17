@@ -2,7 +2,6 @@ import {
   CircleDot,
   Globe2,
   Grid2X2,
-  Layers3,
   Map,
   Mountain,
   RefreshCw,
@@ -27,14 +26,14 @@ const BASEMAP_OPTIONS: Array<{
   helper: string;
   Icon: typeof Map;
 }> = [
-  { key: "street", label: "街道", helper: "OpenStreetMap", Icon: Map },
+  { key: "street", label: "街道", helper: "天地图矢量", Icon: Map },
   {
     key: "imagery",
     label: "影像",
-    helper: "ArcGIS World Imagery",
+    helper: "天地图影像",
     Icon: Satellite
   },
-  { key: "terrain", label: "地形", helper: "ArcGIS Topographic", Icon: Mountain }
+  { key: "terrain", label: "地形", helper: "天地图地形", Icon: Mountain }
 ];
 
 const LAYER_OPTIONS: Array<{
@@ -93,20 +92,6 @@ export function LayerPanel({ refreshToken }: LayerPanelProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[#fbfdf8]">
-      <div className="panel-header">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="section-kicker">Layer Control</p>
-            <h2 className="text-lg font-semibold tracking-tight text-slate-950">
-              图层管理
-            </h2>
-          </div>
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-emerald-900/10 bg-emerald-50 text-emerald-800">
-            <Layers3 className="h-4 w-4" />
-          </span>
-        </div>
-      </div>
-
       <div className="min-h-0 flex-1 space-y-5 overflow-auto p-4">
         <section>
           <h3 className="text-sm font-semibold text-slate-900">底图</h3>
