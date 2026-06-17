@@ -23,6 +23,15 @@ export type PublishGeoServerLayerBody = {
   cql_filter?: string;
 };
 
+export type PublishSpeciesGridBody = {
+  layer_name: string;
+  species_key: number;
+  grid_size: number;
+  month?: number | null;
+  year?: number;
+  style_name?: string;
+};
+
 export type PublishGeoServerLayerResult = {
   name?: string;
   layer_name?: string;
@@ -45,4 +54,28 @@ export function publishGeoServerLayer(
     headers: apiKey ? { "X-API-Key": apiKey } : undefined,
     body: JSON.stringify(body)
   });
+}
+
+export function publishSpeciesGridLayer(
+  body: PublishSpeciesGridBody,
+  apiKey = GEOSERVER_API_KEY
+) {
+  return requestJson<PublishGeoServerLayerResult>("/geoserver/species-grid", {
+    method: "POST",
+    headers: apiKey ? { "X-API-Key": apiKey } : undefined,
+    body: JSON.stringify(body)
+  });
+}
+
+export function deleteGeoServerLayer(
+  layerName: string,
+  apiKey = GEOSERVER_API_KEY
+) {
+  return requestJson<{ status?: string; layer?: string }>(
+    `/geoserver/layers/${encodeURIComponent(layerName)}`,
+    {
+      method: "DELETE",
+      headers: apiKey ? { "X-API-Key": apiKey } : undefined
+    }
+  );
 }

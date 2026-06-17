@@ -52,6 +52,7 @@
 | 统计 | `GET /api/v1/stats/migration` | ✅ |
 | GeoServer | `GET /api/v1/geoserver/layers` | ✅ |
 | GeoServer | `POST /api/v1/geoserver/layers` | ✅ |
+| GeoServer | `POST /api/v1/geoserver/species-grid` | ✅ 物种实时聚合发布（2026-06-17）|
 | GeoServer | `DELETE /api/v1/geoserver/layers/{name}` | ✅ |
 | GeoServer | `PUT /api/v1/geoserver/layers/{name}/style` | ✅ |
 
@@ -125,6 +126,13 @@
 - ✅ **管控接口加 API Key 鉴权**（消除高风险技术债）：POST/DELETE/PUT 需 `X-API-Key`，GET 开放；TestClient 验证 401/通过路径符合预期
 - 注：发布 featuretype 时 payload 的 defaultStyle 会被 GeoServer 忽略（defaultStyle 属 Layer 非 FeatureType），脚本已显式补一次 `set_layer_style`
 - 运维注意：本机 GeoServer 是 **Windows 服务**（名 `GeoServer`，2.28.1），曾出现长时间运行后假死（端口在但 HTTP 不响应、日志停更、CLOSE_WAIT 堆积），重启服务即恢复
+
+### ✅ 增量（2026-06-17）：按物种实时聚合发布图层（POST /geoserver/species-grid）
+
+- ✅ 补齐预聚合表不含物种维度的缺口：用 GeoServer SQL View 虚拟表从 `occurrence_clean` 按 `species_key(+month)+year` 实时聚合，`floor`→`ST_MakeEnvelope` 还原多边形格 + `COUNT(*)`，输出与预聚合表同构，复用 `grid_heatmap` 样式（无需新样式）
+- ✅ 数值参数白名单校验（grid_size∈{1,0.5,0.25,0.1}、month 1–12、species_key 正整数），f-string 插值无注入面；虚拟表显式声明 bbox（SQL View 无法自动推算范围）
+- ✅ 实测对齐：`species_key=2486131` 10 月 1.0°，WFS 计数与 `/stats/grid` 同源逐项一致（348 格 / 合计 2739）；全年路径合计 10515 = 该种总记录数；WMS GetMap 渲染正确（印度次大陆，符合该种分布）
+- 详见审批 [human_review.md](human_review.md) [006]
 
 ### ✅ 观测点多选月份 + 均匀采样（2026-06-17）
 

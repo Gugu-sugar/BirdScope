@@ -297,6 +297,52 @@ PostGIS 查询：`ST_DWithin(geom::geography, ST_MakePoint(:lng, :lat)::geograph
 
 ---
 
+### POST /species-grid — 按物种实时聚合发布热力图层
+
+预聚合表 `occurrence_grid_monthly` 不含物种维度。本接口用 GeoServer SQL View（虚拟表）
+从明细表 `occurrence_clean` 按 `species_key (+ month) + year` 实时聚合：按 `grid_size`
+将观测点 `floor` 到网格、`ST_MakeEnvelope` 还原为多边形格子、`COUNT(*)` 作为
+`record_count`。输出几何与属性（`Polygon` + `record_count`）与预聚合表同构，**直接复用
+`grid_heatmap` 样式**，无需新样式。
+
+**请求体**：
+```json
+{
+  "layer_name": "grid_sp2486131_m10_g1",
+  "species_key": 2486131,
+  "grid_size": 1.0,
+  "month": 10,
+  "year": 2024,
+  "style_name": "grid_heatmap"
+}
+```
+
+- `layer_name: str` — 必须是简单标识符（字母开头，字母/数字/下划线）
+- `species_key: int` — **必填**，正整数
+- `grid_size: float = 1.0` — 仅允许 `{1.0, 0.5, 0.25, 0.1}`
+- `month: int | None` — 1–12；缺省表示全年（不加月份过滤）
+- `year: int = 2024`
+- `style_name: str | None = "grid_heatmap"`
+
+需请求头 `X-API-Key`。`grid_size` 非法或 `species_key` 非正整数返回 `422`。
+
+**响应**：
+```json
+{ "status": "created", "layer": "grid_sp2486131_m10_g1",
+  "species_key": 2486131, "grid_size": 1.0, "month": 10, "year": 2024 }
+```
+
+> 发布后用 WMS GetMap 渲染（与预聚合层同样式），无需再加 `CQL_FILTER`（过滤已固化进虚拟表 SQL）：
+> ```
+> .../birdscope/wms?service=WMS&version=1.1.0&request=GetMap
+>   &layers=birdscope:grid_sp2486131_m10_g1&styles=
+>   &bbox=-180,-90,180,90&width=1024&height=512&srs=EPSG:4326
+>   &format=image/png&transparent=true
+> ```
+> 实测：与 `GET /stats/grid?...&species_key=2486131` 同源对齐（348 格、record_count 合计 2739，逐项一致）。代价是渲染时实时聚合，首次稍慢；`species_key` 已建索引，局部范围可接受。
+
+---
+
 ### DELETE /layers/{layer_name} — 删除图层
 
 需请求头 `X-API-Key`。

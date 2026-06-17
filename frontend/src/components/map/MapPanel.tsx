@@ -243,6 +243,7 @@ export function MapPanel({
     basemap,
     gridSize,
     layerVisibility,
+    displayedLayers,
     month,
     results,
     selectedGbifId,
@@ -256,6 +257,8 @@ export function MapPanel({
   const drawStartPos = useRef<Cesium.Cartesian3 | null>(null);
   const polyPoints = useRef<Cesium.Cartesian3[]>([]);
   const wmsLayerRef = useRef<Cesium.ImageryLayer | null>(null);
+  // 已发布图层的静态 WMS 叠加层：图层名 → Cesium ImageryLayer。
+  const publishedLayersRef = useRef<Map<string, Cesium.ImageryLayer>>(new Map());
   const gridDsRef = useRef<Cesium.GeoJsonDataSource | null>(null);
   const layerVisibilityRef = useRef(layerVisibility);
   const syncLayerVisibilityRef = useRef<(() => void) | null>(null);
@@ -415,6 +418,47 @@ export function MapPanel({
       }
     };
   }, [gridSize, month]);
+
+  // 2a. 已发布图层静态叠加：按 displayedLayers 增删 WMS 图层。
+  // 这些图层的过滤条件（物种/月份/粒度）已固化进图层定义，无需再加 CQL_FILTER。
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer || viewer.isDestroyed()) return;
+    const current = publishedLayersRef.current;
+
+    // 移除不再显示的图层
+    for (const [name, layer] of [...current]) {
+      if (!displayedLayers.includes(name)) {
+        if (viewer.imageryLayers.contains(layer)) {
+          viewer.imageryLayers.remove(layer, true);
+        }
+        current.delete(name);
+      }
+    }
+
+    // 添加新显示的图层
+    displayedLayers.forEach((name) => {
+      if (current.has(name)) return;
+      const provider = new Cesium.WebMapServiceImageryProvider({
+        url: GEOSERVER_WMS_URL,
+        layers: `birdscope:${name}`,
+        parameters: {
+          transparent: true,
+          format: "image/png",
+          tiled: true
+        }
+      });
+      current.set(name, viewer.imageryLayers.addImageryProvider(provider));
+    });
+
+    // 叠加图层加在顶部后，把天地图注记重新提到最顶，保证地名清晰。
+    if (
+      labelLayerRef.current &&
+      viewer.imageryLayers.contains(labelLayerRef.current)
+    ) {
+      viewer.imageryLayers.raiseToTop(labelLayerRef.current);
+    }
+  }, [displayedLayers]);
 
   // 2b. 查询联动热力网格：执行查询后按 activeQuery + 当前月份拉 /stats/grid。
   useEffect(() => {

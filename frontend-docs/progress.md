@@ -14,8 +14,8 @@
 | ECharts 图表 | 已联动 | 三图表按 `activeQuery`（物种+范围）+ 实时月份联动，带 AbortController |
 | ResultList | 已联动 | 结果列表与地图点位共享 `selectedGbifId`，支持双向选中、高亮、滚动定位 |
 | `/stats/grid` 区域网格层 | 已接入 | 执行查询后按 bbox+物种+月份+网格粒度拉网格，clampToGround 分级配色 |
-| 图层管理 | 已整合 | 左侧图层面板支持底图切换、矢量点位/热力网格/全球 WMS 开关、已发布图层列表 |
-| 发布当前图层 | 已整合 | 顶栏按钮打开发布弹窗，按现成表 `occurrence_grid_monthly` + `grid_size/year/month` 发布 |
+| 图层管理 | 已整合 | 左侧图层面板支持底图切换、矢量点位/热力网格/全球 WMS 开关、已发布图层列表（含显隐切换 + 删除，默认层受保护） |
+| 发布当前图层 | 已整合 | 顶栏按钮打开发布弹窗，双模式：预聚合·全物种（`occurrence_grid_monthly`+CQL）/ 实时聚合·当前物种（`/geoserver/species-grid`，选了物种时默认） |
 | 前端自动化测试 | 待做 | 暂无测试框架和用例 |
 
 ## 三批次整合（2026-06-17）
@@ -47,6 +47,9 @@
 - **未选范围默认全球查询** + **查询后自动隐藏全球 WMS 热力**：见 [api_integration.md](api_integration.md)；结果点位不再随相机高度隐藏。
 - **清空选区按钮可用条件修正**：原仅在有 bbox/polygon/buffer 时显示，导致"未选范围的全球查询"结果无法清空；改为"有选区**或**有结果"时显示（`clearSpatialSelection` 本就同时清选区+结果）。
 - **浮动卡片月份显示修正**：「当前地图上下文」卡片原显示**显示月份** `month`（时间轴控制、默认 10），与查询脱节；改为显示查询的**迁徙月份** `queryMonths`——不选=「全年」、单选「10 月」、多选「9、10 月」，标签同步改为「迁徙月份」。
+- **发布弹窗按物种发布（方案 B）**：`PublishLayerDialog` 加「数据源」双模式——预聚合·全物种（原 `POST /geoserver/layers`）/ 实时聚合·当前物种（新 `POST /geoserver/species-grid`）。选了物种打开弹窗默认实时聚合模式，未选物种该模式禁用并提示；发布参数面板分模式展示，图层名实时聚合带 `sp{species_key}` 前缀；`month=null`（全年）正确不拼月份过滤。
+- **修复 `api/client.ts` 带头 POST 报 422 的真实 bug**：对象展开顺序颠倒（`...options` 在 `headers` 之后）导致自定义头覆盖整个 `headers`、丢失 `Content-Type: application/json`，发布/删除/改样式等带 `X-API-Key` 的 POST 全部被 FastAPI 判 422；改为 `options` 先展开、`headers` 后合并。顺带让 `requestJson` 能解析 FastAPI 422 校验数组 `detail`。
+- **已发布图层显隐切换 + 删除**：图层面板列表每个非默认图层加 👁 显隐（切 `store.displayedLayers`，`MapPanel` 据此增删静态 WMS 叠加层，不带 CQL）与 🗑 删除（`confirm` → `deleteGeoServerLayer` → 清叠加 + 刷新列表）。默认层 `occurrence_grid_monthly` 标「默认」🔒 受保护、不可删除、不提供静态叠加开关（它走「全球 WMS」动态 CQL）。`X-API-Key` 取 `VITE_GEOSERVER_API_KEY`。详见 [api_integration.md](api_integration.md)。
 
 ## 查询联动
 

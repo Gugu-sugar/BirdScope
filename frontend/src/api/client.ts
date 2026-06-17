@@ -35,11 +35,11 @@ export async function requestJson<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
     headers: {
       "Content-Type": "application/json",
       ...options.headers
-    },
-    ...options
+    }
   });
 
   if (!response.ok) {
@@ -53,9 +53,16 @@ export async function requestJson<T>(
 async function readErrorDetail(response: Response) {
   try {
     const payload = (await response.json()) as { detail?: unknown };
-    return typeof payload.detail === "string"
-      ? payload.detail
-      : `请求失败：${response.status}`;
+    if (typeof payload.detail === "string") return payload.detail;
+    if (Array.isArray(payload.detail)) {
+      // FastAPI 422 validation errors return an array of {loc, msg, type}
+      return payload.detail
+        .map((e: { loc?: unknown[]; msg?: string }) =>
+          [e.loc?.slice(1).join("."), e.msg].filter(Boolean).join(": ")
+        )
+        .join("; ");
+    }
+    return `请求失败：${response.status}`;
   } catch {
     return `请求失败：${response.status}`;
   }

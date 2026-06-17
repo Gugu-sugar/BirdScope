@@ -99,7 +99,7 @@ GROUP BY year, month, floor(ST_X(geom)), floor(ST_Y(geom));
 
 约 10 分钟完成（100 万行）。
 
-**已知局限**：预聚合表不含 `species_key` 维度，全球视角 + 物种筛选时只能降级到 FastAPI 实时聚合。这是一周交付压力下有意识的 scope 取舍，长期可补充物种维度预计算。
+**已知局限**：预聚合表不含 `species_key` 维度。全球视角 + 物种筛选时降级到对 `occurrence_clean` 实时聚合——FastAPI `/stats/grid?species_key=...` 走此路径；GeoServer 侧则通过 `POST /geoserver/species-grid` 发布一个按物种实时聚合的 SQL View 虚拟表（同样查 `occurrence_clean`，输出与本表同构的 `Polygon + record_count`，复用 `grid_heatmap` 样式）。长期仍可补充物种维度预计算以省去实时聚合开销。
 
 ---
 

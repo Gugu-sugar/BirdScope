@@ -38,6 +38,8 @@ type QueryState = {
   gridSize: GridSize;
   basemap: BasemapKey;
   layerVisibility: LayerVisibility;
+  /** 在地图上以静态 WMS 叠加显示的已发布图层名（过滤条件已固化进图层）。 */
+  displayedLayers: string[];
   spatialMode: SpatialMode;
   bbox: Bbox | null;
   polygon: GeoJsonPolygon | null;
@@ -57,6 +59,8 @@ type QueryActions = {
   setGridSize: (gridSize: GridSize) => void;
   setBasemap: (basemap: BasemapKey) => void;
   setLayerVisibility: (layer: keyof LayerVisibility, visible: boolean) => void;
+  togglePublishedLayer: (name: string) => void;
+  removePublishedLayer: (name: string) => void;
   setSpatialMode: (mode: SpatialMode) => void;
   setBbox: (bbox: Bbox | null) => void;
   setPolygon: (polygon: GeoJsonPolygon | null) => void;
@@ -135,6 +139,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
   const [layerVisibility, setLayerVisibilityState] = useState<LayerVisibility>(
     DEFAULT_LAYER_VISIBILITY
   );
+  const [displayedLayers, setDisplayedLayers] = useState<string[]>([]);
   const [spatialMode, setSpatialMode] = useState<SpatialMode>("bbox");
   const [bbox, setBbox] = useState<Bbox | null>(null);
   const [polygon, setPolygon] = useState<GeoJsonPolygon | null>(null);
@@ -165,6 +170,20 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       ...current,
       [layer]: visible
     }));
+  };
+
+  /** 切换某个已发布图层在地图上的显隐。 */
+  const togglePublishedLayer = (name: string) => {
+    setDisplayedLayers((current) =>
+      current.includes(name)
+        ? current.filter((value) => value !== name)
+        : [...current, name]
+    );
+  };
+
+  /** 图层被删除后从显示列表移除（避免地图残留请求已不存在的图层）。 */
+  const removePublishedLayer = (name: string) => {
+    setDisplayedLayers((current) => current.filter((value) => value !== name));
   };
 
   const clearResults = () => {
@@ -259,6 +278,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       gridSize,
       basemap,
       layerVisibility,
+      displayedLayers,
       spatialMode,
       bbox,
       polygon,
@@ -275,6 +295,8 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       setGridSize,
       setBasemap,
       setLayerVisibility,
+      togglePublishedLayer,
+      removePublishedLayer,
       setSpatialMode,
       setBbox,
       setPolygon,
@@ -295,6 +317,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       gridSize,
       basemap,
       layerVisibility,
+      displayedLayers,
       spatialMode,
       bbox,
       polygon,
