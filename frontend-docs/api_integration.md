@@ -1,65 +1,146 @@
-# BirdScope 前端 API 联调
+# BirdScope 前端 API 联调说明
 
-> 最后更新：2026-06-16
+> 最后更新：2026-06-17
+> 后端完整接口见：`../backend-docs/api_reference.md`
 
-API base：`VITE_API_BASE_URL`，默认 `http://localhost:8000/api/v1`。
+## API 客户端
+
+入口：`frontend/src/api/client.ts`
+
+```ts
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
+```
+
+- `buildQuery(params)`：过滤 `undefined`、`null`、空字符串后构造 query string。
+- `requestJson<T>(path, options)`：统一 fetch、JSON 解析和错误抛出。
+- `ApiError`：携带 HTTP status，错误信息优先读取后端 `detail`。
 
 ## 已封装接口
 
-| 前端函数 | 后端接口 | 使用方 |
-|----------|----------|--------|
-| `searchSpecies` | `GET /species/search` | `QueryPanel` |
-| `queryOccurrenceByBbox` | `GET /occurrence/points` | `queryStore` |
-| `queryOccurrenceWithin` | `POST /occurrence/within` | `queryStore` |
-| `queryOccurrenceBuffer` | `GET /occurrence/buffer` | `queryStore` |
-| `queryGrid` | `GET /stats/grid` | `MapPanel`（查询联动热力网格） |
-| `querySpeciesRank` | `GET /species/rank` | `SpeciesRankChart` |
-| `queryMonthlyTrend` | `GET /stats/monthly` | `MonthlyTrendChart` |
-| `queryProvinceStats` | `GET /stats/province` | `RegionStatsChart` |
+| 文件 | 函数 | 后端接口 | 当前 UI 使用 |
+|------|------|----------|--------------|
+| `api/species.ts` | `searchSpecies` | `GET /species/search` | ✅ 查询面板 |
+| `api/occurrence.ts` | `queryOccurrenceByBbox` | `GET /occurrence/points` | ✅ 查询执行 |
+| `api/occurrence.ts` | `queryOccurrenceWithin` | `POST /occurrence/within` | ✅ 查询执行 |
+| `api/occurrence.ts` | `queryOccurrenceBuffer` | `GET /occurrence/buffer` | ✅ 查询执行 |
+| `api/stats.ts` | `queryGrid` | `GET /stats/grid` | ✅ 联动热力网格 |
+| `api/species.ts` | `querySpeciesRank` | `GET /species/rank` | ✅ 物种排行 |
+| `api/stats.ts` | `queryMonthlyTrend` | `GET /stats/monthly` | ✅ 月度趋势 |
+| `api/stats.ts` | `queryProvinceStats` | `GET /stats/province` | ✅ 区域统计 |
+| `api/geoserver.ts` | `listGeoServerLayers` | `GET /geoserver/layers` | ✅ 图层面板 |
+| `api/geoserver.ts` | `publishGeoServerLayer` | `POST /geoserver/layers` | ✅ 发布当前图层 |
 
-所有图表/网格请求均支持可选 `bbox` 与 `AbortSignal`；`bbox` 来自 `queryStore.activeQuery`（执行查询时的范围快照），月份取实时 `store.month`。
+## 查询参数约定
 
-## 契约差异
+### 矩形查询
 
-### 物种搜索
-
-后端当前响应是 `SpeciesItem[]`：
-
-```json
-[{ "species_key": 1, "display_name": "..." }]
+```ts
+queryOccurrenceByBbox({
+  bbox: [70, 20, 140, 55],
+  speciesKey,
+  month,
+  year: 2024,
+  limit: 2000
+});
 ```
 
-前端类型和 `QueryPanel` 当前仍按以下形状读取：
-
-```json
-{ "results": [], "total": 0 }
-```
-
-联调时必须统一为一种格式。按当前后端文档，建议前端直接使用数组。
-
-### 图表筛选（2026-06-16 已联动）
-
-- `/stats/monthly`：`species_key` + `bbox`（按月跨月趋势，月份本身不作过滤）。
-- `/stats/province`：`species_key` + `month` + `bbox`。
-- `/species/rank`：`month` + `bbox`（**不支持** `species_key`——排行本身是跨物种 top-N，过滤到单物种无意义）。
-- 三者带 `bbox` 时后端走 `occurrence_clean` 实时聚合，按地图框联动；不带时走预聚合事实表。bbox 面积超护栏自动回退预聚合。
-
-### WMS
-
-全球热力图必须至少带：
+发送到后端：
 
 ```text
-CQL_FILTER=grid_size=1.0 AND month=10
+GET /occurrence/points?bbox=70,20,140,55&species_key=...&month=...&year=2024&limit=2000
 ```
 
-当前 `MapPanel` 使用 `viewparams`，与已发布普通 PostGIS FeatureType 图层的契约不一致。
+### 多边形查询
 
-## 空间约定
+```ts
+queryOccurrenceWithin({
+  geometry: {
+    type: "Polygon",
+    coordinates: [[[116, 39], [117, 39], [117, 40], [116, 40], [116, 39]]]
+  },
+  species_key: speciesKey,
+  month,
+  year: 2024,
+  limit: 2000
+});
+```
 
-- 坐标系：WGS-84 / EPSG:4326
-- bbox：`[minx, miny, maxx, maxy]`
-- GeoJSON position：`[longitude, latitude]`
-- 点查询默认 2000，硬上限 5000
-- 网格硬上限 10000
+### 缓冲区查询
 
-所有可空字段必须按 [rules_and_conventions.md](rules_and_conventions.md) 展示。
+```ts
+queryOccurrenceBuffer({
+  lat: 31.2,
+  lng: 121.5,
+  radiusKm: 50,
+  speciesKey,
+  month,
+  year: 2024,
+  limit: 500
+});
+```
+
+发送到后端时 `radiusKm` 转为 `radius_km`。
+
+## 图表与网格联动
+
+- `queryStore.activeQuery` 是执行查询时的快照：`{ speciesKey, speciesName, bbox }`。
+- `/stats/grid`：使用 `activeQuery.bbox`、`activeQuery.speciesKey`、实时 `month`、实时 `gridSize`。
+- `/stats/monthly`：使用 `species_key` + `bbox`，用于跨月趋势，月份本身不作为过滤。
+- `/stats/province`：使用 `species_key` + `month` + `bbox`。
+- `/species/rank`：使用 `month` + `bbox`；排行是跨物种 top-N，不传单物种过滤。
+
+## GeoServer 图层
+
+```ts
+listGeoServerLayers();
+
+publishGeoServerLayer({
+  layer_name: "grid_m10_g1_202606171700",
+  table_name: "occurrence_grid_monthly",
+  style_name: "grid_heatmap",
+  cql_filter: "grid_size=1 AND year=2024 AND month=10"
+});
+```
+
+- `GET /geoserver/layers` 无需 API key，用于侧边栏“已发布图层”列表。
+- `POST /geoserver/layers` 如后端配置了 `GEOSERVER_API_KEY`，前端需通过 `VITE_GEOSERVER_API_KEY` 或发布弹窗输入 `X-API-Key`。
+- 当前发布语义固定为现成表 `occurrence_grid_monthly` + `grid_size/year/month` 的 `CQL_FILTER`；该表不含物种维度。
+- WMS 地址可通过 `VITE_GEOSERVER_WMS_URL` 覆盖，默认 `http://localhost:8080/geoserver/birdscope/wms`。
+
+## WMS
+
+`MapPanel` 使用普通 PostGIS FeatureType 图层，必须通过 `CQL_FILTER` 过滤：
+
+```text
+CQL_FILTER=grid_size=1 AND year=2024 AND month=10
+```
+
+`grid_size` 来自图层面板，`month` 来自时间滑块。
+
+## TypeScript 响应类型
+
+主要类型位于 `frontend/src/types/api.ts`：
+
+- `SpeciesItem`
+- `OccurrenceGeoJSON`
+- `OccurrenceFeature`
+- `GridGeoJSON`
+- `WithinQueryBody`
+
+展示时必须兼容：
+
+- `species: null`
+- `scientific_name: null`
+- `individual_count: null`
+- `event_date: null`
+- `locality: null`
+- `country_code: null`
+- `state_province: null`
+
+## 坐标约定
+
+- 坐标系：WGS-84 / EPSG:4326。
+- bbox：`[minx, miny, maxx, maxy]`，也就是 `[最小经度, 最小纬度, 最大经度, 最大纬度]`。
+- GeoJSON position：`[longitude, latitude]`。
+- 缓冲区中心：前端内部用 `{ lng, lat }`，请求后端时传 `lng` 和 `lat`。

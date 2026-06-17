@@ -32,6 +32,9 @@ export type ActiveQuery = {
 type QueryState = {
   selectedSpecies: SpeciesItem | null;
   month: number | null;
+  gridSize: GridSize;
+  basemap: BasemapKey;
+  layerVisibility: LayerVisibility;
   spatialMode: SpatialMode;
   bbox: Bbox | null;
   polygon: GeoJsonPolygon | null;
@@ -39,6 +42,7 @@ type QueryState = {
   radiusKm: number;
   results: OccurrenceGeoJSON | null;
   activeQuery: ActiveQuery | null;
+  selectedGbifId: number | null;
   loading: boolean;
   error: string | null;
 };
@@ -46,12 +50,16 @@ type QueryState = {
 type QueryActions = {
   setSelectedSpecies: (species: SpeciesItem | null) => void;
   setMonth: (month: number | null) => void;
+  setGridSize: (gridSize: GridSize) => void;
+  setBasemap: (basemap: BasemapKey) => void;
+  setLayerVisibility: (layer: keyof LayerVisibility, visible: boolean) => void;
   setSpatialMode: (mode: SpatialMode) => void;
   setBbox: (bbox: Bbox | null) => void;
   setPolygon: (polygon: GeoJsonPolygon | null) => void;
   setBufferCenter: (point: LngLat | null) => void;
   setRadiusKm: (radiusKm: number) => void;
   setResults: (results: OccurrenceGeoJSON | null) => void;
+  setSelectedGbifId: (gbifId: number | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   runCurrentQuery: () => Promise<void>;
@@ -61,6 +69,21 @@ type QueryActions = {
 type QueryStore = QueryState & QueryActions;
 
 const DEFAULT_RADIUS_KM = 50;
+
+export type GridSize = 0.5 | 1;
+export type BasemapKey = "street" | "imagery" | "terrain";
+
+export type LayerVisibility = {
+  points: boolean;
+  grid: boolean;
+  globalWms: boolean;
+};
+
+const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
+  points: true,
+  grid: true,
+  globalWms: true
+};
 
 const QueryContext = createContext<QueryStore | null>(null);
 
@@ -90,6 +113,11 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     null
   );
   const [month, setMonth] = useState<number | null>(10);
+  const [gridSize, setGridSize] = useState<GridSize>(1);
+  const [basemap, setBasemap] = useState<BasemapKey>("terrain");
+  const [layerVisibility, setLayerVisibilityState] = useState<LayerVisibility>(
+    DEFAULT_LAYER_VISIBILITY
+  );
   const [spatialMode, setSpatialMode] = useState<SpatialMode>("bbox");
   const [bbox, setBbox] = useState<Bbox | null>(null);
   const [polygon, setPolygon] = useState<GeoJsonPolygon | null>(null);
@@ -97,6 +125,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
   const [radiusKm, setRadiusKmState] = useState(DEFAULT_RADIUS_KM);
   const [results, setResults] = useState<OccurrenceGeoJSON | null>(null);
   const [activeQuery, setActiveQuery] = useState<ActiveQuery | null>(null);
+  const [selectedGbifId, setSelectedGbifId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -111,15 +140,27 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     setBuffer(point ? { ...point, radiusKm } : null);
   };
 
+  const setLayerVisibility = (
+    layer: keyof LayerVisibility,
+    visible: boolean
+  ) => {
+    setLayerVisibilityState((current) => ({
+      ...current,
+      [layer]: visible
+    }));
+  };
+
   const clearResults = () => {
     setResults(null);
     setActiveQuery(null);
+    setSelectedGbifId(null);
     setError(null);
   };
 
   const runCurrentQuery = async () => {
     setLoading(true);
     setError(null);
+    setSelectedGbifId(null);
 
     try {
       const speciesKey = selectedSpecies?.species_key;
@@ -175,6 +216,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       setResults(null);
       setActiveQuery(null);
+      setSelectedGbifId(null);
       setError(error instanceof Error ? error.message : "查询失败");
     } finally {
       setLoading(false);
@@ -185,6 +227,9 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     () => ({
       selectedSpecies,
       month,
+      gridSize,
+      basemap,
+      layerVisibility,
       spatialMode,
       bbox,
       polygon,
@@ -192,16 +237,21 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       radiusKm,
       results,
       activeQuery,
+      selectedGbifId,
       loading,
       error,
       setSelectedSpecies,
       setMonth,
+      setGridSize,
+      setBasemap,
+      setLayerVisibility,
       setSpatialMode,
       setBbox,
       setPolygon,
       setBufferCenter,
       setRadiusKm,
       setResults,
+      setSelectedGbifId,
       setLoading,
       setError,
       runCurrentQuery,
@@ -210,6 +260,9 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     [
       selectedSpecies,
       month,
+      gridSize,
+      basemap,
+      layerVisibility,
       spatialMode,
       bbox,
       polygon,
@@ -217,6 +270,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       radiusKm,
       results,
       activeQuery,
+      selectedGbifId,
       loading,
       error
     ]
