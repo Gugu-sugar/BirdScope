@@ -4,8 +4,9 @@
 
 - PostgreSQL custom format
 - 由 PostgreSQL 18.4 导出
-- 约 307 MB
+- 约 327 MB
 - 本地恢复建议使用 PostgreSQL 18 + PostGIS 3.6
+- 含 `occurrence_stats_monthly` 预聚合表（2026-06-16 新增，用于时间序列/物种排行图表）
 
 从仓库根目录恢复：
 

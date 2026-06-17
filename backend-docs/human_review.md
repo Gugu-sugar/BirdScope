@@ -40,6 +40,19 @@
 
 ## 历史记录
 
+### [005] 重新导出全量数据库 dump（新增 occurrence_stats_monthly 预聚合表）
+
+- **提出时间**：2026-06-16
+- **提出方**：AI Agent（开发者直接要求"更新 deploy 文件夹"）
+- **类型**：数据操作（只读导出）/ 文件覆盖
+- **描述**：开发者反馈"改了数据库"，核查发现 `occurrence_stats_monthly` 表（图表预聚合，第 0edb17c 次提交新增，775,726 条）不在旧 dump 中；其余三表（`occurrence_clean` 3,997,847、`species_lookup` 9,807、`occurrence_grid_monthly` 90,061）行数与旧 dump 一致未变。`pg_dump -Fc` 只读全量导出覆盖 `deploy/dump/birdscope.dump`（307MB→327MB，不动现有数据库），同步更新 `deploy/README.md` 和 `deploy/dump/README.md` 的数据量说明。
+- **验证**：`pg_restore --list` 确认新 dump 含全部 5 张表的 TABLE DATA 段（含 occurrence_stats_monthly），未做实际 restore 测试。
+- **补充**：开发者要求"补上所有文档"后，已在 [database_design.md](database_design.md) 补齐 `occurrence_stats_monthly` 表结构、索引与聚合 SQL 说明；`data_pipeline.md`、`progress.md`、`api_reference.md`、`frontend-docs/` 此前两次提交（0edb17c、cfe6651）已同步更新，核查未发现遗漏。
+
+**审批意见**：
+
+> *(待开发者确认；导出为只读操作、不改动现有数据库，dump 可重新生成)*
+
 ### [004] 发布 GeoServer 图层 occurrence_grid_monthly（第三阶段）
 
 - **提出时间**：2026-06-14
