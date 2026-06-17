@@ -12,6 +12,7 @@ def points_in_bbox(
     bbox: str = Query(..., description="minx,miny,maxx,maxy"),
     species_key: int | None = Query(None),
     month: int | None = Query(None, ge=1, le=12),
+    months: list[int] | None = Query(None, description="多选月份，优先于 month；缺省为全年"),
     year: int | None = Query(2024),
     limit: int = Query(2000, le=5000),
     db: Session = Depends(get_db),
@@ -20,14 +21,16 @@ def points_in_bbox(
         minx, miny, maxx, maxy = [float(x) for x in bbox.split(",")]
     except Exception:
         raise HTTPException(400, "bbox 格式错误，应为 minx,miny,maxx,maxy")
-    features = spatial.query_bbox(db, minx, miny, maxx, maxy, species_key, month, year, limit)
+    features = spatial.query_bbox(
+        db, minx, miny, maxx, maxy, species_key, month, year, limit, months
+    )
     return {"type": "FeatureCollection", "features": features, "total": len(features)}
 
 
 @router.post("/within", response_model=OccurrenceGeoJSON)
 def points_within_polygon(body: WithinQuery, db: Session = Depends(get_db)):
     features = spatial.query_within(
-        db, body.geometry, body.species_key, body.month, body.year, body.limit
+        db, body.geometry, body.species_key, body.month, body.year, body.limit, body.months
     )
     return {"type": "FeatureCollection", "features": features, "total": len(features)}
 
@@ -39,9 +42,12 @@ def points_in_buffer(
     radius_km: float = Query(10.0, gt=0, le=500),
     species_key: int | None = Query(None),
     month: int | None = Query(None, ge=1, le=12),
+    months: list[int] | None = Query(None, description="多选月份，优先于 month；缺省为全年"),
     year: int | None = Query(2024),
     limit: int = Query(500, le=2000),
     db: Session = Depends(get_db),
 ):
-    features = spatial.query_buffer(db, lat, lng, radius_km, species_key, month, year, limit)
+    features = spatial.query_buffer(
+        db, lat, lng, radius_km, species_key, month, year, limit, months
+    )
     return {"type": "FeatureCollection", "features": features, "total": len(features)}

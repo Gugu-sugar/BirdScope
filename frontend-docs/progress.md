@@ -25,10 +25,22 @@
 - 批次③：图层管理面板接入底图切换、图层显隐、网格粒度、GeoServer 已发布图层列表；顶栏“发布当前图层”接入 `POST /geoserver/layers`。
 - 批次④：地图左上增加绘制提示；矩形框选增加橡皮筋预览；多边形右键闭合逻辑修正；删除全屏暗角掩膜。
 
+## UI/UX 修复与月份语义拆分（2026-06-17）
+
+- **侧栏 tooltip 遮挡**：rail `nav` 提到 `z-30`（高于 360px 抽屉 aside），hover 提示不再被面板盖住。
+- **清空选区**：`queryStore` 新增 `clearSpatialSelection`（清空 bbox/polygon/buffer + 结果）；`QueryPanel` 空间筛选区在有选区时显示「清空选区」按钮。
+- **重复标题清理**：删除 `QueryPanel`、`InsightPanel` 内部各自的 `panel-header`，标题统一由 `MapQueryPage` 抽屉头承担（含原先无功能的装饰图标 / badge）。
+- **月份语义拆分**：原单一 `store.month` 一身二职（既是查询条件又是显示图层）。现拆为：
+  - `queryMonths: number[]`（查询表单多选，空 = 全年），`toggleQueryMonth` 切换，仅作用于观测点查询；
+  - `month: number | null`（显示月份）保留驱动热力图层 + 统计图表 + 时空动态时间轴。
+  - `QueryPanel` 月份按钮改多选 toggle，不再影响地图图层。
+- **结果均匀分布 + 限额**：后端观测点查询改 `ORDER BY random()`，bbox/polygon 默认 `limit` 降到 800；返回点铺满整个选区，不再集中一角。
+- **面板弹出动画**：抽屉改为常驻 + `width/opacity/margin` 过渡（180ms ease-out）；`displayedPanel` 在收缩期保留上一面板内容避免空盒塌陷；父容器去 `gap`、改 margin 控制间距，收起后栏与地图保持 12px。
+
 ## 查询联动
 
 - `queryStore.activeQuery` 在执行查询成功时写入 `{speciesKey, speciesName, bbox}`，三种空间模式（bbox/polygon/buffer）统一归一为 bbox。
-- 物种与空间范围在快照时固定；月份仍由 `store.month` 实时提供，便于时间滑块播放时图层/图表跟随。
+- 物种与空间范围在快照时固定；显示月份 `store.month` 仍实时提供，便于时间滑块播放时图层/图表跟随；查询月份 `store.queryMonths` 独立，互不影响。
 - 图层（`/stats/grid`）与三个图表（rank/monthly/province）均订阅 `activeQuery` + 月份。
 - 新查询会清空旧的 `selectedGbifId`，避免列表/地图选中态指向过期点位。
 

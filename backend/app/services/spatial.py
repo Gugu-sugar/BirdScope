@@ -9,13 +9,21 @@ def _build_filters(
     species_key: int | None,
     month: int | None,
     year: int | None,
+    months: list[int] | None = None,
 ) -> tuple[str, dict]:
-    """返回 WHERE 子句片段（不含 WHERE 关键字）和参数字典。"""
+    """返回 WHERE 子句片段（不含 WHERE 关键字）和参数字典。
+
+    months（多选月份）优先于单个 month：非空列表时生成 month = ANY(:months)，
+    便于查询表单一次筛多个月；两者皆空表示全年（不加月份过滤）。
+    """
     clauses, params = [], {}
     if species_key is not None:
         clauses.append("species_key = :species_key")
         params["species_key"] = species_key
-    if month is not None:
+    if months:
+        clauses.append("month = ANY(:months)")
+        params["months"] = months
+    elif month is not None:
         clauses.append("month = :month")
         params["month"] = month
     if year is not None:
@@ -81,9 +89,11 @@ def query_bbox(
     month: int | None = None,
     year: int | None = None,
     limit: int = 2000,
+    months: list[int] | None = None,
 ) -> list[dict]:
-    where, params = _build_filters(species_key, month, year)
+    where, params = _build_filters(species_key, month, year, months)
     params.update({"minx": minx, "miny": miny, "maxx": maxx, "maxy": maxy, "limit": limit})
+    # ORDER BY random()：在选区内均匀抽样，避免命中前 N 行集中在数据先入库的一角。
     sql = text(f"""
         SELECT gbif_id, species, scientific_name, individual_count,
                event_date, locality, country_code, state_province,
@@ -91,6 +101,7 @@ def query_bbox(
         FROM occurrence_clean
         WHERE ST_Within(geom, ST_MakeEnvelope(:minx, :miny, :maxx, :maxy, 4326))
           AND {where}
+        ORDER BY random()
         LIMIT :limit
     """)
     rows = db.execute(sql, params).fetchall()
@@ -104,8 +115,9 @@ def query_within(
     month: int | None = None,
     year: int | None = None,
     limit: int = 2000,
+    months: list[int] | None = None,
 ) -> list[dict]:
-    where, params = _build_filters(species_key, month, year)
+    where, params = _build_filters(species_key, month, year, months)
     params.update({"geom_wkt": json.dumps(geojson_geometry), "limit": limit})
     sql = text(f"""
         SELECT gbif_id, species, scientific_name, individual_count,
@@ -114,6 +126,7 @@ def query_within(
         FROM occurrence_clean
         WHERE ST_Within(geom, ST_GeomFromGeoJSON(:geom_wkt))
           AND {where}
+        ORDER BY random()
         LIMIT :limit
     """)
     rows = db.execute(sql, params).fetchall()
@@ -127,8 +140,9 @@ def query_buffer(
     month: int | None = None,
     year: int | None = None,
     limit: int = 500,
+    months: list[int] | None = None,
 ) -> list[dict]:
-    where, params = _build_filters(species_key, month, year)
+    where, params = _build_filters(species_key, month, year, months)
     params.update({"lng": lng, "lat": lat, "radius_m": radius_km * 1000, "limit": limit})
     sql = text(f"""
         SELECT gbif_id, species, scientific_name, individual_count,
@@ -140,6 +154,7 @@ def query_buffer(
             ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography,
             :radius_m
         ) AND {where}
+        ORDER BY random()
         LIMIT :limit
     """)
     rows = db.execute(sql, params).fetchall()

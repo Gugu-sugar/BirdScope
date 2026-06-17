@@ -50,6 +50,7 @@ class WithinQuery(BaseModel):
     geometry: dict[str, Any]   # GeoJSON geometry
     species_key: int | None = None
     month: int | None = None
+    months: list[int] | None = None  # 多选月份，非空时优先于 month；空/缺省表示全年
     year: int | None = 2024
     limit: int = 2000
 

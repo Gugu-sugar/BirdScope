@@ -1,7 +1,8 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
-type QueryValue = string | number | boolean | null | undefined;
+type QueryScalar = string | number | boolean | null | undefined;
+type QueryValue = QueryScalar | Array<string | number>;
 
 export type QueryParams = Record<string, QueryValue>;
 
@@ -18,7 +19,10 @@ export class ApiError extends Error {
 export function buildQuery(params: QueryParams = {}) {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
+    if (Array.isArray(value)) {
+      // 数组值序列化为重复查询参数（months=8&months=9），匹配 FastAPI list 解析。
+      value.forEach((item) => search.append(key, String(item)));
+    } else if (value !== undefined && value !== null && value !== "") {
       search.set(key, String(value));
     }
   });

@@ -33,8 +33,8 @@ export function QueryPanel() {
   const {
     selectedSpecies,
     setSelectedSpecies,
-    month,
-    setMonth,
+    queryMonths,
+    toggleQueryMonth,
     spatialMode,
     setSpatialMode,
     radiusKm,
@@ -195,12 +195,12 @@ export function QueryPanel() {
             {MONTHS.map((option) => (
               <button
                 className={`month-button ${
-                  month === option
+                  queryMonths.includes(option)
                     ? "border-amber-500 bg-amber-100 text-amber-950 shadow-sm"
                     : "border-slate-200 bg-white text-slate-700 hover:border-amber-300 hover:bg-amber-50"
                 }`}
                 key={option}
-                onClick={() => setMonth(option)}
+                onClick={() => toggleQueryMonth(option)}
                 type="button"
               >
                 <span className="text-base font-semibold">{option}</span>

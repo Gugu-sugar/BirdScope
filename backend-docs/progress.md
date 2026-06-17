@@ -1,6 +1,6 @@
 # BirdScope 后端开发进展
 
-> 最后更新：2026-06-15
+> 最后更新：2026-06-17
 > 面向：全组同学 + AI Agent
 
 ---
@@ -125,6 +125,12 @@
 - ✅ **管控接口加 API Key 鉴权**（消除高风险技术债）：POST/DELETE/PUT 需 `X-API-Key`，GET 开放；TestClient 验证 401/通过路径符合预期
 - 注：发布 featuretype 时 payload 的 defaultStyle 会被 GeoServer 忽略（defaultStyle 属 Layer 非 FeatureType），脚本已显式补一次 `set_layer_style`
 - 运维注意：本机 GeoServer 是 **Windows 服务**（名 `GeoServer`，2.28.1），曾出现长时间运行后假死（端口在但 HTTP 不响应、日志停更、CLOSE_WAIT 堆积），重启服务即恢复
+
+### ✅ 观测点多选月份 + 均匀采样（2026-06-17）
+
+- `/occurrence/{points,within,buffer}` 三接口新增 `months: list[int] | None`（重复传参 `months=8&months=9`），非空时优先于单 `month`，缺省/空表示全年；单 `month` 保留向后兼容。`_build_filters` 用 `month = ANY(:months)`。
+- 三接口 SQL 在 `LIMIT` 前加 `ORDER BY random()`，返回点在选区内均匀抽样，修复"点集中在框内一角"。代价：大 bbox 需扫描全部候选行（点位接口面向本地视角，正常缩放候选有限，可接受）。
+- 配合前端：查询表单月份与显示图层月份语义拆分（前端 `queryMonths` vs `month`），bbox/polygon 默认 limit 降到 800。契约见 [api_reference.md](api_reference.md)。
 
 ### 优先级 🟢（第四 / 五阶段）
 

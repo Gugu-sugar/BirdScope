@@ -31,7 +31,10 @@ export type ActiveQuery = {
 
 type QueryState = {
   selectedSpecies: SpeciesItem | null;
+  /** 显示月份：驱动热力图层与统计图表，由时空动态时间轴控制。 */
   month: number | null;
+  /** 查询表单月份多选（空数组 = 全年），仅作用于观测点查询，不影响图层。 */
+  queryMonths: number[];
   gridSize: GridSize;
   basemap: BasemapKey;
   layerVisibility: LayerVisibility;
@@ -50,6 +53,7 @@ type QueryState = {
 type QueryActions = {
   setSelectedSpecies: (species: SpeciesItem | null) => void;
   setMonth: (month: number | null) => void;
+  toggleQueryMonth: (month: number) => void;
   setGridSize: (gridSize: GridSize) => void;
   setBasemap: (basemap: BasemapKey) => void;
   setLayerVisibility: (layer: keyof LayerVisibility, visible: boolean) => void;
@@ -114,7 +118,17 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     null
   );
   const [month, setMonth] = useState<number | null>(10);
+  const [queryMonths, setQueryMonths] = useState<number[]>([]);
   const [gridSize, setGridSize] = useState<GridSize>(1);
+
+  /** 切换查询表单中某个月份的选中状态（多选）。 */
+  const toggleQueryMonth = (target: number) => {
+    setQueryMonths((current) =>
+      current.includes(target)
+        ? current.filter((value) => value !== target)
+        : [...current, target].sort((a, b) => a - b)
+    );
+  };
   const [basemap, setBasemap] = useState<BasemapKey>("terrain");
   const [layerVisibility, setLayerVisibilityState] = useState<LayerVisibility>(
     DEFAULT_LAYER_VISIBILITY
@@ -173,6 +187,8 @@ export function QueryProvider({ children }: { children: ReactNode }) {
 
     try {
       const speciesKey = selectedSpecies?.species_key;
+      // 空数组（全年）转为 undefined，避免发送空的 months 参数。
+      const months = queryMonths.length > 0 ? queryMonths : undefined;
       let nextResults: OccurrenceGeoJSON;
       let queriedBbox: Bbox;
 
@@ -184,7 +200,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
         nextResults = await queryOccurrenceByBbox({
           bbox,
           speciesKey,
-          month: month ?? undefined
+          months
         });
       } else if (spatialMode === "polygon") {
         if (!polygon) {
@@ -194,9 +210,9 @@ export function QueryProvider({ children }: { children: ReactNode }) {
         nextResults = await queryOccurrenceWithin({
           geometry: polygon,
           species_key: speciesKey,
-          month: month ?? undefined,
+          months,
           year: 2024,
-          limit: 2000
+          limit: 800
         });
       } else {
         if (!buffer) {
@@ -208,7 +224,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
           lng: buffer.lng,
           radiusKm: buffer.radiusKm,
           speciesKey,
-          month: month ?? undefined
+          months
         });
       }
 
@@ -236,6 +252,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     () => ({
       selectedSpecies,
       month,
+      queryMonths,
       gridSize,
       basemap,
       layerVisibility,
@@ -251,6 +268,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       error,
       setSelectedSpecies,
       setMonth,
+      toggleQueryMonth,
       setGridSize,
       setBasemap,
       setLayerVisibility,
@@ -270,6 +288,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     [
       selectedSpecies,
       month,
+      queryMonths,
       gridSize,
       basemap,
       layerVisibility,

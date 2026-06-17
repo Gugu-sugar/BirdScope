@@ -33,22 +33,24 @@ const API_BASE_URL =
 
 ## 查询参数约定
 
+> **月份语义拆分**：查询表单用 `queryStore.queryMonths`（`number[]`，多选，空数组 = 全年），仅作用于观测点查询；显示月份 `queryStore.month` 单独驱动热力图层与统计图表，由「时空动态」时间轴控制，两者互不影响。`queryMonths` 为空时不发送 `months` 参数（即全年）。
+
 ### 矩形查询
 
 ```ts
 queryOccurrenceByBbox({
   bbox: [70, 20, 140, 55],
   speciesKey,
-  month,
+  months,            // number[]，空表示全年
   year: 2024,
-  limit: 2000
+  limit: 800
 });
 ```
 
-发送到后端：
+发送到后端（多选月份序列化为重复参数）：
 
 ```text
-GET /occurrence/points?bbox=70,20,140,55&species_key=...&month=...&year=2024&limit=2000
+GET /occurrence/points?bbox=70,20,140,55&species_key=...&months=9&months=10&year=2024&limit=800
 ```
 
 ### 多边形查询
@@ -60,9 +62,9 @@ queryOccurrenceWithin({
     coordinates: [[[116, 39], [117, 39], [117, 40], [116, 40], [116, 39]]]
   },
   species_key: speciesKey,
-  month,
+  months,            // number[]，空表示全年
   year: 2024,
-  limit: 2000
+  limit: 800
 });
 ```
 
@@ -74,13 +76,13 @@ queryOccurrenceBuffer({
   lng: 121.5,
   radiusKm: 50,
   speciesKey,
-  month,
+  months,            // number[]，空表示全年
   year: 2024,
   limit: 500
 });
 ```
 
-发送到后端时 `radiusKm` 转为 `radius_km`。
+发送到后端时 `radiusKm` 转为 `radius_km`；后端返回点已 `ORDER BY random()` 均匀抽样，覆盖整个选区。
 
 ## 图表与网格联动
 

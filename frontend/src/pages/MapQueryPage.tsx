@@ -70,6 +70,8 @@ export function MapQueryPage() {
     spatialMode
   } = useQueryStore();
   const [activePanel, setActivePanel] = useState<WorkspacePanel | null>("query");
+  // 收缩动画期间保留最后一个面板的内容，避免空盒子塌陷；只在打开时更新。
+  const [displayedPanel, setDisplayedPanel] = useState<WorkspacePanel>("query");
   const [publishOpen, setPublishOpen] = useState(false);
   const [layerRefreshToken, setLayerRefreshToken] = useState(0);
 
@@ -78,6 +80,12 @@ export function MapQueryPage() {
       setActivePanel("results");
     }
   }, [error, loading, results]);
+
+  useEffect(() => {
+    if (activePanel) {
+      setDisplayedPanel(activePanel);
+    }
+  }, [activePanel]);
 
   const handleBboxSelected = (nextBbox: Bbox) => {
     setSpatialMode("bbox");
@@ -100,7 +108,7 @@ export function MapQueryPage() {
     setPolygon(null);
   };
 
-  const panelMeta = activePanel ? PANEL_META[activePanel] : null;
+  const panelMeta = PANEL_META[displayedPanel];
   const selectedFeature =
     selectedGbifId === null
       ? null
@@ -147,7 +155,7 @@ export function MapQueryPage() {
         </div>
       </header>
 
-      <section className="mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 gap-3 p-3">
+      <section className="mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 p-3">
         <nav
           aria-label="工作台面板"
           className="z-30 flex w-[68px] shrink-0 flex-col items-center gap-2 rounded-md border border-emerald-950/10 bg-[#f8fbf6]/90 p-2 shadow-xl shadow-slate-950/10 backdrop-blur"
@@ -164,16 +172,24 @@ export function MapQueryPage() {
           ))}
         </nav>
 
-        {activePanel ? (
-          <aside className="z-20 flex w-[360px] shrink-0 flex-col overflow-hidden rounded-md border border-emerald-950/10 bg-[#fbfdf8] shadow-2xl shadow-slate-950/12">
+        <aside
+          aria-hidden={!activePanel}
+          className={`z-20 flex shrink-0 flex-col overflow-hidden rounded-md bg-[#fbfdf8] shadow-2xl shadow-slate-950/12 transition-[width,opacity,margin] duration-200 ease-out ${
+            activePanel
+              ? "ml-3 w-[360px] border border-emerald-950/10 opacity-100"
+              : "pointer-events-none ml-0 w-0 border-0 opacity-0"
+          }`}
+        >
+          {/* 固定宽度内层：aside 宽度动画时只裁剪不重排，保证收缩平滑 */}
+          <div className="flex h-full w-[360px] flex-col">
             <div className="flex shrink-0 items-start justify-between gap-3 border-b border-emerald-950/10 bg-white/70 p-3">
               <div className="min-w-0">
-                <p className="section-kicker">{panelMeta?.kicker}</p>
+                <p className="section-kicker">{panelMeta.kicker}</p>
                 <h2 className="mt-1 text-lg font-semibold tracking-tight text-slate-950">
-                  {panelMeta?.title}
+                  {panelMeta.title}
                 </h2>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
-                  {panelMeta?.description}
+                  {panelMeta.description}
                 </p>
               </div>
               <button
@@ -186,23 +202,23 @@ export function MapQueryPage() {
               </button>
             </div>
             <div className="min-h-0 flex-1">
-              {activePanel === "query" ? <QueryPanel /> : null}
-              {activePanel === "results" ? <ResultList /> : null}
-              {activePanel === "charts" ? (
+              {displayedPanel === "query" ? <QueryPanel /> : null}
+              {displayedPanel === "results" ? <ResultList /> : null}
+              {displayedPanel === "charts" ? (
                 <InsightPanel
                   activeQuery={activeQuery}
                   month={month}
                   setMonth={setMonth}
                 />
               ) : null}
-              {activePanel === "layers" ? (
+              {displayedPanel === "layers" ? (
                 <LayerPanel refreshToken={layerRefreshToken} />
               ) : null}
             </div>
-          </aside>
-        ) : null}
+          </div>
+        </aside>
 
-        <section className="relative min-w-0 flex-1 overflow-hidden rounded-md border border-emerald-950/10 bg-[#071c1b] shadow-2xl shadow-slate-950/15">
+        <section className="relative ml-3 min-w-0 flex-1 overflow-hidden rounded-md border border-emerald-950/10 bg-[#071c1b] shadow-2xl shadow-slate-950/15">
           <MapPanel
             activeQuery={activeQuery}
             bbox={bbox}

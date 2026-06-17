@@ -76,11 +76,14 @@
 **参数**：
 - `bbox: str` — `"minx,miny,maxx,maxy"`，如 `"70,20,140,55"`
 - `species_key: int | None`
-- `month: int | None`
+- `month: int | None` — 单月份（向后兼容）
+- `months: list[int] | None` — 多选月份，重复传参 `months=8&months=9`；非空时优先于 `month`，缺省/空表示全年
 - `year: int = 2024`
 - `limit: int = 2000`（硬上限 5000，禁止超越）
 
-**示例**：`GET /api/v1/occurrence/points?bbox=70,20,140,55&month=10`
+> 返回点在选区内 `ORDER BY random()` 均匀抽样，避免命中前 N 行集中在数据先入库的一角。代价：大范围 bbox 需扫描全部候选行，比早停慢（点位接口面向本地视角，正常缩放下候选有限）。
+
+**示例**：`GET /api/v1/occurrence/points?bbox=70,20,140,55&months=9&months=10`
 
 **响应** GeoJSON FeatureCollection（Cesium 可直接加载）：
 ```json
@@ -118,11 +121,13 @@
     "coordinates": [[[116.0, 39.0], [117.0, 39.0], [117.0, 40.0], [116.0, 40.0], [116.0, 39.0]]]
   },
   "species_key": 5228134,
-  "month": 10,
+  "months": [9, 10],
   "year": 2024,
-  "limit": 2000
+  "limit": 800
 }
 ```
+
+> 请求体 `months: list[int] | None` 多选月份，非空时优先于 `month`，缺省表示全年；结果同样 `ORDER BY random()` 均匀抽样。
 
 **响应**：GeoJSON FeatureCollection（同 /points 格式）
 
@@ -136,7 +141,8 @@ PostGIS 查询：`ST_Within(geom, ST_SetSRID(ST_GeomFromGeoJSON(:geojson), 4326)
 - `lat: float`, `lng: float` — 中心点
 - `radius_km: float` — 搜索半径（公里）
 - `species_key: int | None`
-- `month: int | None`
+- `month: int | None` — 单月份（向后兼容）
+- `months: list[int] | None` — 多选月份，重复传参 `months=8&months=9`；非空时优先于 `month`，缺省表示全年
 - `limit: int = 500`
 
 **示例**：`GET /api/v1/occurrence/buffer?lat=31.2&lng=121.5&radius_km=50`
