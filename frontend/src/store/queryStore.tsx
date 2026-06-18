@@ -31,10 +31,15 @@ export type ActiveQuery = {
 
 type QueryState = {
   selectedSpecies: SpeciesItem | null;
+  /** 显示月份：驱动热力图层与统计图表，由时空动态时间轴控制。 */
   month: number | null;
+  /** 查询表单月份多选（空数组 = 全年），仅作用于观测点查询，不影响图层。 */
+  queryMonths: number[];
   gridSize: GridSize;
   basemap: BasemapKey;
   layerVisibility: LayerVisibility;
+  /** 在地图上以静态 WMS 叠加显示的已发布图层名（过滤条件已固化进图层）。 */
+  displayedLayers: string[];
   spatialMode: SpatialMode;
   bbox: Bbox | null;
   polygon: GeoJsonPolygon | null;
@@ -50,9 +55,12 @@ type QueryState = {
 type QueryActions = {
   setSelectedSpecies: (species: SpeciesItem | null) => void;
   setMonth: (month: number | null) => void;
+  toggleQueryMonth: (month: number) => void;
   setGridSize: (gridSize: GridSize) => void;
   setBasemap: (basemap: BasemapKey) => void;
   setLayerVisibility: (layer: keyof LayerVisibility, visible: boolean) => void;
+  togglePublishedLayer: (name: string) => void;
+  removePublishedLayer: (name: string) => void;
   setSpatialMode: (mode: SpatialMode) => void;
   setBbox: (bbox: Bbox | null) => void;
   setPolygon: (polygon: GeoJsonPolygon | null) => void;
@@ -64,11 +72,14 @@ type QueryActions = {
   setError: (error: string | null) => void;
   runCurrentQuery: () => Promise<void>;
   clearResults: () => void;
+  clearSpatialSelection: () => void;
 };
 
 type QueryStore = QueryState & QueryActions;
 
 const DEFAULT_RADIUS_KM = 50;
+// 未选定空间范围时的默认查询范围：全球。后端按面积自适应走 TABLESAMPLE 随机采样。
+const WORLD_BBOX: Bbox = [-180, -90, 180, 90];
 
 export type GridSize = 0.5 | 1;
 export type BasemapKey = "street" | "imagery" | "terrain";
@@ -113,11 +124,22 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     null
   );
   const [month, setMonth] = useState<number | null>(10);
+  const [queryMonths, setQueryMonths] = useState<number[]>([]);
   const [gridSize, setGridSize] = useState<GridSize>(1);
+
+  /** 切换查询表单中某个月份的选中状态（多选）。 */
+  const toggleQueryMonth = (target: number) => {
+    setQueryMonths((current) =>
+      current.includes(target)
+        ? current.filter((value) => value !== target)
+        : [...current, target].sort((a, b) => a - b)
+    );
+  };
   const [basemap, setBasemap] = useState<BasemapKey>("terrain");
   const [layerVisibility, setLayerVisibilityState] = useState<LayerVisibility>(
     DEFAULT_LAYER_VISIBILITY
   );
+  const [displayedLayers, setDisplayedLayers] = useState<string[]>([]);
   const [spatialMode, setSpatialMode] = useState<SpatialMode>("bbox");
   const [bbox, setBbox] = useState<Bbox | null>(null);
   const [polygon, setPolygon] = useState<GeoJsonPolygon | null>(null);
@@ -150,11 +172,33 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  /** 切换某个已发布图层在地图上的显隐。 */
+  const togglePublishedLayer = (name: string) => {
+    setDisplayedLayers((current) =>
+      current.includes(name)
+        ? current.filter((value) => value !== name)
+        : [...current, name]
+    );
+  };
+
+  /** 图层被删除后从显示列表移除（避免地图残留请求已不存在的图层）。 */
+  const removePublishedLayer = (name: string) => {
+    setDisplayedLayers((current) => current.filter((value) => value !== name));
+  };
+
   const clearResults = () => {
     setResults(null);
     setActiveQuery(null);
     setSelectedGbifId(null);
     setError(null);
+  };
+
+  /** 清空当前所有空间选区与查询结果，回到未选状态。 */
+  const clearSpatialSelection = () => {
+    setBbox(null);
+    setPolygon(null);
+    setBuffer(null);
+    clearResults();
   };
 
   const runCurrentQuery = async () => {
@@ -164,46 +208,49 @@ export function QueryProvider({ children }: { children: ReactNode }) {
 
     try {
       const speciesKey = selectedSpecies?.species_key;
+      // 空数组（全年）转为 undefined，避免发送空的 months 参数。
+      const months = queryMonths.length > 0 ? queryMonths : undefined;
       let nextResults: OccurrenceGeoJSON;
       let queriedBbox: Bbox;
 
-      if (spatialMode === "bbox") {
-        if (!bbox) {
-          throw new Error("请先在地图上选择矩形范围");
-        }
+      if (spatialMode === "bbox" && bbox) {
         queriedBbox = bbox;
         nextResults = await queryOccurrenceByBbox({
           bbox,
           speciesKey,
-          month: month ?? undefined
+          months
         });
-      } else if (spatialMode === "polygon") {
-        if (!polygon) {
-          throw new Error("请先在地图上绘制多边形");
-        }
+      } else if (spatialMode === "polygon" && polygon) {
         queriedBbox = polygonBbox(polygon);
         nextResults = await queryOccurrenceWithin({
           geometry: polygon,
           species_key: speciesKey,
-          month: month ?? undefined,
+          months,
           year: 2024,
-          limit: 2000
+          limit: 800
         });
-      } else {
-        if (!buffer) {
-          throw new Error("请先在地图上选择缓冲区中心点");
-        }
+      } else if (spatialMode === "buffer" && buffer) {
         queriedBbox = bufferBbox(buffer);
         nextResults = await queryOccurrenceBuffer({
           lat: buffer.lat,
           lng: buffer.lng,
           radiusKm: buffer.radiusKm,
           speciesKey,
-          month: month ?? undefined
+          months
+        });
+      } else {
+        // 未选定任何空间范围 → 默认全球范围查询。
+        queriedBbox = WORLD_BBOX;
+        nextResults = await queryOccurrenceByBbox({
+          bbox: WORLD_BBOX,
+          speciesKey,
+          months
         });
       }
 
       setResults(nextResults);
+      // 查询完成后自动隐藏全球热力图，避免与结果点位/联动网格叠加干扰。
+      setLayerVisibility("globalWms", false);
       // 快照本次查询的物种与空间范围，统一驱动图层与图表联动（月份仍实时）。
       setActiveQuery({
         speciesKey,
@@ -227,9 +274,11 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     () => ({
       selectedSpecies,
       month,
+      queryMonths,
       gridSize,
       basemap,
       layerVisibility,
+      displayedLayers,
       spatialMode,
       bbox,
       polygon,
@@ -242,9 +291,12 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       error,
       setSelectedSpecies,
       setMonth,
+      toggleQueryMonth,
       setGridSize,
       setBasemap,
       setLayerVisibility,
+      togglePublishedLayer,
+      removePublishedLayer,
       setSpatialMode,
       setBbox,
       setPolygon,
@@ -255,14 +307,17 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       setLoading,
       setError,
       runCurrentQuery,
-      clearResults
+      clearResults,
+      clearSpatialSelection
     }),
     [
       selectedSpecies,
       month,
+      queryMonths,
       gridSize,
       basemap,
       layerVisibility,
+      displayedLayers,
       spatialMode,
       bbox,
       polygon,

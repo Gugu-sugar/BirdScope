@@ -1,6 +1,6 @@
 # BirdScope 前端 API 联调说明
 
-> 最后更新：2026-06-17
+> 最后更新：2026-06-18
 > 后端完整接口见：`../backend-docs/api_reference.md`
 
 ## API 客户端
@@ -13,8 +13,8 @@ const API_BASE_URL =
 ```
 
 - `buildQuery(params)`：过滤 `undefined`、`null`、空字符串后构造 query string。
-- `requestJson<T>(path, options)`：统一 fetch、JSON 解析和错误抛出。
-- `ApiError`：携带 HTTP status，错误信息优先读取后端 `detail`。
+- `requestJson<T>(path, options)`：统一 fetch、JSON 解析和错误抛出。`options` 先展开、`headers` 后合并，确保自定义头（如 `X-API-Key`）不会覆盖掉默认 `Content-Type: application/json`（曾因展开顺序颠倒导致带头 POST 丢失 JSON content-type，被 FastAPI 判 422）。
+- `ApiError`：携带 HTTP status，错误信息优先读取后端 `detail`；`detail` 为 FastAPI 422 校验数组时，逐项拼为 `字段: 原因` 文本，不再丢成笼统的“请求失败：422”。
 
 ## 已封装接口
 
@@ -29,9 +29,17 @@ const API_BASE_URL =
 | `api/stats.ts` | `queryMonthlyTrend` | `GET /stats/monthly` | ✅ 月度趋势 |
 | `api/stats.ts` | `queryProvinceStats` | `GET /stats/province` | ✅ 区域统计 |
 | `api/geoserver.ts` | `listGeoServerLayers` | `GET /geoserver/layers` | ✅ 图层面板 |
-| `api/geoserver.ts` | `publishGeoServerLayer` | `POST /geoserver/layers` | ✅ 发布当前图层 |
+| `api/geoserver.ts` | `publishGeoServerLayer` | `POST /geoserver/layers` | ✅ 发布弹窗·预聚合模式 |
+| `api/geoserver.ts` | `publishSpeciesGridLayer` | `POST /geoserver/species-grid` | ✅ 发布弹窗·实时聚合模式 |
+| `api/geoserver.ts` | `deleteGeoServerLayer` | `DELETE /geoserver/layers/{name}` | ✅ 图层面板·删除按钮 |
 
 ## 查询参数约定
+
+> **月份语义拆分**：查询表单用 `queryStore.queryMonths`（`number[]`，多选，空数组 = 全年），仅作用于观测点查询；显示月份 `queryStore.month` 单独驱动热力图层与统计图表，由「时空动态」时间轴控制，两者互不影响。`queryMonths` 为空时不发送 `months` 参数（即全年）。
+
+> **未选范围默认全球**：`runCurrentQuery` 在当前模式无空间选区时，自动以全球 bbox `[-180,-90,180,90]` 走 `queryOccurrenceByBbox`（后端按面积自适应 `TABLESAMPLE` 随机采样，~0.5s）。
+
+> **查询后自动隐藏全球热力**：查询成功后置 `layerVisibility.globalWms = false`，避免全球 WMS 热力与结果点位/联动网格叠加；图层面板对应复选框同步取消，用户可手动重开。结果点位（封顶 800、已聚合）不再随相机高度隐藏，全球范围查询也能看到结果。
 
 ### 矩形查询
 
@@ -39,16 +47,16 @@ const API_BASE_URL =
 queryOccurrenceByBbox({
   bbox: [70, 20, 140, 55],
   speciesKey,
-  month,
+  months,            // number[]，空表示全年
   year: 2024,
-  limit: 2000
+  limit: 800
 });
 ```
 
-发送到后端：
+发送到后端（多选月份序列化为重复参数）：
 
 ```text
-GET /occurrence/points?bbox=70,20,140,55&species_key=...&month=...&year=2024&limit=2000
+GET /occurrence/points?bbox=70,20,140,55&species_key=...&months=9&months=10&year=2024&limit=800
 ```
 
 ### 多边形查询
@@ -60,9 +68,9 @@ queryOccurrenceWithin({
     coordinates: [[[116, 39], [117, 39], [117, 40], [116, 40], [116, 39]]]
   },
   species_key: speciesKey,
-  month,
+  months,            // number[]，空表示全年
   year: 2024,
-  limit: 2000
+  limit: 800
 });
 ```
 
@@ -74,18 +82,37 @@ queryOccurrenceBuffer({
   lng: 121.5,
   radiusKm: 50,
   speciesKey,
-  month,
+  months,            // number[]，空表示全年
   year: 2024,
   limit: 500
 });
 ```
 
-发送到后端时 `radiusKm` 转为 `radius_km`。
+发送到后端时 `radiusKm` 转为 `radius_km`；后端返回点已 `ORDER BY random()` 均匀抽样，覆盖整个选区。
+
+## 联动热力图粒度自适应
+
+查询后联动热力（`/stats/grid`）的网格粒度**不再由面板手选**，而是按 `activeQuery.bbox`
+外接框面积自动选档（`lib/adaptiveGrid.ts` 的 `adaptiveGridSize`）：范围越小粒度越细，
+小到一定程度只显示矢量点、不画网格。
+
+| 范围面积（平方度） | 粒度 | 数据路径 | 实测耗时 |
+|---|---|---|---|
+| > 4000（洲级/全球） | 1.0° | 预聚合 | ~440ms |
+| 300–4000（国家级） | 0.5° | 预聚合 | ~60ms |
+| 60–300（区域/省级） | 0.25° | 实时聚合 | ~140–200ms |
+| 6–60（市域） | 0.1° | 实时聚合 | ~80ms |
+| ≤ 6（本地/街道级） | — | 仅矢量点 | — |
+
+- 阈值结合实测标定：耗时主要由「范围×密度」决定，大范围走预聚合避免全表扫描，中小范围实时聚合已足够快且避开 `max_cells=10000` 截断。
+- 「当前地图上下文」卡片新增「热力粒度」行显示当前档位或「本地 · 仅点位」。
+- LayerPanel 的「全球 WMS 粒度」（1°/0.5°）只作用于远景预渲染的全球 WMS 层，与联动热力的自适应粒度互不相关。
+- 颜色断点（`gridCellColor`）仍按 1.0° 分布标定，细粒度下每格计数偏小、整体偏浅属预期。
 
 ## 图表与网格联动
 
 - `queryStore.activeQuery` 是执行查询时的快照：`{ speciesKey, speciesName, bbox }`。
-- `/stats/grid`：使用 `activeQuery.bbox`、`activeQuery.speciesKey`、实时 `month`、实时 `gridSize`。
+- `/stats/grid`：使用 `activeQuery.bbox`、`activeQuery.speciesKey`、实时 `month`，**粒度按查询范围自适应**（见下）。
 - `/stats/monthly`：使用 `species_key` + `bbox`，用于跨月趋势，月份本身不作为过滤。
 - `/stats/province`：使用 `species_key` + `month` + `bbox`。
 - `/species/rank`：使用 `month` + `bbox`；排行是跨物种 top-N，不传单物种过滤。
@@ -95,18 +122,39 @@ queryOccurrenceBuffer({
 ```ts
 listGeoServerLayers();
 
+// 模式一：预聚合 · 全物种（现成表 + CQL_FILTER，快）
 publishGeoServerLayer({
   layer_name: "grid_m10_g1_202606171700",
   table_name: "occurrence_grid_monthly",
   style_name: "grid_heatmap",
   cql_filter: "grid_size=1 AND year=2024 AND month=10"
 });
+
+// 模式二：实时聚合 · 当前物种（SQL View 虚拟表，需已选物种）
+publishSpeciesGridLayer({
+  layer_name: "grid_sp2486131_m10_g1_202606171700",
+  species_key: 2486131,
+  grid_size: 1,
+  month: 10,         // 省略/undefined = 全年
+  year: 2024,
+  style_name: "grid_heatmap"
+});
 ```
 
 - `GET /geoserver/layers` 无需 API key，用于侧边栏“已发布图层”列表。
-- `POST /geoserver/layers` 如后端配置了 `GEOSERVER_API_KEY`，前端需通过 `VITE_GEOSERVER_API_KEY` 或发布弹窗输入 `X-API-Key`。
-- 当前发布语义固定为现成表 `occurrence_grid_monthly` + `grid_size/year/month` 的 `CQL_FILTER`；该表不含物种维度。
+- 两个 POST 接口如后端配置了 `GEOSERVER_API_KEY`，前端需通过 `VITE_GEOSERVER_API_KEY` 或发布弹窗输入 `X-API-Key`。
+- **发布弹窗（`PublishLayerDialog`）双模式**：
+  - 「预聚合 · 全物种」→ `publishGeoServerLayer`，按 `occurrence_grid_monthly` + `grid_size/year/month` 的 `CQL_FILTER`；该表不含物种维度。
+  - 「实时聚合 · 当前物种」→ `publishSpeciesGridLayer`，从 `occurrence_clean` 按所选物种聚合；**仅当查询面板已选物种时可用**，打开弹窗若已选物种则默认此模式。
+  - 两种模式都复用 `grid_heatmap` 样式；图层名按模式自动生成（实时聚合带 `sp{species_key}` 前缀）。
 - WMS 地址可通过 `VITE_GEOSERVER_WMS_URL` 覆盖，默认 `http://localhost:8080/geoserver/birdscope/wms`。
+- **物种图层 WMS 无需再加 `CQL_FILTER`**（物种/月份/粒度已固化进虚拟表 SQL）。
+
+### 已发布图层的显示与删除（图层面板）
+
+- **显示/隐藏**：列表每个非默认图层有 👁 开关，切换 `queryStore.displayedLayers`（图层名数组）。`MapPanel` 监听该数组，按名增删静态 WMS 叠加层（`layers=birdscope:{name}`，**不带 CQL_FILTER**，过滤已固化进图层）。叠加层置于天地图注记之下。
+- **删除**：🗑 按钮 → `window.confirm` 二次确认 → `deleteGeoServerLayer(name)`（`X-API-Key` 取 `VITE_GEOSERVER_API_KEY`）→ 成功后 `removePublishedLayer(name)` 清掉地图叠加 + 重新拉列表。
+- **默认层保护**：`occurrence_grid_monthly` 在列表中标「默认」🔒，不可删除，也不提供静态叠加开关——它由「显示图层」区的「全球 WMS」开关 + 动态 `CQL_FILTER`（`grid_size/year/month`）控制；静态叠加不带 CQL 会令各月份/粒度重影。常量 `PROTECTED_LAYER` 定义在 `LayerPanel.tsx`。
 
 ## WMS
 

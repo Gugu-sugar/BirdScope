@@ -1,5 +1,5 @@
 import { Pause, Play, RefreshCcw } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 const MONTHS = [8, 9, 10, 11];
 
@@ -11,11 +11,6 @@ type TimeSliderProps = {
 
 export function TimeSlider({ month, setMonth, onPlayChange }: TimeSliderProps) {
   const [playing, setPlaying] = useState(false);
-
-  const currentIndex = useMemo(
-    () => (month === null ? 0 : MONTHS.indexOf(month)),
-    [month]
-  );
 
   useEffect(() => {
     if (!playing) {
@@ -67,30 +62,30 @@ export function TimeSlider({ month, setMonth, onPlayChange }: TimeSliderProps) {
         </div>
       </div>
 
-      <div className="mt-3 space-y-2">
-        <div className="h-2 rounded-full bg-slate-200">
-          <div
-            className="h-2 rounded-full bg-emerald-500 transition-all"
-            style={{ width: `${((currentIndex + 1) / MONTHS.length) * 100}%` }}
-          />
-        </div>
-        <div className="grid grid-cols-4 gap-1.5 text-center text-[11px] text-slate-600">
+      <div className="mt-4 space-y-2">
+        <input
+          aria-label="选择显示月份"
+          className="w-full cursor-pointer accent-emerald-600"
+          type="range"
+          min={MONTHS[0]}
+          max={MONTHS[MONTHS.length - 1]}
+          step={1}
+          value={month ?? MONTHS[0]}
+          onChange={(event) => {
+            setMonth(Number(event.target.value));
+            setPlaying(false);
+          }}
+        />
+        <div className="flex justify-between px-0.5 text-[11px] font-medium text-slate-500">
           {MONTHS.map((option) => (
-            <button
+            <span
               key={option}
-              className={`rounded-md py-1.5 transition ${
-                month === option
-                  ? "bg-emerald-100 text-emerald-900"
-                  : "bg-slate-50 hover:bg-slate-100"
-              }`}
-              type="button"
-              onClick={() => {
-                setMonth(option);
-                setPlaying(false);
-              }}
+              className={
+                month === option ? "text-emerald-700" : undefined
+              }
             >
               {option} 月
-            </button>
+            </span>
           ))}
         </div>
       </div>

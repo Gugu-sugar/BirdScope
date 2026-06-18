@@ -1,6 +1,6 @@
 # BirdScope 数据快照与本地恢复
 
-> 最后更新：2026-06-15
+> 最后更新：2026-06-16
 
 `deploy/` 当前保存数据库快照、恢复脚本和可选 Docker 配置。项目默认按**本地原生方式**运行，不要求使用 Docker。
 
@@ -10,11 +10,11 @@
 deploy/dump/birdscope.dump
 ```
 
-- 大小：约 307 MB
+- 大小：约 327 MB
 - 格式：PostgreSQL custom dump
 - 导出版本：PostgreSQL 18.4
 - 数据库：`birdscope`
-- 主要数据量：`occurrence_clean` 3,997,847 条、`species_lookup` 9,807 条、两档网格共约 90,061 条
+- 主要数据量：`occurrence_clean` 3,997,847 条、`species_lookup` 9,807 条、两档网格共约 90,061 条、`occurrence_stats_monthly` 预聚合表 775,726 条（图表预聚合，2026-06-16 新增）
 
 ## 本地前置环境
 
@@ -48,6 +48,7 @@ pg_restore -h localhost -U postgres -d birdscope `
 psql -h localhost -U postgres -d birdscope -c "SELECT count(*) FROM occurrence_clean;"
 psql -h localhost -U postgres -d birdscope -c "SELECT count(*) FROM species_lookup;"
 psql -h localhost -U postgres -d birdscope -c "SELECT grid_size, count(*) FROM occurrence_grid_monthly GROUP BY grid_size ORDER BY grid_size;"
+psql -h localhost -U postgres -d birdscope -c "SELECT count(*) FROM occurrence_stats_monthly;"
 ```
 
 ## 重新恢复

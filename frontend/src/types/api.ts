@@ -77,7 +77,7 @@ export type ProvinceStatItem = {
 export type WithinQueryBody = {
   geometry: GeoJsonPolygon;
   species_key?: number;
-  month?: number;
+  months?: number[];
   year?: number;
   limit?: number;
 };

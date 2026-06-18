@@ -35,32 +35,10 @@ export function InsightPanel({
 }: InsightPanelProps) {
   const [activeView, setActiveView] = useState<InsightView>("rank");
   const speciesKey = activeQuery?.speciesKey;
-  const speciesName = activeQuery?.speciesName;
   const bbox = activeQuery?.bbox;
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[#fbfdf8]">
-      <div className="panel-header shrink-0 py-3">
-        <p className="section-kicker">Analysis Deck</p>
-        <div className="mt-1 flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="text-lg font-semibold tracking-tight text-slate-950">
-              时空统计
-            </h2>
-            <p className="mt-1 truncate text-xs text-slate-500">
-              {!activeQuery
-                ? "执行查询后按范围联动"
-                : speciesName
-                  ? `当前物种：${speciesName} · 已限定范围`
-                  : "全部物种 · 已限定范围"}
-            </p>
-          </div>
-          <span className="rounded-md border border-emerald-900/10 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">
-            记录数
-          </span>
-        </div>
-      </div>
-
       <div className="shrink-0 border-b border-emerald-950/10 p-3">
         <TimeSlider month={month} setMonth={setMonth} />
       </div>

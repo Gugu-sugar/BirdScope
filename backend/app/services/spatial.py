@@ -9,13 +9,21 @@ def _build_filters(
     species_key: int | None,
     month: int | None,
     year: int | None,
+    months: list[int] | None = None,
 ) -> tuple[str, dict]:
-    """返回 WHERE 子句片段（不含 WHERE 关键字）和参数字典。"""
+    """返回 WHERE 子句片段（不含 WHERE 关键字）和参数字典。
+
+    months（多选月份）优先于单个 month：非空列表时生成 month = ANY(:months)，
+    便于查询表单一次筛多个月；两者皆空表示全年（不加月份过滤）。
+    """
     clauses, params = [], {}
     if species_key is not None:
         clauses.append("species_key = :species_key")
         params["species_key"] = species_key
-    if month is not None:
+    if months:
+        clauses.append("month = ANY(:months)")
+        params["months"] = months
+    elif month is not None:
         clauses.append("month = :month")
         params["month"] = month
     if year is not None:
@@ -50,6 +58,49 @@ def _bbox_params(bbox: Bbox) -> dict:
 # 走 GIST 索引的 bbox 过滤片段（聚合统计用外接框即可，无需精确 ST_Within）。
 _BBOX_FILTER = "geom && ST_MakeEnvelope(:minx, :miny, :maxx, :maxy, 4326)"
 
+# 点查询随机采样的自适应阈值：选区外接框面积（平方度）超过此值时，
+# 改用 TABLESAMPLE 物理页抽样，避免大范围 ORDER BY random() 扫描全部候选行。
+# 小范围（本地视角）候选少，仍用精确 ORDER BY random()，又快又均匀。
+POINTS_TABLESAMPLE_AREA_DEG2 = 50.0
+# 抽样比例（百分比）：约扫描全表 N% 的页，对大范围足够铺满且耗时有上限。
+POINTS_TABLESAMPLE_PERCENT = 3.0
+
+
+def _points_from_clause(bbox_area_deg2: float) -> str:
+    """根据选区面积选择 FROM 子句：大范围加 TABLESAMPLE 物理抽样。
+
+    TABLESAMPLE SYSTEM(p) 在空间过滤前按页抽样，扫描量与表大小成比例而非与
+    命中行数成比例，故大范围下随机取点从秒级降到毫秒级；代价是不再精确逐行，
+    极稀疏区域可能偏少（点查询本就面向本地视角，可接受）。
+    """
+    if bbox_area_deg2 > POINTS_TABLESAMPLE_AREA_DEG2:
+        return f"occurrence_clean TABLESAMPLE SYSTEM ({POINTS_TABLESAMPLE_PERCENT})"
+    return "occurrence_clean"
+
+
+def _geojson_bbox_area_deg2(geom: dict) -> float:
+    """估算 GeoJSON 几何外接框面积（平方度），用于点查询采样阈值判定。"""
+    xs: list[float] = []
+    ys: list[float] = []
+
+    def walk(node: Any) -> None:
+        if (
+            isinstance(node, (list, tuple))
+            and len(node) >= 2
+            and isinstance(node[0], (int, float))
+            and isinstance(node[1], (int, float))
+        ):
+            xs.append(float(node[0]))
+            ys.append(float(node[1]))
+        elif isinstance(node, (list, tuple)):
+            for child in node:
+                walk(child)
+
+    walk(geom.get("coordinates", []))
+    if not xs:
+        return 0.0
+    return abs((max(xs) - min(xs)) * (max(ys) - min(ys)))
+
 
 def _apply_statement_timeout(db: Session) -> None:
     # SET LOCAL 仅在当前事务内生效，随提交/回滚自动失效。
@@ -81,16 +132,21 @@ def query_bbox(
     month: int | None = None,
     year: int | None = None,
     limit: int = 2000,
+    months: list[int] | None = None,
 ) -> list[dict]:
-    where, params = _build_filters(species_key, month, year)
+    where, params = _build_filters(species_key, month, year, months)
     params.update({"minx": minx, "miny": miny, "maxx": maxx, "maxy": maxy, "limit": limit})
+    # ORDER BY random()：在选区内均匀抽样，避免命中前 N 行集中在数据先入库的一角。
+    # 大范围选区改走 TABLESAMPLE（见 _points_from_clause），把秒级降到毫秒级。
+    from_clause = _points_from_clause(abs((maxx - minx) * (maxy - miny)))
     sql = text(f"""
         SELECT gbif_id, species, scientific_name, individual_count,
                event_date, locality, country_code, state_province,
                ST_AsGeoJSON(geom) AS geom_json
-        FROM occurrence_clean
+        FROM {from_clause}
         WHERE ST_Within(geom, ST_MakeEnvelope(:minx, :miny, :maxx, :maxy, 4326))
           AND {where}
+        ORDER BY random()
         LIMIT :limit
     """)
     rows = db.execute(sql, params).fetchall()
@@ -104,16 +160,19 @@ def query_within(
     month: int | None = None,
     year: int | None = None,
     limit: int = 2000,
+    months: list[int] | None = None,
 ) -> list[dict]:
-    where, params = _build_filters(species_key, month, year)
+    where, params = _build_filters(species_key, month, year, months)
     params.update({"geom_wkt": json.dumps(geojson_geometry), "limit": limit})
+    from_clause = _points_from_clause(_geojson_bbox_area_deg2(geojson_geometry))
     sql = text(f"""
         SELECT gbif_id, species, scientific_name, individual_count,
                event_date, locality, country_code, state_province,
                ST_AsGeoJSON(geom) AS geom_json
-        FROM occurrence_clean
+        FROM {from_clause}
         WHERE ST_Within(geom, ST_GeomFromGeoJSON(:geom_wkt))
           AND {where}
+        ORDER BY random()
         LIMIT :limit
     """)
     rows = db.execute(sql, params).fetchall()
@@ -127,8 +186,9 @@ def query_buffer(
     month: int | None = None,
     year: int | None = None,
     limit: int = 500,
+    months: list[int] | None = None,
 ) -> list[dict]:
-    where, params = _build_filters(species_key, month, year)
+    where, params = _build_filters(species_key, month, year, months)
     params.update({"lng": lng, "lat": lat, "radius_m": radius_km * 1000, "limit": limit})
     sql = text(f"""
         SELECT gbif_id, species, scientific_name, individual_count,
@@ -140,6 +200,7 @@ def query_buffer(
             ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography,
             :radius_m
         ) AND {where}
+        ORDER BY random()
         LIMIT :limit
     """)
     rows = db.execute(sql, params).fetchall()

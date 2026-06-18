@@ -4,7 +4,7 @@ import type { Bbox } from "../types/geo";
 
 type CommonOccurrenceParams = {
   speciesKey?: number;
-  month?: number;
+  months?: number[];
   year?: number;
   limit?: number;
 };
@@ -22,15 +22,15 @@ export type BufferQueryParams = CommonOccurrenceParams & {
 export function queryOccurrenceByBbox({
   bbox,
   speciesKey,
-  month,
+  months,
   year = 2024,
-  limit = 2000
+  limit = 800
 }: BboxQueryParams) {
   return requestJson<OccurrenceGeoJSON>(
     `/occurrence/points${buildQuery({
       bbox: bbox.join(","),
       species_key: speciesKey,
-      month,
+      months,
       year,
       limit
     })}`
@@ -49,7 +49,7 @@ export function queryOccurrenceBuffer({
   lng,
   radiusKm,
   speciesKey,
-  month,
+  months,
   year = 2024,
   limit = 500
 }: BufferQueryParams) {
@@ -59,7 +59,7 @@ export function queryOccurrenceBuffer({
       lng,
       radius_km: radiusKm,
       species_key: speciesKey,
-      month,
+      months,
       year,
       limit
     })}`

@@ -1,6 +1,6 @@
 # BirdScope 后端开发进展
 
-> 最后更新：2026-06-15
+> 最后更新：2026-06-18
 > 面向：全组同学 + AI Agent
 
 ---
@@ -52,6 +52,7 @@
 | 统计 | `GET /api/v1/stats/migration` | ✅ |
 | GeoServer | `GET /api/v1/geoserver/layers` | ✅ |
 | GeoServer | `POST /api/v1/geoserver/layers` | ✅ |
+| GeoServer | `POST /api/v1/geoserver/species-grid` | ✅ 物种实时聚合发布（2026-06-17）|
 | GeoServer | `DELETE /api/v1/geoserver/layers/{name}` | ✅ |
 | GeoServer | `PUT /api/v1/geoserver/layers/{name}/style` | ✅ |
 
@@ -125,6 +126,20 @@
 - ✅ **管控接口加 API Key 鉴权**（消除高风险技术债）：POST/DELETE/PUT 需 `X-API-Key`，GET 开放；TestClient 验证 401/通过路径符合预期
 - 注：发布 featuretype 时 payload 的 defaultStyle 会被 GeoServer 忽略（defaultStyle 属 Layer 非 FeatureType），脚本已显式补一次 `set_layer_style`
 - 运维注意：本机 GeoServer 是 **Windows 服务**（名 `GeoServer`，2.28.1），曾出现长时间运行后假死（端口在但 HTTP 不响应、日志停更、CLOSE_WAIT 堆积），重启服务即恢复
+
+### ✅ 增量（2026-06-17）：按物种实时聚合发布图层（POST /geoserver/species-grid）
+
+- ✅ 补齐预聚合表不含物种维度的缺口：用 GeoServer SQL View 虚拟表从 `occurrence_clean` 按 `species_key(+month)+year` 实时聚合，`floor`→`ST_MakeEnvelope` 还原多边形格 + `COUNT(*)`，输出与预聚合表同构，复用 `grid_heatmap` 样式（无需新样式）
+- ✅ 数值参数白名单校验（grid_size∈{1,0.5,0.25,0.1}、month 1–12、species_key 正整数），f-string 插值无注入面；虚拟表显式声明 bbox（SQL View 无法自动推算范围）
+- ✅ 实测对齐：`species_key=2486131` 10 月 1.0°，WFS 计数与 `/stats/grid` 同源逐项一致（348 格 / 合计 2739）；全年路径合计 10515 = 该种总记录数；WMS GetMap 渲染正确（印度次大陆，符合该种分布）
+- 详见审批 [human_review.md](human_review.md) [006]
+
+### ✅ 观测点多选月份 + 均匀采样（2026-06-17）
+
+- `/occurrence/{points,within,buffer}` 三接口新增 `months: list[int] | None`（重复传参 `months=8&months=9`），非空时优先于单 `month`，缺省/空表示全年；单 `month` 保留向后兼容。`_build_filters` 用 `month = ANY(:months)`。
+- 三接口 SQL 在 `LIMIT` 前加 `ORDER BY random()`，返回点在选区内均匀抽样，修复"点集中在框内一角"。
+- **大范围自适应采样**（修大框慢）：`query_bbox`/`query_within` 按选区外接框面积分流——≤50 平方度走精确 `ORDER BY random()`；超过则 `FROM occurrence_clean TABLESAMPLE SYSTEM (3)` 物理页抽样后随机取 N。实测大框 15°×20° 从 3.6s → ~0.55s、全球 bbox ~0.56s（800 点铺满全球），本地框 ~0.06s。`buffer` 半径上限 500km 保持精确。
+- 配合前端：查询表单月份与显示图层月份语义拆分（前端 `queryMonths` vs `month`），bbox/polygon 默认 limit 降到 800；前端未选范围时默认传全球 bbox（`-180,-90,180,90`）查询。契约见 [api_reference.md](api_reference.md)。
 
 ### 优先级 🟢（第四 / 五阶段）
 

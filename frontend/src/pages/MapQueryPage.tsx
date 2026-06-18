@@ -9,12 +9,14 @@ import {
   type LucideIcon
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import logoUrl from "../assets/logo.png";
 import { InsightPanel } from "../components/charts/InsightPanel";
 import { LayerPanel } from "../components/layers/LayerPanel";
 import { PublishLayerDialog } from "../components/layers/PublishLayerDialog";
 import { MapPanel } from "../components/map/MapPanel";
 import { QueryPanel } from "../components/query/QueryPanel";
 import { ResultList } from "../components/query/ResultList";
+import { describeLinkedGrid } from "../lib/adaptiveGrid";
 import { useQueryStore, type ActiveQuery } from "../store/queryStore";
 import type { OccurrenceFeature } from "../types/api";
 import type { Bbox, BufferSelection, GeoJsonPolygon, LngLat, SpatialMode } from "../types/geo";
@@ -57,6 +59,7 @@ export function MapQueryPage() {
     buffer,
     polygon,
     month,
+    queryMonths,
     activeQuery,
     results,
     selectedGbifId,
@@ -70,6 +73,8 @@ export function MapQueryPage() {
     spatialMode
   } = useQueryStore();
   const [activePanel, setActivePanel] = useState<WorkspacePanel | null>("query");
+  // 收缩动画期间保留最后一个面板的内容，避免空盒子塌陷；只在打开时更新。
+  const [displayedPanel, setDisplayedPanel] = useState<WorkspacePanel>("query");
   const [publishOpen, setPublishOpen] = useState(false);
   const [layerRefreshToken, setLayerRefreshToken] = useState(0);
 
@@ -78,6 +83,12 @@ export function MapQueryPage() {
       setActivePanel("results");
     }
   }, [error, loading, results]);
+
+  useEffect(() => {
+    if (activePanel) {
+      setDisplayedPanel(activePanel);
+    }
+  }, [activePanel]);
 
   const handleBboxSelected = (nextBbox: Bbox) => {
     setSpatialMode("bbox");
@@ -100,7 +111,7 @@ export function MapQueryPage() {
     setPolygon(null);
   };
 
-  const panelMeta = activePanel ? PANEL_META[activePanel] : null;
+  const panelMeta = PANEL_META[displayedPanel];
   const selectedFeature =
     selectedGbifId === null
       ? null
@@ -122,9 +133,11 @@ export function MapQueryPage() {
       <header className="relative z-30 shrink-0 border-b border-emerald-950/10 bg-[#f8fbf6]/92 px-4 py-2 shadow-[0_1px_0_rgba(15,23,42,0.04)] backdrop-blur md:px-6">
         <div className="mx-auto flex w-full max-w-[1920px] items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-emerald-900/15 bg-[#102f2b] text-sm font-semibold text-lime-200 shadow-sm">
-              BS
-            </div>
+            <img
+              src={logoUrl}
+              alt="BirdScope"
+              className="mt-1 h-10 w-10 shrink-0 self-start object-contain"
+            />
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase text-emerald-700">
                 BirdScope Migration Observatory
@@ -147,10 +160,10 @@ export function MapQueryPage() {
         </div>
       </header>
 
-      <section className="mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 gap-3 p-3">
+      <section className="mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 p-3">
         <nav
           aria-label="工作台面板"
-          className="z-20 flex w-[68px] shrink-0 flex-col items-center gap-2 rounded-md border border-emerald-950/10 bg-[#f8fbf6]/90 p-2 shadow-xl shadow-slate-950/10 backdrop-blur"
+          className="z-30 flex w-[68px] shrink-0 flex-col items-center gap-2 rounded-md border border-emerald-950/10 bg-[#f8fbf6]/90 p-2 shadow-xl shadow-slate-950/10 backdrop-blur"
         >
           {railItems.map(({ id, label, Icon, badge }) => (
             <RailButton
@@ -164,16 +177,24 @@ export function MapQueryPage() {
           ))}
         </nav>
 
-        {activePanel ? (
-          <aside className="z-20 flex w-[360px] shrink-0 flex-col overflow-hidden rounded-md border border-emerald-950/10 bg-[#fbfdf8] shadow-2xl shadow-slate-950/12">
+        <aside
+          aria-hidden={!activePanel}
+          className={`z-20 flex shrink-0 flex-col overflow-hidden rounded-md bg-[#fbfdf8] shadow-2xl shadow-slate-950/12 transition-[width,opacity,margin] duration-200 ease-out ${
+            activePanel
+              ? "ml-3 w-[360px] border border-emerald-950/10 opacity-100"
+              : "pointer-events-none ml-0 w-0 border-0 opacity-0"
+          }`}
+        >
+          {/* 固定宽度内层：aside 宽度动画时只裁剪不重排，保证收缩平滑 */}
+          <div className="flex h-full w-[360px] flex-col">
             <div className="flex shrink-0 items-start justify-between gap-3 border-b border-emerald-950/10 bg-white/70 p-3">
               <div className="min-w-0">
-                <p className="section-kicker">{panelMeta?.kicker}</p>
+                <p className="section-kicker">{panelMeta.kicker}</p>
                 <h2 className="mt-1 text-lg font-semibold tracking-tight text-slate-950">
-                  {panelMeta?.title}
+                  {panelMeta.title}
                 </h2>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
-                  {panelMeta?.description}
+                  {panelMeta.description}
                 </p>
               </div>
               <button
@@ -186,23 +207,23 @@ export function MapQueryPage() {
               </button>
             </div>
             <div className="min-h-0 flex-1">
-              {activePanel === "query" ? <QueryPanel /> : null}
-              {activePanel === "results" ? <ResultList /> : null}
-              {activePanel === "charts" ? (
+              {displayedPanel === "query" ? <QueryPanel /> : null}
+              {displayedPanel === "results" ? <ResultList /> : null}
+              {displayedPanel === "charts" ? (
                 <InsightPanel
                   activeQuery={activeQuery}
                   month={month}
                   setMonth={setMonth}
                 />
               ) : null}
-              {activePanel === "layers" ? (
+              {displayedPanel === "layers" ? (
                 <LayerPanel refreshToken={layerRefreshToken} />
               ) : null}
             </div>
-          </aside>
-        ) : null}
+          </div>
+        </aside>
 
-        <section className="relative min-w-0 flex-1 overflow-hidden rounded-md border border-emerald-950/10 bg-[#071c1b] shadow-2xl shadow-slate-950/15">
+        <section className="relative ml-3 min-w-0 flex-1 overflow-hidden rounded-md border border-emerald-950/10 bg-[#071c1b] shadow-2xl shadow-slate-950/15">
           <MapPanel
             activeQuery={activeQuery}
             bbox={bbox}
@@ -217,7 +238,7 @@ export function MapQueryPage() {
             activeQuery={activeQuery}
             bbox={bbox}
             buffer={buffer}
-            month={month}
+            queryMonths={queryMonths}
             polygon={polygon}
             resultsTotal={results?.total}
             selectedFeature={selectedFeature}
@@ -263,7 +284,7 @@ function RailButton({ active, badge, icon: Icon, label, onClick }: RailButtonPro
           {badge > 999 ? "999+" : badge}
         </span>
       ) : null}
-      <span className="pointer-events-none absolute left-[calc(100%+0.5rem)] hidden whitespace-nowrap rounded bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-lg group-hover:block">
+      <span className="pointer-events-none absolute left-[calc(100%+0.5rem)] z-50 hidden whitespace-nowrap rounded bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-lg group-hover:block">
         {label}
       </span>
     </button>
@@ -274,7 +295,7 @@ function FloatingInfoCard({
   activeQuery,
   bbox,
   buffer,
-  month,
+  queryMonths,
   polygon,
   resultsTotal,
   selectedFeature,
@@ -283,7 +304,7 @@ function FloatingInfoCard({
   activeQuery: ActiveQuery | null;
   bbox: Bbox | null;
   buffer: BufferSelection | null;
-  month: number | null;
+  queryMonths: number[];
   polygon: GeoJsonPolygon | null;
   resultsTotal?: number;
   selectedFeature: OccurrenceFeature | null;
@@ -292,6 +313,9 @@ function FloatingInfoCard({
   const rangeText = activeQuery
     ? formatBbox(activeQuery.bbox)
     : describeCurrentSelection(spatialMode, bbox, polygon, buffer);
+  // 迁徙月份未选 = 全年；多选时列出月份。
+  const monthsText =
+    queryMonths.length === 0 ? "全年" : `${queryMonths.join("、")} 月`;
 
   return (
     <aside className="map-glass-card pointer-events-auto absolute right-4 top-4 z-20 w-[310px] rounded-md p-4 text-sm text-slate-200">
@@ -310,7 +334,7 @@ function FloatingInfoCard({
       </div>
 
       <dl className="mt-4 grid gap-2 text-xs">
-        <InfoRow label="月份" value={month ? `${month} 月` : "未选择"} />
+        <InfoRow label="迁徙月份" value={monthsText} />
         <InfoRow
           label="记录"
           value={resultsTotal === undefined ? "等待查询" : `${resultsTotal} 条`}
@@ -318,6 +342,12 @@ function FloatingInfoCard({
         <InfoRow
           label="物种"
           value={activeQuery?.speciesName ?? "全部物种"}
+        />
+        <InfoRow
+          label="热力粒度"
+          value={
+            activeQuery ? describeLinkedGrid(activeQuery.bbox) : "等待查询"
+          }
         />
         <InfoRow
           label="选中"

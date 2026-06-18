@@ -2,7 +2,7 @@
 
 > 来源整合：AGENT.md API 章节、BirdScope_后端进展说明.md  
 > 基础前缀：`/api/v1` | 所有坐标 WGS-84（EPSG:4326）| 所有响应 JSON  
-> 最后更新：2026-06-15
+> 最后更新：2026-06-18
 
 ---
 
@@ -76,11 +76,14 @@
 **参数**：
 - `bbox: str` — `"minx,miny,maxx,maxy"`，如 `"70,20,140,55"`
 - `species_key: int | None`
-- `month: int | None`
+- `month: int | None` — 单月份（向后兼容）
+- `months: list[int] | None` — 多选月份，重复传参 `months=8&months=9`；非空时优先于 `month`，缺省/空表示全年
 - `year: int = 2024`
 - `limit: int = 2000`（硬上限 5000，禁止超越）
 
-**示例**：`GET /api/v1/occurrence/points?bbox=70,20,140,55&month=10`
+> 返回点在选区内随机均匀抽样，避免命中前 N 行集中在数据先入库的一角。按选区外接框面积**自适应**：≤50 平方度（本地视角）走精确 `ORDER BY random()`（候选少、快）；超过则改 `TABLESAMPLE SYSTEM(3)` 物理页抽样后随机取 N（大范围从秒级降到约 0.5s，分布仍铺满选区，代价是不再精确逐行）。`/within` 同此策略（按几何外接框面积判定）；`/buffer` 半径上限 500km 始终本地，保持精确。
+
+**示例**：`GET /api/v1/occurrence/points?bbox=70,20,140,55&months=9&months=10`
 
 **响应** GeoJSON FeatureCollection（Cesium 可直接加载）：
 ```json
@@ -118,11 +121,13 @@
     "coordinates": [[[116.0, 39.0], [117.0, 39.0], [117.0, 40.0], [116.0, 40.0], [116.0, 39.0]]]
   },
   "species_key": 5228134,
-  "month": 10,
+  "months": [9, 10],
   "year": 2024,
-  "limit": 2000
+  "limit": 800
 }
 ```
+
+> 请求体 `months: list[int] | None` 多选月份，非空时优先于 `month`，缺省表示全年；结果同样 `ORDER BY random()` 均匀抽样。
 
 **响应**：GeoJSON FeatureCollection（同 /points 格式）
 
@@ -136,7 +141,8 @@ PostGIS 查询：`ST_Within(geom, ST_SetSRID(ST_GeomFromGeoJSON(:geojson), 4326)
 - `lat: float`, `lng: float` — 中心点
 - `radius_km: float` — 搜索半径（公里）
 - `species_key: int | None`
-- `month: int | None`
+- `month: int | None` — 单月份（向后兼容）
+- `months: list[int] | None` — 多选月份，重复传参 `months=8&months=9`；非空时优先于 `month`，缺省表示全年
 - `limit: int = 500`
 
 **示例**：`GET /api/v1/occurrence/buffer?lat=31.2&lng=121.5&radius_km=50`
@@ -288,6 +294,52 @@ PostGIS 查询：`ST_DWithin(geom::geography, ST_MakePoint(:lng, :lat)::geograph
 ```
 
 需请求头 `X-API-Key`（见本节开头鉴权说明）。
+
+---
+
+### POST /species-grid — 按物种实时聚合发布热力图层
+
+预聚合表 `occurrence_grid_monthly` 不含物种维度。本接口用 GeoServer SQL View（虚拟表）
+从明细表 `occurrence_clean` 按 `species_key (+ month) + year` 实时聚合：按 `grid_size`
+将观测点 `floor` 到网格、`ST_MakeEnvelope` 还原为多边形格子、`COUNT(*)` 作为
+`record_count`。输出几何与属性（`Polygon` + `record_count`）与预聚合表同构，**直接复用
+`grid_heatmap` 样式**，无需新样式。
+
+**请求体**：
+```json
+{
+  "layer_name": "grid_sp2486131_m10_g1",
+  "species_key": 2486131,
+  "grid_size": 1.0,
+  "month": 10,
+  "year": 2024,
+  "style_name": "grid_heatmap"
+}
+```
+
+- `layer_name: str` — 必须是简单标识符（字母开头，字母/数字/下划线）
+- `species_key: int` — **必填**，正整数
+- `grid_size: float = 1.0` — 仅允许 `{1.0, 0.5, 0.25, 0.1}`
+- `month: int | None` — 1–12；缺省表示全年（不加月份过滤）
+- `year: int = 2024`
+- `style_name: str | None = "grid_heatmap"`
+
+需请求头 `X-API-Key`。`grid_size` 非法或 `species_key` 非正整数返回 `422`。
+
+**响应**：
+```json
+{ "status": "created", "layer": "grid_sp2486131_m10_g1",
+  "species_key": 2486131, "grid_size": 1.0, "month": 10, "year": 2024 }
+```
+
+> 发布后用 WMS GetMap 渲染（与预聚合层同样式），无需再加 `CQL_FILTER`（过滤已固化进虚拟表 SQL）：
+> ```
+> .../birdscope/wms?service=WMS&version=1.1.0&request=GetMap
+>   &layers=birdscope:grid_sp2486131_m10_g1&styles=
+>   &bbox=-180,-90,180,90&width=1024&height=512&srs=EPSG:4326
+>   &format=image/png&transparent=true
+> ```
+> 实测：与 `GET /stats/grid?...&species_key=2486131` 同源对齐（348 格、record_count 合计 2739，逐项一致）。代价是渲染时实时聚合，首次稍慢；`species_key` 已建索引，局部范围可接受。
 
 ---
 

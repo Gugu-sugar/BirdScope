@@ -40,6 +40,33 @@
 
 ## 历史记录
 
+### [006] 新增按物种实时聚合发布 GeoServer 图层（POST /geoserver/species-grid）
+
+- **提出时间**：2026-06-17
+- **提出方**：AI Agent（开发者直接要求"完成图层发布、按物种"并指定方案 B）
+- **类型**：API 变更（纯新增端点）/ GeoServer 图层发布
+- **描述**：预聚合表 `occurrence_grid_monthly` 不含物种维度，原发布弹窗选了物种也只能发全物种热力。新增 `POST /geoserver/species-grid`：用 GeoServer SQL View 虚拟表从 `occurrence_clean` 按 `species_key (+month) + year` 实时聚合，按 `grid_size` `floor`→`ST_MakeEnvelope` 还原多边形格 + `COUNT(*)`，输出与预聚合表同构（`Polygon + record_count`），复用 `grid_heatmap` 样式。代码纯新增：`services/geoserver.py` 加 `_species_grid_payload`/`publish_species_grid_layer`（数值参数白名单校验：grid_size∈{1,0.5,0.25,0.1}、month 1–12、species_key 正整数，f-string 插值无注入面）；`routers/geoserver.py` 加 `SpeciesGridRequest` + 端点（写操作沿用 `X-API-Key`）。前端 `PublishLayerDialog` 加"数据源"双模式切换，选了物种默认实时聚合。另修一个前端真实 bug：`api/client.ts` 对象展开顺序颠倒导致带 `X-API-Key` 的 POST 丢失 `Content-Type` → FastAPI 判 422。
+- **验证**：✅ 已实测。发布 `species_key=2486131`(Pycnonotus cafer) 10 月 1.0° 图层，WMS GetMap 返回合法 PNG，网格集中在印度次大陆（与该种分布吻合）；WFS 计数与 `GET /stats/grid?species_key=2486131&month=10` 同源逐项对齐（348 格、record_count 合计 2739）；全年(month 缺省)路径合计 10515，等于该种总记录数。delete 路径对虚拟表同样有效，4 个测试图层已清理，GeoServer 仅余基础层 `occurrence_grid_monthly`。前后端 `npm run build` / 接口测试均通过。
+- **参考文档**：[api_reference.md](api_reference.md)（GeoServer 节）、[database_design.md](database_design.md)、[../frontend-docs/api_integration.md](../frontend-docs/api_integration.md)
+- **补充（同日，纯前端）**：图层面板补齐已发布图层的「显隐切换 + 删除」交互——显隐为前端 WMS 叠加（`store.displayedLayers`），删除调用 [004] 已批准的 `DELETE /geoserver/layers/{name}`（无新增后端）；默认层 `occurrence_grid_monthly` 受保护不可删。
+
+**审批意见**：
+
+> *(待开发者确认；发布/删除均为 GeoServer 侧幂等可回滚操作，不改 PostGIS 数据)*
+
+### [005] 重新导出全量数据库 dump（新增 occurrence_stats_monthly 预聚合表）
+
+- **提出时间**：2026-06-16
+- **提出方**：AI Agent（开发者直接要求"更新 deploy 文件夹"）
+- **类型**：数据操作（只读导出）/ 文件覆盖
+- **描述**：开发者反馈"改了数据库"，核查发现 `occurrence_stats_monthly` 表（图表预聚合，第 0edb17c 次提交新增，775,726 条）不在旧 dump 中；其余三表（`occurrence_clean` 3,997,847、`species_lookup` 9,807、`occurrence_grid_monthly` 90,061）行数与旧 dump 一致未变。`pg_dump -Fc` 只读全量导出覆盖 `deploy/dump/birdscope.dump`（307MB→327MB，不动现有数据库），同步更新 `deploy/README.md` 和 `deploy/dump/README.md` 的数据量说明。
+- **验证**：`pg_restore --list` 确认新 dump 含全部 5 张表的 TABLE DATA 段（含 occurrence_stats_monthly），未做实际 restore 测试。
+- **补充**：开发者要求"补上所有文档"后，已在 [database_design.md](database_design.md) 补齐 `occurrence_stats_monthly` 表结构、索引与聚合 SQL 说明；`data_pipeline.md`、`progress.md`、`api_reference.md`、`frontend-docs/` 此前两次提交（0edb17c、cfe6651）已同步更新，核查未发现遗漏。
+
+**审批意见**：
+
+> *(待开发者确认；导出为只读操作、不改动现有数据库，dump 可重新生成)*
+
 ### [004] 发布 GeoServer 图层 occurrence_grid_monthly（第三阶段）
 
 - **提出时间**：2026-06-14

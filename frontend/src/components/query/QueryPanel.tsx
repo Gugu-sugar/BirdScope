@@ -1,12 +1,12 @@
 import {
   CalendarDays,
   CircleDot,
+  Eraser,
   Loader2,
   MapPin,
   Pentagon,
   Play,
   Search,
-  SlidersHorizontal,
   Square,
   X
 } from "lucide-react";
@@ -33,15 +33,20 @@ export function QueryPanel() {
   const {
     selectedSpecies,
     setSelectedSpecies,
-    month,
-    setMonth,
+    queryMonths,
+    toggleQueryMonth,
     spatialMode,
     setSpatialMode,
     radiusKm,
     setRadiusKm,
     loading,
     runCurrentQuery,
-    clearResults
+    clearResults,
+    clearSpatialSelection,
+    bbox,
+    polygon,
+    buffer,
+    results
   } = useQueryStore();
   const [searchText, setSearchText] = useState("");
   const [speciesOptions, setSpeciesOptions] = useState<SpeciesItem[]>([]);
@@ -49,6 +54,8 @@ export function QueryPanel() {
   const [searchError, setSearchError] = useState<string | null>(null);
 
   const canClearSpecies = Boolean(selectedSpecies || searchText);
+  // 有选区或有查询结果（含未选范围的全球查询）时都可清空。
+  const hasSpatialSelection = Boolean(bbox || polygon || buffer || results);
 
   useEffect(() => {
     const keyword = searchText.trim();
@@ -110,23 +117,6 @@ export function QueryPanel() {
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[#fbfdf8]">
-      <div className="panel-header">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="section-kicker">Query Builder</p>
-            <h2 className="text-lg font-semibold tracking-tight text-slate-950">
-              查询条件
-            </h2>
-          </div>
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-emerald-900/10 bg-emerald-50 text-emerald-800">
-            <SlidersHorizontal className="h-4 w-4" />
-          </span>
-        </div>
-        <p className="mt-2 text-sm leading-5 text-slate-500">
-          按物种、月份和空间范围组合筛选观测记录。
-        </p>
-      </div>
-
       <div className="min-h-0 flex-1 space-y-5 overflow-auto p-4">
         <section className="field-group">
           <label
@@ -207,12 +197,12 @@ export function QueryPanel() {
             {MONTHS.map((option) => (
               <button
                 className={`month-button ${
-                  month === option
+                  queryMonths.includes(option)
                     ? "border-amber-500 bg-amber-100 text-amber-950 shadow-sm"
                     : "border-slate-200 bg-white text-slate-700 hover:border-amber-300 hover:bg-amber-50"
                 }`}
                 key={option}
-                onClick={() => setMonth(option)}
+                onClick={() => toggleQueryMonth(option)}
                 type="button"
               >
                 <span className="text-base font-semibold">{option}</span>
@@ -249,6 +239,17 @@ export function QueryPanel() {
               </button>
             ))}
           </div>
+          {hasSpatialSelection ? (
+            <button
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700"
+              onClick={clearSpatialSelection}
+              title="清空当前选区与查询结果"
+              type="button"
+            >
+              <Eraser className="h-4 w-4" />
+              清空选区
+            </button>
+          ) : null}
         </section>
 
         {spatialMode === "buffer" ? (
