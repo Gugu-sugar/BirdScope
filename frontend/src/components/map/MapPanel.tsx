@@ -2,6 +2,7 @@ import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { queryGrid } from "../../api/stats";
+import { adaptiveGridSize } from "../../lib/adaptiveGrid";
 import type { ActiveQuery } from "../../store/queryStore";
 import {
   type BasemapKey,
@@ -472,7 +473,9 @@ export function MapPanel({
       gridDsRef.current = null;
     };
 
-    if (!activeQuery || !layerVisibility.grid) {
+    // 粒度随查询范围自适应：范围越小越细；太小则返回 null = 只显示矢量点，不画网格。
+    const linkedGridSize = adaptiveGridSize(activeQuery?.bbox ?? [0, 0, 0, 0]);
+    if (!activeQuery || !layerVisibility.grid || linkedGridSize === null) {
       removeGrid();
       return;
     }
@@ -482,7 +485,7 @@ export function MapPanel({
 
     queryGrid({
       bbox: activeQuery.bbox,
-      gridSize,
+      gridSize: linkedGridSize,
       speciesKey: activeQuery.speciesKey,
       month: month ?? undefined,
       signal: controller.signal
@@ -516,7 +519,7 @@ export function MapPanel({
       cancelled = true;
       controller.abort();
     };
-  }, [activeQuery, gridSize, layerVisibility.grid, month]);
+  }, [activeQuery, layerVisibility.grid, month]);
 
   // 3. 交互绘图与结果点选中。
   useEffect(() => {
@@ -712,14 +715,15 @@ export function MapPanel({
     }
   }, [bbox, buffer, polygon, spatialMode]);
 
-  // 6. 选中点位：列表或地图点选都会飞到目标点。
+  // 6. 选中点位：列表或地图点选时，保持当前相机高度只做水平平移到目标点。
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer || viewer.isDestroyed() || !selectedFeature) return;
 
     const [lng, lat] = selectedFeature.geometry.coordinates;
+    const currentHeight = viewer.camera.positionCartographic.height;
     viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(lng, lat, 180_000),
+      destination: Cesium.Cartesian3.fromDegrees(lng, lat, currentHeight),
       duration: 0.8,
       orientation: TOP_DOWN_ORIENTATION
     });

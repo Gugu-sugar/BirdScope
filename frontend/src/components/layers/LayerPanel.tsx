@@ -187,7 +187,12 @@ export function LayerPanel({ refreshToken }: LayerPanelProps) {
         </section>
 
         <section>
-          <h3 className="text-sm font-semibold text-slate-900">网格粒度</h3>
+          <h3 className="text-sm font-semibold text-slate-900">
+            全球 WMS 粒度
+          </h3>
+          <p className="mt-1 text-xs text-slate-500">
+            仅作用于「全球 WMS」预聚合层；查询后的联动热力按查询范围自动选粒度。
+          </p>
           <div className="mt-2 grid grid-cols-2 gap-2">
             {GRID_SIZE_OPTIONS.map((option) => (
               <button

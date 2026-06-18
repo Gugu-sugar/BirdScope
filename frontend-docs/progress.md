@@ -1,6 +1,6 @@
 # BirdScope 前端开发进展
 
-> 最后更新：2026-06-17
+> 最后更新：2026-06-18
 
 ## 状态
 
@@ -50,6 +50,7 @@
 - **发布弹窗按物种发布（方案 B）**：`PublishLayerDialog` 加「数据源」双模式——预聚合·全物种（原 `POST /geoserver/layers`）/ 实时聚合·当前物种（新 `POST /geoserver/species-grid`）。选了物种打开弹窗默认实时聚合模式，未选物种该模式禁用并提示；发布参数面板分模式展示，图层名实时聚合带 `sp{species_key}` 前缀；`month=null`（全年）正确不拼月份过滤。
 - **修复 `api/client.ts` 带头 POST 报 422 的真实 bug**：对象展开顺序颠倒（`...options` 在 `headers` 之后）导致自定义头覆盖整个 `headers`、丢失 `Content-Type: application/json`，发布/删除/改样式等带 `X-API-Key` 的 POST 全部被 FastAPI 判 422；改为 `options` 先展开、`headers` 后合并。顺带让 `requestJson` 能解析 FastAPI 422 校验数组 `detail`。
 - **已发布图层显隐切换 + 删除**：图层面板列表每个非默认图层加 👁 显隐（切 `store.displayedLayers`，`MapPanel` 据此增删静态 WMS 叠加层，不带 CQL）与 🗑 删除（`confirm` → `deleteGeoServerLayer` → 清叠加 + 刷新列表）。默认层 `occurrence_grid_monthly` 标「默认」🔒 受保护、不可删除、不提供静态叠加开关（它走「全球 WMS」动态 CQL）。`X-API-Key` 取 `VITE_GEOSERVER_API_KEY`。详见 [api_integration.md](api_integration.md)。
+- **联动热力粒度自适应**：查询后的 `/stats/grid` 热力不再用面板手选粒度，改为按查询范围外接框面积自动选档（`lib/adaptiveGrid.ts`）：>4000→1°、300–4000→0.5°（预聚合）、60–300→0.25°、6–60→0.1°（实时），≤6 平方度只显示矢量点不画网格。实测各档 ≤440ms。面板「网格粒度」改名「全球 WMS 粒度」（只控全球 WMS 层）；信息卡新增「热力粒度」行。阈值标定数据见 [api_integration.md](api_integration.md)。
 
 ## 查询联动
 

@@ -76,14 +76,42 @@ if ($pgSvc) {
     if ($pgSvc.Status -eq "Running") {
         Write-Status "PostgreSQL" "OK" "service $($pgSvc.Name)"
     } else {
-        Write-Status "PostgreSQL" "FAIL" "service $($pgSvc.Name) is $($pgSvc.Status)"
+        Write-Status "PostgreSQL" "WARN" "service $($pgSvc.Name) is $($pgSvc.Status) -- attempting start"
+        try {
+            Start-Service -Name $pgSvc.Name -ErrorAction Stop
+            Start-Sleep 3
+            $pgSvc.Refresh()
+            if ($pgSvc.Status -eq "Running") {
+                Write-Status "PostgreSQL" "OK" "service $($pgSvc.Name) started"
+            } else {
+                Write-Status "PostgreSQL" "WARN" "still $($pgSvc.Status) -- trying elevated start"
+                Start-Process cmd -ArgumentList "/c net start $($pgSvc.Name)" -Verb RunAs -Wait
+                Start-Sleep 3
+                $pgSvc.Refresh()
+                if ($pgSvc.Status -eq "Running") {
+                    Write-Status "PostgreSQL" "OK" "service started (elevated)"
+                } else {
+                    Write-Status "PostgreSQL" "FAIL" "could not start -- check Windows Event Log"
+                }
+            }
+        } catch {
+            Write-Status "PostgreSQL" "WARN" "permission denied -- trying elevated start"
+            Start-Process cmd -ArgumentList "/c net start $($pgSvc.Name)" -Verb RunAs -Wait
+            Start-Sleep 3
+            $pgSvc.Refresh()
+            if ($pgSvc.Status -eq "Running") {
+                Write-Status "PostgreSQL" "OK" "service started (elevated)"
+            } else {
+                Write-Status "PostgreSQL" "FAIL" "could not start -- check Windows Event Log"
+            }
+        }
     }
 } else {
     $pgOk = Test-NetConnection localhost -Port 5432 -InformationLevel Quiet -WarningAction SilentlyContinue 2>$null
     if ($pgOk) {
         Write-Status "PostgreSQL" "OK" "port 5432 reachable"
     } else {
-        Write-Status "PostgreSQL" "FAIL" "port 5432 unreachable -- start PostgreSQL first"
+        Write-Status "PostgreSQL" "FAIL" "port 5432 unreachable and no postgresql* service found"
     }
 }
 

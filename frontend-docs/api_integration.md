@@ -1,6 +1,6 @@
 # BirdScope 前端 API 联调说明
 
-> 最后更新：2026-06-17
+> 最后更新：2026-06-18
 > 后端完整接口见：`../backend-docs/api_reference.md`
 
 ## API 客户端
@@ -90,10 +90,29 @@ queryOccurrenceBuffer({
 
 发送到后端时 `radiusKm` 转为 `radius_km`；后端返回点已 `ORDER BY random()` 均匀抽样，覆盖整个选区。
 
+## 联动热力图粒度自适应
+
+查询后联动热力（`/stats/grid`）的网格粒度**不再由面板手选**，而是按 `activeQuery.bbox`
+外接框面积自动选档（`lib/adaptiveGrid.ts` 的 `adaptiveGridSize`）：范围越小粒度越细，
+小到一定程度只显示矢量点、不画网格。
+
+| 范围面积（平方度） | 粒度 | 数据路径 | 实测耗时 |
+|---|---|---|---|
+| > 4000（洲级/全球） | 1.0° | 预聚合 | ~440ms |
+| 300–4000（国家级） | 0.5° | 预聚合 | ~60ms |
+| 60–300（区域/省级） | 0.25° | 实时聚合 | ~140–200ms |
+| 6–60（市域） | 0.1° | 实时聚合 | ~80ms |
+| ≤ 6（本地/街道级） | — | 仅矢量点 | — |
+
+- 阈值结合实测标定：耗时主要由「范围×密度」决定，大范围走预聚合避免全表扫描，中小范围实时聚合已足够快且避开 `max_cells=10000` 截断。
+- 「当前地图上下文」卡片新增「热力粒度」行显示当前档位或「本地 · 仅点位」。
+- LayerPanel 的「全球 WMS 粒度」（1°/0.5°）只作用于远景预渲染的全球 WMS 层，与联动热力的自适应粒度互不相关。
+- 颜色断点（`gridCellColor`）仍按 1.0° 分布标定，细粒度下每格计数偏小、整体偏浅属预期。
+
 ## 图表与网格联动
 
 - `queryStore.activeQuery` 是执行查询时的快照：`{ speciesKey, speciesName, bbox }`。
-- `/stats/grid`：使用 `activeQuery.bbox`、`activeQuery.speciesKey`、实时 `month`、实时 `gridSize`。
+- `/stats/grid`：使用 `activeQuery.bbox`、`activeQuery.speciesKey`、实时 `month`，**粒度按查询范围自适应**（见下）。
 - `/stats/monthly`：使用 `species_key` + `bbox`，用于跨月趋势，月份本身不作为过滤。
 - `/stats/province`：使用 `species_key` + `month` + `bbox`。
 - `/species/rank`：使用 `month` + `bbox`；排行是跨物种 top-N，不传单物种过滤。

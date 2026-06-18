@@ -9,12 +9,14 @@ import {
   type LucideIcon
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import logoUrl from "../assets/logo.png";
 import { InsightPanel } from "../components/charts/InsightPanel";
 import { LayerPanel } from "../components/layers/LayerPanel";
 import { PublishLayerDialog } from "../components/layers/PublishLayerDialog";
 import { MapPanel } from "../components/map/MapPanel";
 import { QueryPanel } from "../components/query/QueryPanel";
 import { ResultList } from "../components/query/ResultList";
+import { describeLinkedGrid } from "../lib/adaptiveGrid";
 import { useQueryStore, type ActiveQuery } from "../store/queryStore";
 import type { OccurrenceFeature } from "../types/api";
 import type { Bbox, BufferSelection, GeoJsonPolygon, LngLat, SpatialMode } from "../types/geo";
@@ -131,9 +133,11 @@ export function MapQueryPage() {
       <header className="relative z-30 shrink-0 border-b border-emerald-950/10 bg-[#f8fbf6]/92 px-4 py-2 shadow-[0_1px_0_rgba(15,23,42,0.04)] backdrop-blur md:px-6">
         <div className="mx-auto flex w-full max-w-[1920px] items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-emerald-900/15 bg-[#102f2b] text-sm font-semibold text-lime-200 shadow-sm">
-              BS
-            </div>
+            <img
+              src={logoUrl}
+              alt="BirdScope"
+              className="mt-1 h-10 w-10 shrink-0 self-start object-contain"
+            />
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase text-emerald-700">
                 BirdScope Migration Observatory
@@ -338,6 +342,12 @@ function FloatingInfoCard({
         <InfoRow
           label="物种"
           value={activeQuery?.speciesName ?? "全部物种"}
+        />
+        <InfoRow
+          label="热力粒度"
+          value={
+            activeQuery ? describeLinkedGrid(activeQuery.bbox) : "等待查询"
+          }
         />
         <InfoRow
           label="选中"
