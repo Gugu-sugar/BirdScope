@@ -31,8 +31,6 @@ backend/data/
 # 例外：test_data 下的小样本文件需要提交
 !backend/test_data/dev_sample.tsv
 !backend/test_data/dev_sample_info.md
-!backend/test_data/sample_summary.json
-!backend/test_data/数据概况.md
 
 # ── IDE / OS ─────────────────────────────────────────────
 .idea/

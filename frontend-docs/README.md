@@ -1,6 +1,6 @@
 # BirdScope 前端文档
 
-> 最后更新：2026-06-18
+> 最后更新：2026-06-27
 
 前端位于 `frontend/`，技术栈为 Vite + React 19 + TypeScript + Tailwind CSS + Cesium + ECharts。
 
@@ -32,6 +32,6 @@
 - [dev_plan.md](dev_plan.md)：本地启动与冒烟
 - [api_integration.md](api_integration.md)：接口契约
 - [rules_and_conventions.md](rules_and_conventions.md)：开发规范
-- [progress.md](progress.md)：当前进度和阻塞项
-- [improvement_backlog.md](improvement_backlog.md)：两轮联调反馈的待解决问题、决策与分批实施路线
+- [progress.md](progress.md)：完成情况与验收自测清单
+- [archive/](archive/)：过程性文档归档（分批整合流水、联调反馈 backlog、评审记录）
 
