@@ -31,15 +31,23 @@ backend/
 │       ├── spatial.py        # 空间查询 SQL 封装
 │       └── geoserver.py      # GeoServer REST API 客户端
 ├── scripts/
-│   ├── init_db.sql           # DDL：建表、索引（幂等）
-│   ├── prepare_global.py     # 15GB TSV → 空间降采样 → 清洗 TSV（流式）
-│   ├── import_to_pg.py       # 批量写入 occurrence_clean + species_lookup
-│   └── build_grid.py         # 生成 occurrence_grid_monthly 聚合表
+│   ├── init_db.sql              # DDL：建表、索引（幂等）
+│   ├── prepare_global.py        # 全球 15GB TSV → 空间降采样 → 清洗 TSV（流式）
+│   ├── prepare_north_america.py # 北美 21.8GB TSV → 分层降采样
+│   ├── prepare_sample.py        # 生成开发用小样本
+│   ├── import_to_pg.py          # 批量写入 occurrence_clean + species_lookup
+│   ├── import_sample.py         # 导入 test_data 小样本
+│   ├── build_grid.py            # 生成 occurrence_grid_monthly 预聚合网格
+│   ├── build_stats.py           # 生成 occurrence_stats_monthly 图表事实表
+│   └── setup_geoserver.py       # 一键发布 GeoServer workspace/datastore/样式/图层
+├── styles/
+│   └── grid_heatmap.sld         # 热力图 SLD 样式（7 级 YlOrRd）
 ├── test_data/
-│   ├── dev_sample.tsv        # 2000行全球样本，当前主要测试数据
-│   └── dev_sample_info.md    # 测试数据说明
+│   ├── dev_sample.tsv           # 2000 行全球样本，开发测试数据
+│   └── dev_sample_info.md       # 测试数据说明
 ├── tests/
-│   └── test_app.py           # health/OpenAPI/GeoServer 鉴权冒烟测试
+│   ├── test_app.py              # health/OpenAPI/GeoServer 鉴权冒烟测试
+│   └── test_chart_scenarios.py  # 图表四接口真实 DB 端到端情景测试
 ├── ../deploy/                # 数据库 dump 与可选 Docker 交付配置
 ├── .env                      # 本机配置（不提交 git）
 ├── .env.example              # 配置模板（提交 git）

@@ -101,7 +101,7 @@
 **审批意见**：
 
 > 开发者：先 TRUNCATE 清空再导入；以后端/WebGIS 视角评估数据策略，确认口径一致、方案可行、不影响未来功能后可执行。
-> Agent：已出具 [评估报告](assessments/2026-06-11_backend_webgis_data_strategy.md)，三项条件通过。**已执行完成**——降采样 399.8 万条，导入 `occurrence_clean` 3,997,847 条、`species_lookup` 9,807 物种、`occurrence_grid_monthly`(1.0°) 26,339 单元，导入后校验通过。
+> Agent：已出具 [评估报告](archive/2026-06-11_backend_webgis_data_strategy.md)，三项条件通过。**已执行完成**——降采样 399.8 万条，导入 `occurrence_clean` 3,997,847 条、`species_lookup` 9,807 物种、`occurrence_grid_monthly`(1.0°) 26,339 单元，导入后校验通过。
 
 ### [001] 删除 test_data 中的三个旧文件
 
